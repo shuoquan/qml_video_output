@@ -14,6 +14,29 @@ Window {
         video.source = videoSrc
     }
 
+    property int imageIdx: 1
+
+    function addImageToBottom() {
+        const time = new Date().getFullYear().toString() +
+                   '-' +
+                   (new Date().getMonth() + 1).toString().padStart(2, '0') +
+                   '-' +
+                   new Date().getDate().toString().padStart(2, '0') +
+                   ',' +
+                   new Date().getHours().toString().padStart(2, '0') +
+                   ':' +
+                   new Date().getMinutes().toString().padStart(2, '0') +
+                   ':' +
+                   new Date().getSeconds().toString().padStart(2, '0');
+        imageModel.append({'imageIdx': imageIdx, 'time': time, 'mainViewSrc': './images/demo.jpg', 'sideViewSrc': './images/demo.jpg'})
+//                    imageModel.sync()
+        imageIdx += 1
+        console.log("abc", imageModel.count)
+        while (imageModel.count > 5) {
+            imageModel.remove(0)
+        }
+    }
+
     Rectangle {
         id: outer
         anchors.fill: parent
@@ -35,6 +58,8 @@ Window {
             Column {
                 id: column
                 spacing: 10
+//                width: parent.width
+//                height: parent.height
                 anchors.fill: parent // 注意
 
                  ListModel {
@@ -141,6 +166,15 @@ Window {
                      anchors.fill: parent
                      model: imageModel
                      delegate: imageDelegate
+                     onContentYChanged: {
+                         console.log(contentY, contentHeight, height, 'ddd')
+                         if (contentY === contentHeight - height) {
+                             addImageToBottom()
+                         }
+                         if (contentY >= 1520 && (contentY - 1520) % 370 === 0) {
+                             addImageToBottom()
+                         }
+                     }
                  }
             }
         }
@@ -205,20 +239,19 @@ Window {
                 // anchors.verticalCenter: parent.verticalCenter
                 anchors.centerIn: parent
                 fillMode: VideoOutput.PreserveAspectFit
-                //source: camera
+//                source: camera
                 focus : visible // to receive focus and capture key events when visible
             }
+
+//            Camera {
+//                id: camera
+//            }
 
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
                     videoSrc.startPlay()
-                    imageModel.append({'imageIdx': parseInt(Math.random() * 10).toString(), 'time': '2022-09-23, 08:19:05', 'mainViewSrc': './images/demo.jpg', 'sideViewSrc': './images/demo.jpg'})
-//                    imageModel.sync()
-                    console.log("abc", imageModel.count)
-                    while (imageModel.count > 5) {
-                        imageModel.remove(0)
-                    }
+                    addImageToBottom()
 
 //                    fruitModel.append({"cost": 5.95, "name":"Pizza"})
 //                    console.log(fruitModel)

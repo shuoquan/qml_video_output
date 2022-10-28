@@ -17,10 +17,13 @@ Center::~Center()
 void Center::OpenYuv()
 {
     m_pYuvFile = fopen("F:/bee.yuv", "rb");
+//    m_pYuvFile = fopen("H:/frame/0.yuv", "rb");
+//    m_pYuvFile = fopen("H:/frame/0.jpg", "rb");
     m_nVideoW = DEFAULT_PIX_WIDTH;
     m_nVideoH = DEFAULT_PIX_HEIGHT;
 
     nLen = m_nVideoW*m_nVideoH*3/2;
+//    nLen = m_nVideoW*m_nVideoH;
     if(nullptr == m_pBufYuv420p) {
         m_pBufYuv420p = new unsigned char[nLen];
         qDebug("CPlayWidget::PlayOneFrame new data memory. Len=%d width=%d height=%d\n",
