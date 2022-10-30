@@ -2,16 +2,18 @@ import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtMultimedia 5.14
 import QtQuick.Controls 2.15
+import VideoAdapter 1.0
 
 Window {
-    minimumWidth: 1200
-    minimumHeight: 720
-    maximumWidth: 1200
-    maximumHeight: 720
+    minimumWidth: 640
+    minimumHeight: 360
+//    maximumWidth: 1200
+//    maximumHeight: 720
     visible: true
 
     Component.onCompleted: {
-        video.source = videoSrc
+//        video.source = videoSrc
+        console.log(screen.width, 'aa')
     }
 
     property int imageIdx: 1
@@ -46,7 +48,8 @@ Window {
             anchors.left: outer.left
             anchors.top: outer.top
             height: parent.height - 20
-            width: 800 - 10
+            width: parent.width * 2 / 3 - 10
+//            width: 800 - 10
             //            color: 'green'
             anchors.leftMargin: 10
             anchors.topMargin: 10
@@ -69,8 +72,10 @@ Window {
                      id: imageDelegate
 
                      Rectangle {
-                         height: 370
-                         width: 790
+//                         height: 370
+//                         width: 790
+                         height: parent.width / 2
+                         width: parent.width
                          color: '#ffffff'
                          //                    anchors.margins: 10
                          Rectangle {
@@ -82,17 +87,20 @@ Window {
                              anchors.topMargin: 10
                              //                            color: 'red'
                              width: parent.width - 40
-                             height: 80
+//                             height: 80
+                             height:  (parent.width - 40) / 8
                              Text {
                                  text: imageIdx
-                                 font.pixelSize: 30
+//                                 font.pixelSize: 30
+                                 font.pixelSize: (parent.width - 40) / 24
                                  font.bold: true
                                  anchors.left: parent.left
                                  anchors.verticalCenter: parent.verticalCenter
                              }
                              Text {
                                  text: time
-                                 font.pixelSize: 20
+//                                 font.pixelSize: 20
+                                 font.pixelSize: (parent.width - 40) / 36
                                  font.bold: true
                                  anchors.verticalCenter: parent.verticalCenter
                                  anchors.left: parent.left
@@ -100,7 +108,8 @@ Window {
                              }
                              Button {
                                  text: '开包检查'
-                                 font.pixelSize: 18
+//                                 font.pixelSize: 18
+                                 font.pixelSize: (parent.width - 40) / 40
                                  font.bold: true
                                  anchors.verticalCenter: parent.verticalCenter
                                  //                                width: 100
@@ -108,8 +117,10 @@ Window {
                                  anchors.right: parent.right
                                  anchors.rightMargin: 20
                                  background: Rectangle {
-                                     implicitWidth: 100
-                                     implicitHeight: 40
+//                                     implicitWidth: 100
+//                                     implicitHeight: 40
+                                     implicitWidth: (parent.width - 40) / 7
+                                     implicitHeight: (parent.width - 40) / 18
                                      border.color: '#293351'
                                      border.width: 2
                                      radius: 4
@@ -117,6 +128,7 @@ Window {
                              }
                          }
                          Rectangle {
+                             id: imageArea
                              anchors.right: parent.right
                              anchors.left: parent.left
                              anchors.bottom: parent.bottom
@@ -125,18 +137,23 @@ Window {
                              anchors.bottomMargin: 10
                              //                            color: 'red'
                              width: parent.width - 40
-                             height: 250
+//                             height: 250
+                             height: (parent.width - 40) / 3
                              Row {
                                  spacing: 10
                                  Rectangle {
-                                     width: 364
-                                     height: 254
+//                                     width: 364
+//                                     height: 254
+                                     width: (imageArea.width - 30) / 2 + 4
+                                     height: (imageArea.width - 30) / 3 + 4
                                      border.color: '#f7f7f7'
                                      border.width: 2
                                      radius: 2
                                      Image {
-                                         width: 360
-                                         height: 250
+//                                         width: 360
+//                                         height: 250
+                                         width: (imageArea.width - 30) / 2
+                                         height: (imageArea.width - 30) / 3
                                          source: mainViewSrc
                                          fillMode: Image.PreserveAspectFit
                                          anchors.centerIn: parent
@@ -144,14 +161,18 @@ Window {
                                  }
 
                                  Rectangle {
-                                     width: 364
-                                     height: 254
+//                                     width: 364
+//                                     height: 254
+                                     width: (imageArea.width - 30) / 2 + 4
+                                     height: (imageArea.width - 30) / 3 + 4
                                      border.color: '#f7f7f7'
                                      border.width: 2
                                      radius: 2
                                      Image {
-                                         width: 360
-                                         height: 250
+//                                         width: 360
+//                                         height: 250
+                                         width: (imageArea.width - 30) / 2
+                                         height: (imageArea.width - 30) / 3
                                          source: sideViewSrc
                                          fillMode: Image.PreserveAspectFit
                                          anchors.centerIn: parent
@@ -182,7 +203,8 @@ Window {
         Rectangle {
             id: rightBox
             height: parent.height - 20
-            width: 400 - 20
+//            width: 400 - 20
+            width: (parent.width) / 3 - 20
 //            color: 'yellow'
             anchors.left: leftBox.right
             anchors.top: outer.top
@@ -241,6 +263,19 @@ Window {
                 fillMode: VideoOutput.PreserveAspectFit
 //                source: camera
                 focus : visible // to receive focus and capture key events when visible
+                source: provider
+            }
+
+//            MediaPlayer {
+//                    id: videoPlayer
+//                    source: "rtmp://192.168.133.128:1935/live/test"
+//                    muted: true
+//                    autoPlay: true
+//              }
+
+            VideoAdapter {
+                id: provider
+                source: "rtmp://192.168.133.128:1935/live/test"
             }
 
 //            Camera {
