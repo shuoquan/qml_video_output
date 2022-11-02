@@ -23,6 +23,7 @@ class Center : public QObject
 public:
     AVFormatContext* format_context;
     AVFormatContext* out_format_context;
+    unsigned char *yuv420p_data;
     AVPacket* packet;
     AVFrame* videoFrame;
     int video_frame_size;
