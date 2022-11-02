@@ -27,3 +27,19 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     center.h \
     videoadapter.h
+
+INCLUDEPATH += E:/opencv/opencv/build/include
+INCLUDEPATH += E:/opencv/opencv/build/include/opencv2
+
+INCLUDEPATH += E:/ffmpeg/ffmpeg-5.0.1-full_build-shared/include
+
+LIBS += E:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/avdevice.lib \
+        E:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/avfilter.lib \
+        E:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/avformat.lib \
+        E:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/avutil.lib \
+        E:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/avcodec.lib \
+        E:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/postproc.lib \
+        E:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/swresample.lib \
+        E:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/swscale.lib \
+
+#QMAKE_LFLAGS = "-lavformat"

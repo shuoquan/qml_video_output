@@ -12,7 +12,7 @@ Window {
     visible: true
 
     Component.onCompleted: {
-//        video.source = videoSrc
+        video.source = videoSrc
         console.log(screen.width, 'aa')
     }
 
@@ -263,8 +263,9 @@ Window {
                 fillMode: VideoOutput.PreserveAspectFit
 //                source: camera
                 focus : visible // to receive focus and capture key events when visible
-                source: provider
+//                source: provider
             }
+
 
 //            MediaPlayer {
 //                    id: videoPlayer
@@ -273,10 +274,10 @@ Window {
 //                    autoPlay: true
 //              }
 
-            VideoAdapter {
-                id: provider
-                source: "rtmp://192.168.133.128:1935/live/test"
-            }
+//            VideoAdapter {
+//                id: provider
+//                source: "rtmp://192.168.133.128:1935/live/test"
+//            }
 
 //            Camera {
 //                id: camera
@@ -286,7 +287,7 @@ Window {
                 anchors.fill: parent
                 onClicked: {
                     videoSrc.startPlay()
-                    addImageToBottom()
+//                    addImageToBottom()
 
 //                    fruitModel.append({"cost": 5.95, "name":"Pizza"})
 //                    console.log(fruitModel)
