@@ -25,17 +25,68 @@ extern "C"
 
 Center::Center(QObject *parent) : QObject(parent)
 {
-    //    timer = new QTimer(this);
-    //    connect(timer, &QTimer::timeout, this, &Center::TimeOutSlot);
-    this->format_context = avformat_alloc_context();
-    this->format_context->interrupt_callback.callback = custom_interrupt_callback;
-    this->format_context->interrupt_callback.opaque = this;
-    packet = av_packet_alloc();
-    videoFrame = av_frame_alloc();
-    video_frame_size = 0;
-    audio_frame_size = 0;
-    video_frame_count = 0;
-    audio_frame_count = 0;
+    timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, &Center::TimeOutSlot);
+    //    this->format_context = avformat_alloc_context();
+    //    this->format_context->interrupt_callback.callback = custom_interrupt_callback;
+    //    this->format_context->interrupt_callback.opaque = this;
+    //    packet = av_packet_alloc();
+    //    videoFrame = av_frame_alloc();
+    //    video_frame_size = 0;
+    //    audio_frame_size = 0;
+    //    video_frame_count = 0;
+    //    audio_frame_count = 0;
+
+
+    server = new QTcpServer(this);//创建一个服务器对象
+    server->listen(QHostAddress::Any, 1234); //开始监听网络地址以及端口号
+    int size = 0;
+    QByteArray byteArr;
+    //当server检测到有socket申请连接并且连接成功的时候，会发出newConnection信号并且执行下面的逻辑
+    connect(server, &QTcpServer::newConnection, this, [=]() mutable {
+        socket = server->nextPendingConnection(); //得到一个用于通信的套接字对象
+        qDebug() << "新连接";
+        byteArr.resize(0);
+        //往客户段中发送信息
+        //        socket->write("server");//socket的write方法其实是有几个重载方法的，如果为了方便，可以直接用QString类型的变量作为参数。
+        //当有数据可以接受，socket对象发出信号readyRead
+        connect(socket, &QTcpSocket::readyRead, this, [=]() mutable
+                {
+                    //                    socket->readBufferSize()
+                    QByteArray msg = socket->readAll();
+                    byteArr.append(msg);
+//                    QString data = msg.data();//读取客户端传来的数据
+//                    socket->read()
+                    //                    qDebug() << "客户端传来的数据" << data;
+//                    qDebug() << "长度" << data.size() << msg.size();
+//                    qDebug() << "长度" << msg.size();
+//                    qDebug() << data;
+                    size += msg.size();
+//                    totalData += data;
+                    if (size >= 1382400) {
+                        qDebug() << "真实长度" << size;
+//                        totalData.resize(1382400);
+
+//                        QByteArray arr = totalData.toLatin1();
+//                        qDebug() << arr.size();
+                        unsigned char *str = (unsigned char*)byteArr.data();
+                        byteArr.resize(0);
+                        emit updateImgSig(str);
+                        size = 0;
+//                        totalData = "";
+                    }
+                    qDebug() << "长度--" << size;
+
+                });
+
+        //断开连接
+        connect(socket, &QTcpSocket::disconnected, this, [=]()
+                {
+                    socket->close();
+                    socket->deleteLater();//释放指向的内存
+                    qDebug() << "结束服务器";
+                });
+    });//server对象检测到有socket对象申请连接的时候，会调用listenNews方法
 }
 
 Center::~Center()
@@ -44,7 +95,8 @@ Center::~Center()
 
 void Center::OpenYuv()
 {
-    m_pYuvFile = fopen("F:/bee.yuv", "rb");
+    //    m_pYuvFile = fopen("F:/bee.yuv", "rb");
+    m_pYuvFile = fopen("H:/video-frame.yuv", "rb");
     //    m_pYuvFile = fopen("H:/frame/0.yuv", "rb");
     //    m_pYuvFile = fopen("H:/frame/0.jpg", "rb");
     m_nVideoW = DEFAULT_PIX_WIDTH;
@@ -193,7 +245,7 @@ bool Center::Decode(const char* rtmpUrl) {
             video_frame_size += packet->size;
             //            printf("recv %5d video frame %5d-%5d\n", ++video_frame_count, packet->size, video_frame_size);
             qDebug() << "视频包大小" << packet->size;
-            const AVCodec *codec = avcodec_find_decoder(format_context->streams[video_stream_index]->codecpar->codec_id);
+                const AVCodec *codec = avcodec_find_decoder(format_context->streams[video_stream_index]->codecpar->codec_id);
             //        AVStream *out_stream = avformat_new_stream(out_format_context, codec);
 
             //创建解码器对应的结构体
@@ -206,14 +258,14 @@ bool Center::Decode(const char* rtmpUrl) {
             }
             re = avcodec_send_packet(codec_ctx, packet);
             qDebug() << "结果" << re;
-            if (re != 0)
+                if (re != 0)
             {
                 av_packet_unref(packet);//不成功就释放这个pkt
                 continue;
             }
             re = avcodec_receive_frame(codec_ctx, yuv420p_pFrame);//接受后对视频帧进行解码
-             qDebug() << "结果--" << re;
-            if (re != 0)
+            qDebug() << "结果--" << re;
+                if (re != 0)
             {
                 av_packet_unref(packet);//不成功就释放这个pkt
                 continue;
@@ -235,14 +287,14 @@ bool Center::Decode(const char* rtmpUrl) {
         //                printf("av_interleaved_write_frame failed\n");
         //                break;
         //            }
-//        ret = avcodec_send_packet(codec_ctx, packet);
-//        qDebug() << "beforextendData-----" << ret;
-//        while (ret > 0) {
-//            ret = avcodec_receive_frame(codec_ctx, videoFrame);
-//            qDebug() << "extendData-----" << ret;
-//            if (ret < 0) break;
-//            qDebug() << "extendData" << **videoFrame->extended_data;
-//        }
+        //        ret = avcodec_send_packet(codec_ctx, packet);
+        //        qDebug() << "beforextendData-----" << ret;
+        //        while (ret > 0) {
+        //            ret = avcodec_receive_frame(codec_ctx, videoFrame);
+        //            qDebug() << "extendData-----" << ret;
+        //            if (ret < 0) break;
+        //            qDebug() << "extendData" << **videoFrame->extended_data;
+        //        }
         av_packet_unref(packet);
     }
 

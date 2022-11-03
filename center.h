@@ -2,6 +2,9 @@
 #include <QTime>
 #include <QTimer>
 #include <QDebug>
+#include <qtcpserver.h>
+#include <qtcpsocket.h>
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -21,6 +24,8 @@ class Center : public QObject
 {
     Q_OBJECT
 public:
+    QTcpServer* server; // 服务器对象
+    QTcpSocket* socket;//与客户端进行发送接受信息对象
     AVFormatContext* format_context;
     AVFormatContext* out_format_context;
     unsigned char *yuv420p_data;

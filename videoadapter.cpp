@@ -49,8 +49,8 @@ void VideoAdapter::setVideoSurfaceFormat(int &nWidth, int &nHeight, QVideoFrame:
 
 void VideoAdapter::startPlay()
 {
-//    pCenter->OpenYuv();
-    pCenter->Decode("rtmp://192.168.40.128:1935/live/test");
+    pCenter->OpenYuv();
+//    pCenter->Decode("rtmp://192.168.40.128:1935/live/test");
 }
 
 void VideoAdapter::updateVideoData(uchar *oneFrameData)
