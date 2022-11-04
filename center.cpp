@@ -39,7 +39,7 @@ Center::Center(QObject *parent) : QObject(parent)
 
 
     server = new QTcpServer(this);//创建一个服务器对象
-    server->listen(QHostAddress::Any, 1234); //开始监听网络地址以及端口号
+    server->listen(QHostAddress::Any, 9527); //开始监听网络地址以及端口号
     int size = 0;
     QByteArray byteArr;
     //当server检测到有socket申请连接并且连接成功的时候，会发出newConnection信号并且执行下面的逻辑
@@ -63,7 +63,8 @@ Center::Center(QObject *parent) : QObject(parent)
 //                    qDebug() << data;
                     size += msg.size();
 //                    totalData += data;
-                    if (size >= 1382400) {
+                    // 1382400
+                    if (size >= 345600) {
                         qDebug() << "真实长度" << size;
 //                        totalData.resize(1382400);
 
@@ -75,7 +76,7 @@ Center::Center(QObject *parent) : QObject(parent)
                         size = 0;
 //                        totalData = "";
                     }
-                    qDebug() << "长度--" << size;
+//                    qDebug() << "长度--" << size;
 
                 });
 
