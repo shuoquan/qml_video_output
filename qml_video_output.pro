@@ -29,8 +29,11 @@ HEADERS += \
     center.h \
     videoadapter.h
 
-INCLUDEPATH += E:/opencv/opencv/build/include
-INCLUDEPATH += E:/opencv/opencv/build/include/opencv2
+#INCLUDEPATH += E:/opencv/opencv/build/include
+#INCLUDEPATH += E:/opencv/opencv/build/include/opencv2
+
+INCLUDEPATH += E:/opencv/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/include
+INCLUDEPATH += E:/opencv/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/include/opencv2
 
 INCLUDEPATH += E:/ffmpeg/ffmpeg-5.0.1-full_build-shared/include
 
@@ -42,5 +45,7 @@ LIBS += E:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/avdevice.lib \
         E:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/postproc.lib \
         E:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/swresample.lib \
         E:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/swscale.lib \
+        E:/opencv/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/x64/mingw/bin/libopencv_*.dll \
 
+#E:\opencv\opencv\build\x64\vc14\lib\opencv_*.lib \
 #QMAKE_LFLAGS = "-lavformat"

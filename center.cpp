@@ -1,6 +1,8 @@
-#include "center.h"
+﻿#include "center.h"
 #include <QDebug>
 #include <exception>
+#include <QFile>
+#include <QDataStream>
 
 #ifdef __cplusplus
 extern "C"
@@ -20,8 +22,8 @@ extern "C"
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
 
-#define DEFAULT_PIX_WIDTH   1280
-#define DEFAULT_PIX_HEIGHT  720
+#define DEFAULT_PIX_WIDTH   640
+#define DEFAULT_PIX_HEIGHT  360
 
 Center::Center(QObject *parent) : QObject(parent)
 {
@@ -39,8 +41,9 @@ Center::Center(QObject *parent) : QObject(parent)
 
 
     server = new QTcpServer(this);//创建一个服务器对象
-    server->listen(QHostAddress::Any, 1234); //开始监听网络地址以及端口号
+    server->listen(QHostAddress::Any, 9527); //开始监听网络地址以及端口号
     int size = 0;
+    int fileSize = 0;
     QByteArray byteArr;
     //当server检测到有socket申请连接并且连接成功的时候，会发出newConnection信号并且执行下面的逻辑
     connect(server, &QTcpServer::newConnection, this, [=]() mutable {
@@ -54,28 +57,64 @@ Center::Center(QObject *parent) : QObject(parent)
                 {
                     //                    socket->readBufferSize()
                     QByteArray msg = socket->readAll();
-                    byteArr.append(msg);
-//                    QString data = msg.data();//读取客户端传来的数据
-//                    socket->read()
-                    //                    qDebug() << "客户端传来的数据" << data;
-//                    qDebug() << "长度" << data.size() << msg.size();
-//                    qDebug() << "长度" << msg.size();
-//                    qDebug() << data;
-                    size += msg.size();
-//                    totalData += data;
-                    if (size >= 1382400) {
-                        qDebug() << "真实长度" << size;
-//                        totalData.resize(1382400);
-
-//                        QByteArray arr = totalData.toLatin1();
-//                        qDebug() << arr.size();
-                        unsigned char *str = (unsigned char*)byteArr.data();
+                    qDebug() << "长度--" << msg.size();
+                                              if (size == 0) {
+                        qDebug() << "图片数据";
+                        qDebug() << byteArr;
+                        size = msg.left(10).toInt();
+                        fileSize = size - 10;
+                        size -= (msg.size() - 10);
                         byteArr.resize(0);
-                        emit updateImgSig(str);
-                        size = 0;
-//                        totalData = "";
+                        byteArr.append(msg.mid(10));
+                    } else {
+                        size -= msg.size();
+                        byteArr.append(msg);
                     }
-                    qDebug() << "长度--" << size;
+                    if (size == 0 && byteArr.size() > 0) {
+                        qDebug() << byteArr;
+                        //                        QFile file("H:/tmp-20221104.jpg");
+                        //                        if (file.open(QIODevice::WriteOnly)) {
+                        //                            QDataStream out(&file);
+                        //                            out.writeRawData(byteArr.data(), byteArr.size());
+                        //                        }
+                        //                        file.close();
+                        unsigned char *img = (unsigned char*)byteArr.data();
+                        cv::Mat mat = cv::Mat(DEFAULT_PIX_HEIGHT, DEFAULT_PIX_WIDTH, CV_8UC4, img);
+                        mat = cv::imdecode(mat, cv::IMREAD_COLOR);
+                        qDebug() << mat.cols << mat.rows;
+                    }
+                    //                    QString data = msg.data();
+                    //                    qDebug() << "data" << data;
+                    //                    qDebug() << msg.left(10).toInt();
+
+                    //                    for(int i=0; i<10; i++) {
+                    //                        if(msg[i] != ' ') {
+                    ////                            char c = msg[i].toLatin1();
+                    //                            qDebug() <<
+                    //                        }
+                    //                    }
+
+                    //                    QString data = msg.data();//读取客户端传来的数据
+                    //                    socket->read()
+                    //                    qDebug() << "客户端传来的数据" << data;
+                    //                    qDebug() << "长度" << data.size() << msg.size();
+                    //                    qDebug() << "长度" << msg.size();
+                    //                    qDebug() << data;
+                    //                    size += msg.size();
+                    //                    totalData += data;
+                    //                    if (size >= 1382400) {
+                    //                        qDebug() << "真实长度" << size;
+                    ////                        totalData.resize(1382400);
+
+                    ////                        QByteArray arr = totalData.toLatin1();
+                    ////                        qDebug() << arr.size();
+                    //                        unsigned char *str = (unsigned char*)byteArr.data();
+                    //                        byteArr.resize(0);
+                    //                        emit updateImgSig(str);
+                    //                        size = 0;
+                    ////                        totalData = "";
+                    //                    }
+
 
                 });
 
