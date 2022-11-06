@@ -77,7 +77,7 @@ Center::Center(QObject *parent) : QObject(parent)
 //                cv::Mat newImg;
 //                int bufLen = 640*360*3/2;
 //                unsigned char* pYuvBuf = new unsigned char[bufLen];
-//                resize(img, newImg, cv::Size(640, 360), cv::INTER_LINEAR);
+            //                resize(img, newImg, cv::Size(640, 360), cv::INTER_LINEAR);
 //                cvtColor(newImg, yuvImg, cv::COLOR_BGR2YUV_I420);
 //                qDebug() << yuvImg.data;
 //                memcpy(pYuvBuf, yuvImg.data, bufLen * sizeof(unsigned char));
@@ -88,49 +88,69 @@ Center::Center(QObject *parent) : QObject(parent)
             //                    socket->readBufferSize()
             QByteArray msg = socket->readAll();
             qDebug() << "长度--" << msg.size()<< "size--" << size;
-            if (size == 0) {
-                qDebug() << "图片数据";
-//                qDebug() << byteArr;
-                size = msg.left(10).toInt();
-                qDebug() << "fileSize" << size << msg.size();
-                fileSize = size - 10;
-                size -= (msg.size() - 10);
-                byteArr.resize(0);
-                byteArr.append(msg.mid(10));
-            } else {
-                size -= msg.size();
-                byteArr.append(msg);
+            byteArr.append(msg);
+            while (byteArr.size() > 10) {
+                if(size==0) {
+                    size = byteArr.left(10).toInt();
+                    byteArr = byteArr.mid(10);
+                }
+                if(byteArr.size()>=size) {
+                    cv::Mat img = cv::imdecode(cv::Mat(1, size, CV_8UC1, byteArr.mid(0, size).data()), cv::IMREAD_UNCHANGED);
+                    int bufLen = 640*360*3/2;
+                    unsigned char* pYuvBuf = new unsigned char[bufLen];
+                    cv::Mat yuvImg;
+                    cvtColor(img, yuvImg, cv::COLOR_BGR2YUV_I420);
+                    memcpy(pYuvBuf, yuvImg.data, bufLen * sizeof(unsigned char));
+                    emit updateImgSig(pYuvBuf);
+                    byteArr = byteArr.mid(size);
+                    size = 0;
+                } else {
+                    break;
+                }
             }
-            if (size == 0 && byteArr.size() > 0) {
-                qDebug() << byteArr.size();
-//                cv::Mat img = cv::Mat(360, 640,CV_8UC3, byteArr.data()).clone();
-//                cv::Mat img = cv::Mat(640, 360, CV_8UC3, byteArr.data());
-                cv::Mat img = cv::imdecode(cv::Mat(1, byteArr.size(), CV_8UC1, byteArr.data()), cv::IMREAD_UNCHANGED);
-                cv::Mat img2;
-//                cv::cvtColor(img, img2, cv::COLOR_RGB2BGR);
-//                cv::imwrite("G:/test.jpg", img);
-//                qDebug() << "aa";
-//                qDebug() << img.cols;
-                int bufLen = 640*360*3/2;
-                unsigned char* pYuvBuf = new unsigned char[bufLen];
-                cv::Mat yuvImg;
-                cvtColor(img, yuvImg, cv::COLOR_BGR2YUV_I420);
-//                qDebug() << yuvImg.data;
-                memcpy(pYuvBuf, yuvImg.data, bufLen * sizeof(unsigned char));
-                emit updateImgSig(pYuvBuf);
-                byteArr.resize(0);
-//                qDebug() << byteArr;
-                //                        QFile file("H:/tmp-20221104.jpg");
-                //                        if (file.open(QIODevice::WriteOnly)) {
-                //                            QDataStream out(&file);
-                //                            out.writeRawData(byteArr.data(), byteArr.size());
-                //                        }
-                //                        file.close();
-                //                        unsigned char *img = (unsigned char*)byteArr.data();
-                //                        cv::Mat mat = cv::Mat(DEFAULT_PIX_HEIGHT, DEFAULT_PIX_WIDTH, CV_8UC4, img);
-                //                        mat = cv::imdecode(mat, cv::IMREAD_COLOR);
-                //                        qDebug() << mat.cols << mat.rows;
-            }
+//            if (size == 0) {
+//                qDebug() << "图片数据";
+////                qDebug() << byteArr;
+//                size = msg.left(10).toInt();
+//                qDebug() << "fileSize" << size << msg.size();
+//                fileSize = size - 10;
+//                size -= (msg.size() - 10);
+//                byteArr.resize(0);
+//                byteArr.append(msg.mid(10));
+//            } else {
+//                size -= msg.size();
+//                byteArr.append(msg);
+//            }
+//            if (size == 0 && byteArr.size() > 0) {
+//                qDebug() << byteArr.size();
+////                cv::Mat img = cv::Mat(360, 640,CV_8UC3, byteArr.data()).clone();
+////                cv::Mat img = cv::Mat(640, 360, CV_8UC3, byteArr.data());
+//                cv::Mat img = cv::imdecode(cv::Mat(1, byteArr.size(), CV_8UC1, byteArr.data()), cv::IMREAD_UNCHANGED);
+//                cv::Mat img2;
+////                cv::cvtColor(img, img2, cv::COLOR_RGB2BGR);
+////                cv::imwrite("G:/test.jpg", img);
+////                qDebug() << "aa";
+////                qDebug() << img.cols;
+//                int bufLen = 640*360*3/2;
+//                unsigned char* pYuvBuf = new unsigned char[bufLen];
+//                cv::Mat yuvImg;
+//                cvtColor(img, yuvImg, cv::COLOR_BGR2YUV_I420);
+////                qDebug() << yuvImg.data;
+//                memcpy(pYuvBuf, yuvImg.data, bufLen * sizeof(unsigned char));
+//                emit updateImgSig(pYuvBuf);
+//                byteArr.resize(0);
+////                qDebug() << byteArr;
+//                //                        QFile file("H:/tmp-20221104.jpg");
+//                //                        if (file.open(QIODevice::WriteOnly)) {
+//                //                            QDataStream out(&file);
+//                //                            out.writeRawData(byteArr.data(), byteArr.size());
+//                //                        }
+//                //                        file.close();
+//                //                        unsigned char *img = (unsigned char*)byteArr.data();
+//                //                        cv::Mat mat = cv::Mat(DEFAULT_PIX_HEIGHT, DEFAULT_PIX_WIDTH, CV_8UC4, img);
+//                //                        mat = cv::imdecode(mat, cv::IMREAD_COLOR);
+//                //                        qDebug() << mat.cols << mat.rows;
+//            }
             //                    QString data = msg.data();
             //                    qDebug() << "data" << data;
             //                    qDebug() << msg.left(10).toInt();

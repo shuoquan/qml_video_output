@@ -1,4 +1,4 @@
-#include "videoadapter.h"
+﻿#include "videoadapter.h"
 #include <QDebug>
 
 #define DEFAULT_PIX_WIDTH   640

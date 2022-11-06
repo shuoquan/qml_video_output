@@ -1,4 +1,4 @@
-#include <QObject>
+﻿#include <QObject>
 #include <QAbstractVideoSurface>
 #include <QVideoSurfaceFormat>
 #include <QTimer>
