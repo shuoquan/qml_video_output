@@ -29,23 +29,29 @@ HEADERS += \
     center.h \
     videoadapter.h
 
-#INCLUDEPATH += E:/opencv/opencv/build/include
-#INCLUDEPATH += E:/opencv/opencv/build/include/opencv2
+INCLUDEPATH += E:/opencv/opencv/build/include
+INCLUDEPATH += E:/opencv/opencv/build/include/opencv2
 
-INCLUDEPATH += E:/opencv/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/include
-INCLUDEPATH += E:/opencv/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/include/opencv2
+#INCLUDEPATH += E:/opencv/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/include
+#INCLUDEPATH += E:/opencv/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/include/opencv2
 
-INCLUDEPATH += E:/ffmpeg/ffmpeg-5.0.1-full_build-shared/include
+INCLUDEPATH += D:/ffmpeg/ffmpeg-5.0.1-full_build-shared/include
 
-LIBS += E:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/avdevice.lib \
-        E:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/avfilter.lib \
-        E:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/avformat.lib \
-        E:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/avutil.lib \
-        E:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/avcodec.lib \
-        E:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/postproc.lib \
-        E:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/swresample.lib \
-        E:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/swscale.lib \
-        E:/opencv/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/x64/mingw/bin/libopencv_*.dll \
+LIBS += D:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/avdevice.lib \
+        D:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/avfilter.lib \
+        D:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/avformat.lib \
+        D:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/avutil.lib \
+        D:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/avcodec.lib \
+        D:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/postproc.lib \
+        D:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/swresample.lib \
+        D:/ffmpeg/ffmpeg-5.0.1-full_build-shared/lib/swscale.lib \
+        E:/opencv/opencv/build/x64/vc14/lib/opencv_*.lib \
+
+#E:/opencv/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/x64/mingw/bin/libopencv_*.dll \
 
 #E:\opencv\opencv\build\x64\vc14\lib\opencv_*.lib \
 #QMAKE_LFLAGS = "-lavformat"
+msvc {
+    QMAKE_CFLAGS += /utf-8
+    QMAKE_CXXFLAGS += /utf-8
+}

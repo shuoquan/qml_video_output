@@ -1,4 +1,4 @@
-#include <QObject>
+﻿#include <QObject>
 #include <QTime>
 #include <QTimer>
 #include <QDebug>
@@ -19,6 +19,7 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
+#pragma execution_character_set("utf-8")
 
 class Center : public QObject
 {
