@@ -55,9 +55,9 @@ void VideoAdapter::startPlay()
 
 void VideoAdapter::updateVideoData(uchar *oneFrameData)
 {
-    qDebug() << "frame" << oneFrameData << sizeof(*oneFrameData);
+//    qDebug() << "frame" << oneFrameData << sizeof(*oneFrameData);
     QVideoFrame mVideoFrame(m_PackageSize, QSize(m_width, m_height), m_width, pixFormat);
-    qDebug() << mVideoFrame << "videoframe";
+//    qDebug() << mVideoFrame << "videoframe";
     if (mVideoFrame.map(QAbstractVideoBuffer::WriteOnly)) {
         uchar * fdata = mVideoFrame.bits();
         memcpy(fdata, oneFrameData, m_PackageSize);

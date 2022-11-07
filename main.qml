@@ -286,8 +286,8 @@ Window {
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
-                    videoSrc.startPlay()
-//                    addImageToBottom()
+//                    videoSrc.startPlay()
+                    addImageToBottom()
 
 //                    fruitModel.append({"cost": 5.95, "name":"Pizza"})
 //                    console.log(fruitModel)
