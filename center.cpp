@@ -102,6 +102,7 @@ Center::Center(QObject *parent) : QObject(parent)
                             cvtColor(img, yuvImg, cv::COLOR_BGR2YUV_I420);
                             memcpy(pYuvBuf, yuvImg.data, bufLen * sizeof(unsigned char));
                             emit updateImgSig(pYuvBuf);
+                            delete[] pYuvBuf;
                             byteArr = byteArr.mid(size);
                             size = 0;
                         } else {

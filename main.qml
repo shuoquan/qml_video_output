@@ -154,9 +154,28 @@ Window {
 //                                         height: 250
                                          width: (imageArea.width - 30) / 2
                                          height: (imageArea.width - 30) / 3
+                                         sourceSize.width: (imageArea.width - 30) / 2
+                                         sourceSize.height: (imageArea.width - 30) / 3
+                                         sourceClipRect: Qt.rect(100, 100, 512, 512)
                                          source: mainViewSrc
                                          fillMode: Image.PreserveAspectFit
                                          anchors.centerIn: parent
+                                         Component.onCompleted: {
+                                             console.log('abcdef', mainViewSrc);
+//                                             const newObject = Qt.createQmlObject(`
+//                                                 import QtQuick 2.0
+
+//                                                 Rectangle {
+//                                                                                  color: 'red'
+//                                                     width: 20
+//                                                     height: 20
+//                                                 }
+//                                                 `,
+//                                                                                  parent,
+//                                                                                  "myItem"
+//                                             );
+
+                                         }
                                      }
                                  }
 
