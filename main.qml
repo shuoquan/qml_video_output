@@ -13,8 +13,19 @@ Window {
 
     Component.onCompleted: {
         video.source = videoSrc
-        const res = homeSrc.fetchBag(5);
-        console.log(screen.width, 'aa', res)
+//        const res = homeSrc.fetchBag(5);
+//        console.log(screen.width, 'aa', res)
+        mock();
+    }
+
+    function mock() {
+        console.log("mock");
+        const bagList = JSON.parse("[{\"id\":5,\"device\":\"shnth4\",\"block_name\":\"shnth4_20211015_111806_880_1.jpg\",\"block_path\":\"F:/images/shnth4_20211015_111806_880_1.jpg\",\"block_width\":744,\"block_height\":1260,\"block_create_at\":\"2022-11-08T03:52:05.000Z\",\"block_id\":0,\"video_block_name\":\"shnth4_20211015_111806_880_1.jpg\",\"video_block_path\":\"F:/images/shnth4_20211015_111806_880_1.jpg\",\"video_block_width\":1260,\"video_block_height\":744,\"create_at\":\"2022-11-08T06:28:35.649Z\",\"bag_coordinate\":\"(744,580),(0,0)\",\"unpackBoxInfoList\":[{\"id\":1,\"categoryId\":1,\"bagId\":5,\"categoryName\":\"刀\",\"box\":\"{\\\"((20,20),(80,80))\\\"}\",\"type\":1},{\"id\":2,\"categoryId\":0,\"bagId\":5,\"categoryName\":\"\",\"box\":\"{\\\"((120,120),(130,130),(140,140),(150,150))\\\"}\",\"type\":2}]}]");
+        console.log(insertDirection)
+        for(const bag of bagList) {
+//            console.log(JSON.stringify(bag));
+            addImageToBottom(bag);
+        }
     }
 
     Connections {
@@ -32,24 +43,33 @@ Window {
     // 默认头部插入
     property int insertDirection: 1
 
-    function addImageToBottom() {
-        const time = new Date().getFullYear().toString() +
+    function addImageToBottom(bagInfo) {
+        const date = new Date(bagInfo.block_create_at);
+        const time = date.getFullYear().toString() +
                    '-' +
-                   (new Date().getMonth() + 1).toString().padStart(2, '0') +
+                   (date.getMonth() + 1).toString().padStart(2, '0') +
                    '-' +
-                   new Date().getDate().toString().padStart(2, '0') +
+                   date.getDate().toString().padStart(2, '0') +
                    ',' +
-                   new Date().getHours().toString().padStart(2, '0') +
+                   date.getHours().toString().padStart(2, '0') +
                    ':' +
-                   new Date().getMinutes().toString().padStart(2, '0') +
+                   date.getMinutes().toString().padStart(2, '0') +
                    ':' +
-                   new Date().getSeconds().toString().padStart(2, '0');
-        imageModel.append({'imageIdx': imageIdx, 'time': time, 'mainViewSrc': './images/demo.jpg', 'sideViewSrc': 'http://www.gov.cn/xhtml/2016gov/images/guoqing/bigmap.jpg'})
-//                    imageModel.sync()
-        imageIdx += 1
+                   date.getSeconds().toString().padStart(2, '0');
+        bagInfo.block_create_at = time;
+        const bagCoordinateList = bagInfo.bag_coordinate.replace(/\(|\)/g, '').split(',').map(Number);
+        bagInfo.x0 = Math.min(bagCoordinateList[0], bagCoordinateList[2]);
+        bagInfo.x1 = Math.max(bagCoordinateList[0], bagCoordinateList[2]);
+        bagInfo.y0 = Math.min(bagCoordinateList[1], bagCoordinateList[3]);
+        bagInfo.y1 = Math.max(bagCoordinateList[1], bagCoordinateList[3]);
+        bagInfo.unpackBoxInfoList = JSON.stringify(bagInfo.unpackBoxInfoList);
+//        imageModel.append({'imageIdx': imageIdx, 'time': time, 'mainViewSrc': './images/demo.jpg', 'sideViewSrc': 'http://www.gov.cn/xhtml/2016gov/images/guoqing/bigmap.jpg'})
+////                    imageModel.sync()
+//        imageIdx += 1
+        imageModel.append(bagInfo);
         console.log("abc", imageModel.count)
         while (imageModel.count > 5) {
-            imageModel.remove(0)
+            imageModel.remove(imageModel.count - 1)
         }
     }
 
@@ -104,7 +124,7 @@ Window {
 //                             height: 80
                              height:  (parent.width - 40) / 8
                              Text {
-                                 text: imageIdx
+                                 text: id
 //                                 font.pixelSize: 30
                                  font.pixelSize: (parent.width - 40) / 24
                                  font.bold: true
@@ -112,7 +132,7 @@ Window {
                                  anchors.verticalCenter: parent.verticalCenter
                              }
                              Text {
-                                 text: time
+                                 text: block_create_at
 //                                 font.pixelSize: 20
                                  font.pixelSize: (parent.width - 40) / 36
                                  font.bold: true
@@ -164,18 +184,76 @@ Window {
                                      border.width: 2
                                      radius: 2
                                      Image {
+                                         id: image
 //                                         width: 360
 //                                         height: 250
                                          width: (imageArea.width - 30) / 2
                                          height: (imageArea.width - 30) / 3
-                                         sourceSize.width: (imageArea.width - 30) / 2
-                                         sourceSize.height: (imageArea.width - 30) / 3
-                                         sourceClipRect: Qt.rect(100, 100, 512, 512)
-                                         source: mainViewSrc
+                                         sourceSize.width: block_width
+                                         sourceSize.height: block_height
+                                         sourceClipRect: Qt.rect(x0,y0,x1-x0,y1-y0)
+                                         source: "file:///" + block_path
                                          fillMode: Image.PreserveAspectFit
                                          anchors.centerIn: parent
-                                         Component.onCompleted: {
-                                             console.log('abcdef', mainViewSrc);
+//                                         Component.onStatusChanged: {
+//                                             console.log('aa')
+//                                         }
+
+                                         Component.onCompleted:   {
+                                             console.log('abcdef');
+//                                             console.log(x0, x1, y0, y1)
+                                             console.log(image.width, image.height);
+                                             const heightRatio = image.height / (y1-y0);
+                                             const widthRatio = image.width / (x1-x0);
+                                             const ratio = Math.min(widthRatio, heightRatio);
+                                             const width = 80 * ratio;
+                                             const height = 100 * ratio;
+                                             if (heightRatio < widthRatio) {
+                                                 console.log('1x')
+                                                 Qt.createQmlObject(`
+                                                 import QtQuick 2.0
+                                                 Rectangle {
+                                                    width: ${width}
+                                                    height: ${height}
+                                                    border.color: 'red'
+                                                    border.width: 2
+                                                    anchors.top: parent.top
+                                                    anchors.left: parent.left
+                                                    anchors.leftMargin: ${160 * ratio + (image.width - width) / 2 - 40}
+                                                    anchors.topMargin: ${60 * ratio}
+                                                    color: 'transparent'
+                                                 }
+                                                 `,
+                                                 parent, "myItem")
+                                             } else {
+                                                 console.log('2x')
+                                                 Qt.createQmlObject(`
+                                                 import QtQuick 2.0
+                                                 Rectangle {
+                                                    width: ${width}
+                                                    height: ${height}
+                                                    border.color: 'red'
+                                                    border.width: 2
+                                                    anchors.top: parent.top
+                                                    anchors.left: parent.left
+                                                    anchors.leftMargin: ${160 * ratio}
+                                                    anchors.topMargin: ${60 * ratio + (image.height - height) / 2}
+                                                    color: 'transparent'
+                                                 }
+                                                 `,
+                                                 parent, "myItem")
+                                             }
+
+//                                             console.log(ratio)
+//                                             const unpackBoxList = JSON.parse(unpackBoxInfoList);
+//                                             for(const box of unpackBoxList) {
+//                                                 Qt.createQmlObject(`
+//                                                    import QtQuick 2.0
+
+
+//                                                 `)
+//                                             }
+
 //                                             const newObject = Qt.createQmlObject(`
 //                                                 import QtQuick 2.0
 
@@ -206,7 +284,7 @@ Window {
 //                                         height: 250
                                          width: (imageArea.width - 30) / 2
                                          height: (imageArea.width - 30) / 3
-                                         source: sideViewSrc
+                                         source: "file:///" + video_block_path
                                          fillMode: Image.PreserveAspectFit
                                          anchors.centerIn: parent
                                      }
