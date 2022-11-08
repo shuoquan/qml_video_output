@@ -2,6 +2,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include "videoadapter.h"
+#include "home.h"
 #include <QtQml>
 
 int main(int argc, char *argv[])
@@ -12,7 +13,8 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
 
     engine.rootContext()->setContextProperty("videoSrc", new VideoAdapter);
-    qmlRegisterType<VideoAdapter>("VideoAdapter", 1, 0, "VideoAdapter");
+    engine.rootContext()->setContextProperty("homeSrc", new Home);
+//    qmlRegisterType<VideoAdapter>("VideoAdapter", 1, 0, "VideoAdapter");
 
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())

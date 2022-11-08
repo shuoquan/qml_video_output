@@ -90,24 +90,25 @@ Center::Center(QObject *parent) : QObject(parent)
                     qDebug() << "长度--" << msg.size()<< "size--" << size;
                     byteArr.append(msg);
                     while (byteArr.size() > 10) {
-                        if(size==0) {
-                            size = byteArr.left(10).toInt();
-                            byteArr = byteArr.mid(10);
-                        }
-                        if(byteArr.size()>=size) {
-                            cv::Mat img = cv::imdecode(cv::Mat(1, size, CV_8UC1, byteArr.mid(0, size).data()), cv::IMREAD_UNCHANGED);
-                            int bufLen = DEFAULT_PIX_HEIGHT * DEFAULT_PIX_WIDTH * 3 / 2;
-                            unsigned char* pYuvBuf = new unsigned char[bufLen];
-                            cv::Mat yuvImg;
-                            cvtColor(img, yuvImg, cv::COLOR_BGR2YUV_I420);
-                            memcpy(pYuvBuf, yuvImg.data, bufLen * sizeof(unsigned char));
-                            emit updateImgSig(pYuvBuf);
-                            delete[] pYuvBuf;
-                            byteArr = byteArr.mid(size);
-                            size = 0;
-                        } else {
-                            break;
-                        }
+                        // todo 94-111暂时注释掉
+//                        if(size==0) {
+//                            size = byteArr.left(10).toInt();
+//                            byteArr = byteArr.mid(10);
+//                        }
+//                        if(byteArr.size()>=size) {
+//                            cv::Mat img = cv::imdecode(cv::Mat(1, size, CV_8UC1, byteArr.mid(0, size).data()), cv::IMREAD_UNCHANGED);
+//                            int bufLen = DEFAULT_PIX_HEIGHT * DEFAULT_PIX_WIDTH * 3 / 2;
+//                            unsigned char* pYuvBuf = new unsigned char[bufLen];
+//                            cv::Mat yuvImg;
+//                            cvtColor(img, yuvImg, cv::COLOR_BGR2YUV_I420);
+//                            memcpy(pYuvBuf, yuvImg.data, bufLen * sizeof(unsigned char));
+//                            emit updateImgSig(pYuvBuf);
+//                            delete[] pYuvBuf;
+//                            byteArr = byteArr.mid(size);
+//                            size = 0;
+//                        } else {
+//                            break;
+//                        }
                     }
                     //            if (size == 0) {
                     //                qDebug() << "图片数据";

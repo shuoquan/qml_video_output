@@ -2,7 +2,7 @@
 import QtQuick.Window 2.15
 import QtMultimedia 5.14
 import QtQuick.Controls 2.15
-import VideoAdapter 1.0
+//import VideoAdapter 1.0
 
 Window {
     minimumWidth: 640
@@ -13,10 +13,24 @@ Window {
 
     Component.onCompleted: {
         video.source = videoSrc
-        console.log(screen.width, 'aa')
+        const res = homeSrc.fetchBag(5);
+        console.log(screen.width, 'aa', res)
+    }
+
+    Connections {
+        target: homeSrc
+        function onSendBagInfo(bagInfo) {
+            const bagList = JSON.parse(bagInfo || "[]");
+            console.log(insertDirection)
+            for(const bag of bagList) {
+                console.log(JSON.stringify(bag));
+            }
+        }
     }
 
     property int imageIdx: 1
+    // 默认头部插入
+    property int insertDirection: 1
 
     function addImageToBottom() {
         const time = new Date().getFullYear().toString() +
@@ -30,7 +44,7 @@ Window {
                    new Date().getMinutes().toString().padStart(2, '0') +
                    ':' +
                    new Date().getSeconds().toString().padStart(2, '0');
-        imageModel.append({'imageIdx': imageIdx, 'time': time, 'mainViewSrc': './images/demo.jpg', 'sideViewSrc': './images/demo.jpg'})
+        imageModel.append({'imageIdx': imageIdx, 'time': time, 'mainViewSrc': './images/demo.jpg', 'sideViewSrc': 'http://www.gov.cn/xhtml/2016gov/images/guoqing/bigmap.jpg'})
 //                    imageModel.sync()
         imageIdx += 1
         console.log("abc", imageModel.count)
@@ -208,12 +222,12 @@ Window {
                      delegate: imageDelegate
                      onContentYChanged: {
                          console.log(contentY, contentHeight, height, 'ddd')
-                         if (contentY === contentHeight - height) {
-                             addImageToBottom()
-                         }
-                         if (contentY >= 1520 && (contentY - 1520) % 370 === 0) {
-                             addImageToBottom()
-                         }
+//                         if (contentY === contentHeight - height) {
+//                             addImageToBottom()
+//                         }
+//                         if (contentY >= 1520 && (contentY - 1520) % 370 === 0) {
+//                             addImageToBottom()
+//                         }
                      }
                  }
             }
@@ -306,7 +320,7 @@ Window {
                 anchors.fill: parent
                 onClicked: {
 //                    videoSrc.startPlay()
-                    addImageToBottom()
+//                    addImageToBottom()
 
 //                    fruitModel.append({"cost": 5.95, "name":"Pizza"})
 //                    console.log(fruitModel)
