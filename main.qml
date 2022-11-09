@@ -13,38 +13,53 @@ Window {
 
     Component.onCompleted: {
         video.source = videoSrc
+        homeSrc.fetchBag(0, 0, 2);
+        insertDirection = -1;
 //        const res = homeSrc.fetchBag(5);
 //        console.log(screen.width, 'aa', res)
-        mock();
+//        mock();
     }
 
     function mock() {
         console.log("mock");
-        const bagList = JSON.parse("[{\"id\":5,\"device\":\"shnth4\",\"block_name\":\"shnth4_20211015_111806_880_1.jpg\",\"block_path\":\"F:/images/shnth4_20211015_111806_880_1.jpg\",\"block_width\":744,\"block_height\":1260,\"block_create_at\":\"2022-11-08T03:52:05.000Z\",\"block_id\":0,\"video_block_name\":\"shnth4_20211015_111806_880_1.jpg\",\"video_block_path\":\"F:/images/shnth4_20211015_111806_880_1.jpg\",\"video_block_width\":1260,\"video_block_height\":744,\"create_at\":\"2022-11-08T06:28:35.649Z\",\"bag_coordinate\":\"(744,580),(0,0)\",\"unpackBoxInfoList\":[{\"id\":1,\"categoryId\":1,\"bagId\":5,\"categoryName\":\"刀\",\"box\":\"{\\\"((20,20),(80,80))\\\"}\",\"type\":1},{\"id\":2,\"categoryId\":0,\"bagId\":5,\"categoryName\":\"\",\"box\":\"{\\\"((120,120),(130,130),(140,140),(150,150))\\\"}\",\"type\":2}]}]");
-        console.log(insertDirection)
+        const bagList = JSON.parse("[{\"id\":5,\"device\":\"shnth4\",\"block_name\":\"shnth4_20211015_111806_880_1.jpg\",\"block_path\":\"F:/images/shnth4_20211015_111806_880_1.jpg\",\"block_width\":744,\"block_height\":1260,\"block_create_at\":\"2022-11-08T03:52:05.000Z\",\"block_id\":0,\"video_block_name\":\"shnth4_20211015_111806_880_1.jpg\",\"video_block_path\":\"F:/images/shnth4_20211015_111806_880_1.jpg\",\"video_block_width\":1260,\"video_block_height\":744,\"create_at\":\"2022-11-08T06:28:35.649Z\",\"bag_coordinate\":\"(744,580),(0,0)\",\"unpackBoxInfoList\":[{\"id\":1,\"categoryId\":1,\"bagId\":5,\"categoryName\":\"刀\",\"box\":\"{\\\"((160,60),(240,160))\\\"}\",\"type\":1},{\"id\":2,\"categoryId\":0,\"bagId\":5,\"categoryName\":\"\",\"box\":\"{\\\"((120,120),(130,130),(140,140),(150,150))\\\"}\",\"type\":2}]}]");
+//        console.log(insertDirection)
+//        const tmpBagList = bagList.concat(bagList);
         for(const bag of bagList) {
 //            console.log(JSON.stringify(bag));
-            addImageToBottom(bag);
+            addImage(bag, -1);
         }
+//        const tmp = JSON.parse("[{\"id\":5,\"device\":\"shnth4\",\"block_name\":\"shnth4_20211015_111806_880_1.jpg\",\"block_path\":\"F:/images/shnth4_20211015_111806_880_1.jpg\",\"block_width\":744,\"block_height\":1260,\"block_create_at\":\"2022-11-08T03:52:05.000Z\",\"block_id\":0,\"video_block_name\":\"shnth4_20211015_111806_880_1.jpg\",\"video_block_path\":\"F:/images/shnth4_20211015_111806_880_1.jpg\",\"video_block_width\":1260,\"video_block_height\":744,\"create_at\":\"2022-11-08T06:28:35.649Z\",\"bag_coordinate\":\"(744,580),(0,0)\",\"unpackBoxInfoList\":[{\"id\":1,\"categoryId\":1,\"bagId\":5,\"categoryName\":\"刀\",\"box\":\"{\\\"((0,0),(240,160))\\\"}\",\"type\":1},{\"id\":2,\"categoryId\":0,\"bagId\":5,\"categoryName\":\"\",\"box\":\"{\\\"((120,120),(130,130),(140,140),(150,150))\\\"}\",\"type\":2}]}]");
+//        for(const bag1 of tmp) {
+//            addImageToBottom(bag1);
+//        }
     }
 
     Connections {
         target: homeSrc
         function onSendBagInfo(bagInfo) {
             const bagList = JSON.parse(bagInfo || "[]");
-            console.log(insertDirection)
+//            console.log(insertDirection)
             for(const bag of bagList) {
-                console.log(JSON.stringify(bag));
+                if (insertDirection == 0) {
+                    addImage(bag, 0);
+                } else {
+                    addImage(bag, -1);
+                }
+
+//                console.log(JSON.stringify(bag));
             }
         }
     }
 
     property int imageIdx: 1
     // 默认头部插入
-    property int insertDirection: 1
+    property int insertDirection: 0
 
-    function addImageToBottom(bagInfo) {
+    // position 0 头部插入， -1 尾部插入
+    function addImage(bagInfo, position) {
         const date = new Date(bagInfo.block_create_at);
+//        console.log(date, 'd')
         const time = date.getFullYear().toString() +
                    '-' +
                    (date.getMonth() + 1).toString().padStart(2, '0') +
@@ -66,10 +81,18 @@ Window {
 //        imageModel.append({'imageIdx': imageIdx, 'time': time, 'mainViewSrc': './images/demo.jpg', 'sideViewSrc': 'http://www.gov.cn/xhtml/2016gov/images/guoqing/bigmap.jpg'})
 ////                    imageModel.sync()
 //        imageIdx += 1
-        imageModel.append(bagInfo);
+        if (position === 0) {
+            imageModel.insert(0, bagInfo);
+        } else {
+            imageModel.append(bagInfo);
+        }
         console.log("abc", imageModel.count)
         while (imageModel.count > 5) {
-            imageModel.remove(imageModel.count - 1)
+            if (position === 0) {
+                imageModel.remove(imageModel.count - 1);
+            } else {
+                imageModel.remove(0);
+            }
         }
     }
 
@@ -89,6 +112,11 @@ Window {
             anchors.topMargin: 10
             anchors.bottomMargin: 10
             clip: true
+
+//            flickableItem.onContentYChanged: {
+
+//            }
+
 //            color: '#f7f7f7'
             //        anchors.margins: 20
 
@@ -195,77 +223,111 @@ Window {
                                          source: "file:///" + block_path
                                          fillMode: Image.PreserveAspectFit
                                          anchors.centerIn: parent
-//                                         Component.onStatusChanged: {
-//                                             console.log('aa')
-//                                         }
 
                                          Component.onCompleted:   {
-                                             console.log('abcdef');
-//                                             console.log(x0, x1, y0, y1)
-                                             console.log(image.width, image.height);
                                              const heightRatio = image.height / (y1-y0);
                                              const widthRatio = image.width / (x1-x0);
                                              const ratio = Math.min(widthRatio, heightRatio);
-                                             const width = 80 * ratio;
-                                             const height = 100 * ratio;
-                                             if (heightRatio < widthRatio) {
-                                                 console.log('1x')
-                                                 Qt.createQmlObject(`
-                                                 import QtQuick 2.0
-                                                 Rectangle {
-                                                    width: ${width}
-                                                    height: ${height}
-                                                    border.color: 'red'
-                                                    border.width: 2
-                                                    anchors.top: parent.top
-                                                    anchors.left: parent.left
-                                                    anchors.leftMargin: ${160 * ratio + (image.width - width) / 2 - 40}
-                                                    anchors.topMargin: ${60 * ratio}
-                                                    color: 'transparent'
+                                             const unpackBoxList = JSON.parse(unpackBoxInfoList);
+                                             for(const box of unpackBoxList) {
+                                                 console.log('box')
+                                                 console.log(JSON.stringify(box))
+                                                 // 处理矩形情况
+                                                 if (box.type == 1) {
+                                                     const pointList = box.box.replace(/[(|)|{|}|"]/g, '').split(",").map(Number);
+                                                     const leftTopX = Math.min(pointList[0], pointList[2]);
+                                                     const leftTopY = Math.min(pointList[1], pointList[3]);
+                                                     const rightBottomX = Math.max(pointList[0], pointList[2]);
+                                                     const rightBottomY = Math.max(pointList[1], pointList[3]);
+                                                     if (heightRatio < widthRatio) {
+                                                         console.log('1x')
+        //                                                 Qt.createQmlObject(`
+        //                                                 import QtQuick 2.0
+        //                                                 Rectangle {
+        //                                                    width: ${width}
+        //                                                    height: ${height}
+        //                                                    border.color: 'red'
+        //                                                    border.width: 2
+        //                                                    anchors.top: parent.top
+        //                                                    anchors.left: parent.left
+        //                                                    anchors.leftMargin: ${160 * ratio + (image.width - (x1-x0)*ratio) / 2}
+        //                                                    anchors.topMargin: ${60 * ratio}
+        //                                                    color: 'transparent'
+        //                                                 }
+        //                                                 `,
+        //                                                 parent, "myItem")
+                                                         Qt.createQmlObject(`
+                                                         import QtQuick 2.0
+                                                         Rectangle {
+                                                            width: ${rightBottomX - leftTopX} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+                                                            height: ${rightBottomY - leftTopY} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+                                                            border.color: 'red'
+                                                            border.width: 2
+                                                            anchors.top: parent.top
+                                                            anchors.left: parent.left
+                                                            anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.width - (x1-x0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2
+                                                            anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+                                                            color: 'transparent'
+                                                         }
+                                                         `,
+                                                         parent, `myItem${box.id}`)
+                                                     } else {
+                                                         console.log('2x')
+                                                         Qt.createQmlObject(`
+                                                         import QtQuick 2.0
+                                                         Rectangle {
+                                                            width: ${rightBottomX - leftTopX} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+                                                            height: ${rightBottomY - leftTopY} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+                                                            border.color: 'red'
+                                                            border.width: 2
+                                                            anchors.top: parent.top
+                                                            anchors.left: parent.left
+                                                            anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+                                                            anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.height - (y1-y0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2
+                                                            color: 'transparent'
+                                                         }
+                                                         `,
+                                                         parent, `myItem${box.id}`)
+                                                     }
+                                                 } else if(box.type == 2) {
+                                                     const pointList = box.box.replace(/[(|)|{|}|"]/g, '').split(",").map(Number);
+                                                     let dynamicStr = "";
+                                                     for(let i=0; i<pointList.length; i+=2) {
+                                                         const [x, y] = [pointList[i], pointList[i+1]];
+                                                         let param1, param2;
+                                                         if (heightRatio < ratio) {
+                                                             param1 = `${x - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.width - (x1-x0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2`;
+                                                             param2 = `${y - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))`;
+                                                         } else {
+                                                             param1 = `${x - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))`;
+                                                             param2 = `${y - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.height - (y1-y0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2`;
+                                                         }
+                                                         if (i==0) {
+                                                             dynamicStr += `ctx.moveTo(${param1}, ${param2});`
+                                                         } else {
+                                                             dynamicStr += `ctx.lineTo(${param1}, ${param2});`
+                                                         }
+
+                                                     }
+
+                                                     const createQmlStr = `
+                                                     import QtQuick 2.0
+                                                     Canvas {
+                                                        id: canvas
+                                                        anchors.fill: parent
+                                                        onPaint: {
+                                                           const ctx =  getContext('2d');
+                                                           ctx.beginPath();
+                                                           ctx.strokeStyle = "#FF0000";
+                                                           ctx.lineWidth = 2;
+                                                           ${dynamicStr}
+                                                           ctx.stroke();
+                                                        }
+                                                     }
+                                                     `;
+                                                     Qt.createQmlObject(createQmlStr, parent, `myItem${box.id}`);
                                                  }
-                                                 `,
-                                                 parent, "myItem")
-                                             } else {
-                                                 console.log('2x')
-                                                 Qt.createQmlObject(`
-                                                 import QtQuick 2.0
-                                                 Rectangle {
-                                                    width: ${width}
-                                                    height: ${height}
-                                                    border.color: 'red'
-                                                    border.width: 2
-                                                    anchors.top: parent.top
-                                                    anchors.left: parent.left
-                                                    anchors.leftMargin: ${160 * ratio}
-                                                    anchors.topMargin: ${60 * ratio + (image.height - height) / 2}
-                                                    color: 'transparent'
-                                                 }
-                                                 `,
-                                                 parent, "myItem")
                                              }
-
-//                                             console.log(ratio)
-//                                             const unpackBoxList = JSON.parse(unpackBoxInfoList);
-//                                             for(const box of unpackBoxList) {
-//                                                 Qt.createQmlObject(`
-//                                                    import QtQuick 2.0
-
-
-//                                                 `)
-//                                             }
-
-//                                             const newObject = Qt.createQmlObject(`
-//                                                 import QtQuick 2.0
-
-//                                                 Rectangle {
-//                                                                                  color: 'red'
-//                                                     width: 20
-//                                                     height: 20
-//                                                 }
-//                                                 `,
-//                                                                                  parent,
-//                                                                                  "myItem"
-//                                             );
 
                                          }
                                      }
@@ -299,7 +361,23 @@ Window {
                      model: imageModel
                      delegate: imageDelegate
                      onContentYChanged: {
-                         console.log(contentY, contentHeight, height, 'ddd')
+//                         positionViewAtEnd();
+                         console.log(leftBox.height, leftBox.width)
+                         console.log(contentY, contentHeight, height, 'ddd', originY)
+
+                         console.log(imageModel);
+                         console.log(imageModel.get(0).id)
+                         if (contentHeight > height && contentY - originY == contentHeight - height) {
+                             console.log('getFromBottom-------');
+                             insertDirection = -1;
+                             homeSrc.fetchBag(imageModel.get(imageModel.count - 1).id, -1, 1);
+                         }
+                         if (contentY == 0 || contentY == originY) {
+                             console.log('getFromTop----');
+                             insertDirection = 0;
+                             homeSrc.fetchBag(imageModel.get(0).id, 1, 1);
+                         }
+
 //                         if (contentY === contentHeight - height) {
 //                             addImageToBottom()
 //                         }
@@ -368,6 +446,7 @@ Window {
                 id: video
                  width: parent.width
                  height: parent.height
+//                 height: parent.height
                 // anchors.horizontalCenter: parent.horizontalCenter
                 // anchors.verticalCenter: parent.verticalCenter
                 anchors.centerIn: parent
@@ -376,6 +455,38 @@ Window {
                 focus : visible // to receive focus and capture key events when visible
 //                source: provider
             }
+
+
+//            Rectangle {
+//                width: 100
+//                height: 100
+//                anchors.left: parent.left
+//                anchors.top: video.bottom
+////                color: 'red'
+//                Canvas {
+//                    id: canvas
+//                    anchors.fill: parent
+//                    onPaint: {
+//                        console.log('xxxxx')
+//                        const ctx = getContext('2d');
+////                        ctx.strokeRect(20,20,60,60);
+////                        ctx.strokeStyle = "white";
+
+//                        ctx.beginPath();
+//                        ctx.strokeStyle="#FF0000";
+//                        ctx.lineWidth = 2;
+////                        ctx.moveTo(400, 280);
+////                        ctx.lineTo(420, 300);
+////                        ctx.lineTo(400, 300);
+//                        ctx.moveTo(20, 20);
+//                        ctx.lineTo(60, 60);
+//                        ctx.lineTo(20, 60);
+////                        ctx.closePath();
+//                        ctx.stroke();
+//                        console.log('ajklsjl')
+//                    }
+//                }
+//            }
 
 
 //            MediaPlayer {
@@ -397,6 +508,7 @@ Window {
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
+                    mock();
 //                    videoSrc.startPlay()
 //                    addImageToBottom()
 

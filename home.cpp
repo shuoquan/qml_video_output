@@ -3,7 +3,7 @@
 
 Home::Home(QObject *parent) : QObject(parent)
 {
-    qDebug() << "home";
+//    qDebug() << "home";
 }
 
 
