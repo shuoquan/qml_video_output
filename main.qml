@@ -86,7 +86,6 @@ Window {
         } else {
             imageModel.append(bagInfo);
         }
-        console.log("abc", imageModel.count)
         while (imageModel.count > 5) {
             if (position === 0) {
                 imageModel.remove(imageModel.count - 1);
@@ -361,12 +360,7 @@ Window {
                      model: imageModel
                      delegate: imageDelegate
                      onContentYChanged: {
-//                         positionViewAtEnd();
-                         console.log(leftBox.height, leftBox.width)
                          console.log(contentY, contentHeight, height, 'ddd', originY)
-
-                         console.log(imageModel);
-                         console.log(imageModel.get(0).id)
                          if (contentHeight > height && contentY - originY == contentHeight - height) {
                              console.log('getFromBottom-------');
                              insertDirection = -1;
@@ -508,7 +502,7 @@ Window {
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
-                    mock();
+//                    mock();
 //                    videoSrc.startPlay()
 //                    addImageToBottom()
 

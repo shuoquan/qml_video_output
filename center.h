@@ -25,6 +25,7 @@ class Center : public QObject
 {
     Q_OBJECT
 public:
+    bool connected;
     QTcpServer* server; // 服务器对象
     QTcpSocket* socket;//与客户端进行发送接受信息对象
     AVFormatContext* format_context;
@@ -43,6 +44,7 @@ public:
 //        qDebug() << "chaoshi";
         return 0;
     }
+    void clientConnect();
 
 signals:
     void updateImgSig(uchar * yuvData);
