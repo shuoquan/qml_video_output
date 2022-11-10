@@ -1,8 +1,8 @@
 ﻿#include "videoadapter.h"
 #include <QDebug>
 
-#define DEFAULT_PIX_WIDTH   640
-#define DEFAULT_PIX_HEIGHT  360
+#define DEFAULT_PIX_WIDTH   360
+#define DEFAULT_PIX_HEIGHT  640
 
 VideoAdapter::VideoAdapter(QObject *parent) :
     QObject(parent),

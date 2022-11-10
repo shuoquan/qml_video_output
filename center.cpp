@@ -22,11 +22,15 @@ extern "C"
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
 
-#define DEFAULT_PIX_WIDTH   640
-#define DEFAULT_PIX_HEIGHT  360
+#define DEFAULT_PIX_WIDTH   360
+#define DEFAULT_PIX_HEIGHT  640
 
 Center::Center(QObject *parent) : QObject(parent)
 {
+//    ip = "192.168.7.69";
+//    port = 9999;
+    ip = "localhost";
+    port = 12345;
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &Center::TimeOutSlot);
     //    this->format_context = avformat_alloc_context();
@@ -51,19 +55,18 @@ Center::Center(QObject *parent) : QObject(parent)
     QByteArray byteArr;
     socket = new QTcpSocket(this);
     connected = false;
-    socket->connectToHost("192.168.7.69", 9999);
+    socket->connectToHost(ip, port);
 //    socket->connect()
-    connect(socket, &QTcpSocket::connected, this, [=]() {
-        qDebug() << "连接成功le";
+    connect(socket, &QTcpSocket::connected, this, [=]() mutable {
+        qDebug() << "连接成功";
+        size = 0;
         connected = true;
     });
-    socket->isOpen();
     connect(socket, &QTcpSocket::readyRead, this, [=]() mutable {
         QByteArray msg = socket->readAll();
         qDebug() << "长度--" << msg.size()<< "size--" << size;
-                                                                byteArr.append(msg);
+        byteArr.append(msg);
         while (byteArr.size() > 10) {
-            // todo 94-111暂时注释掉
             if(size==0) {
                 size = byteArr.left(10).toInt();
                 byteArr = byteArr.mid(10);
@@ -85,7 +88,7 @@ Center::Center(QObject *parent) : QObject(parent)
         }
     });
     connect(socket, &QTcpSocket::disconnected, this, [=]() {
-        qDebug() << "断开连接了";
+        qDebug() << "断开连接";
         connected = false;
     });
     timer->start(5000);
@@ -241,6 +244,10 @@ Center::Center(QObject *parent) : QObject(parent)
 
 Center::~Center()
 {
+    delete socket;
+    socket = NULL;
+    delete timer;
+    timer = NULL;
 }
 
 void Center::OpenYuv()
@@ -268,10 +275,6 @@ void Center::OpenYuv()
 //    timer->start(33);
 }
 
-void Center::clientConnect() {
-    qDebug() << "connect success";
-}
-
 void Center::TimeOutSlot()
 {
 //    int nSize = fread(m_pBufYuv420p, 1, nLen, m_pYuvFile);
@@ -282,11 +285,9 @@ void Center::TimeOutSlot()
 //    } else {
 //        emit updateImgSig(m_pBufYuv420p);
 //    }
-
-    qDebug() << "time" << connected;
     if (!connected) {
         socket->abort();
-        socket->connectToHost("192.168.7.69", 9999);
+        socket->connectToHost(ip, port);
     }
 }
 

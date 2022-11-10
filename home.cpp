@@ -3,12 +3,37 @@
 
 Home::Home(QObject *parent) : QObject(parent)
 {
-//    qDebug() << "home";
+    ip = "localhost";
+    port = 9528;
+    timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, &Home::TimeOutSlot);
+    socket = new QTcpSocket(this);
+    connected = false;
+    socket->connectToHost(ip, port);
+    connect(socket, &QTcpSocket::connected, this, [=]() mutable {
+        qDebug() << "连接成功Home";
+        connected = true;
+    });
+    connect(socket, &QTcpSocket::readyRead, this, [=]() mutable {
+        QByteArray msg = socket->readAll();
+        QString bagId = msg.data();
+        qDebug() << "bagId" << bagId;
+        fetchBag(bagId.toInt(), 0, 1);
+    });
+    connect(socket, &QTcpSocket::disconnected, this, [=]() {
+        qDebug() << "断开连接Home";
+        connected = false;
+    });
+    timer->start(5000);
 }
 
 
 Home::~Home()
 {
+    delete socket;
+    socket = NULL;
+    delete timer;
+    timer = NULL;
 }
 
 void Home::fetchBag(int bagId, int type, int ps) {
@@ -51,6 +76,14 @@ void Home::receiveReply(QNetworkReply *reply)
     emit sendBagInfo(res);
 }
 
+
+void Home::TimeOutSlot()
+{
+    if (!connected) {
+        socket->abort();
+        socket->connectToHost(ip, port);
+    }
+}
 
 
 int Home::test(int id)

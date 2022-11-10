@@ -14,7 +14,6 @@ Window {
     Component.onCompleted: {
         video.source = videoSrc
         homeSrc.fetchBag(0, 0, 2);
-        insertDirection = -1;
 //        const res = homeSrc.fetchBag(5);
 //        console.log(screen.width, 'aa', res)
 //        mock();
@@ -22,12 +21,14 @@ Window {
 
     function mock() {
         console.log("mock");
-        const bagList = JSON.parse("[{\"id\":5,\"device\":\"shnth4\",\"block_name\":\"shnth4_20211015_111806_880_1.jpg\",\"block_path\":\"F:/images/shnth4_20211015_111806_880_1.jpg\",\"block_width\":744,\"block_height\":1260,\"block_create_at\":\"2022-11-08T03:52:05.000Z\",\"block_id\":0,\"video_block_name\":\"shnth4_20211015_111806_880_1.jpg\",\"video_block_path\":\"F:/images/shnth4_20211015_111806_880_1.jpg\",\"video_block_width\":1260,\"video_block_height\":744,\"create_at\":\"2022-11-08T06:28:35.649Z\",\"bag_coordinate\":\"(744,580),(0,0)\",\"unpackBoxInfoList\":[{\"id\":1,\"categoryId\":1,\"bagId\":5,\"categoryName\":\"刀\",\"box\":\"{\\\"((160,60),(240,160))\\\"}\",\"type\":1},{\"id\":2,\"categoryId\":0,\"bagId\":5,\"categoryName\":\"\",\"box\":\"{\\\"((120,120),(130,130),(140,140),(150,150))\\\"}\",\"type\":2}]}]");
+//        http://192.168.7.25:8256/images/core7/data2/images/raw_data/nj_jms_tf_1/rgb_data/202111/22/njjmstf1_20211122_131655_706_12031733.jpg
+        const bagList = JSON.parse("[{\"id\":5,\"type\":0,\"device\":\"shnth4\",\"block_name\":\"shnth4_20211015_111806_880_1.jpg\",\"block_path\":\"F:/images/shnth4_20211015_111806_880_1.jpg\",\"block_width\":744,\"block_height\":1260,\"block_create_at\":\"2022-11-08T03:52:05.000Z\",\"block_id\":0,\"video_block_name\":\"shnth4_20211015_111806_880_1.jpg\",\"video_block_path\":\"F:/images/shnth4_20211015_111806_880_1.jpg\",\"video_block_width\":1260,\"video_block_height\":744,\"create_at\":\"2022-11-08T06:28:35.649Z\",\"bag_coordinate\":\"(744,580),(0,0)\",\"unpackBoxInfoList\":[{\"id\":1,\"categoryId\":1,\"bagId\":5,\"categoryName\":\"刀\",\"box\":\"{\\\"((160,60),(240,160))\\\"}\",\"type\":1},{\"id\":2,\"categoryId\":0,\"bagId\":5,\"categoryName\":\"\",\"box\":\"{\\\"((120,120),(130,130),(140,140),(150,150))\\\"}\",\"type\":2}]}]");
 //        console.log(insertDirection)
 //        const tmpBagList = bagList.concat(bagList);
         for(const bag of bagList) {
 //            console.log(JSON.stringify(bag));
-            addImage(bag, -1);
+            bag.id = new Date().getTime();
+            addImage(bag, 0);
         }
 //        const tmp = JSON.parse("[{\"id\":5,\"device\":\"shnth4\",\"block_name\":\"shnth4_20211015_111806_880_1.jpg\",\"block_path\":\"F:/images/shnth4_20211015_111806_880_1.jpg\",\"block_width\":744,\"block_height\":1260,\"block_create_at\":\"2022-11-08T03:52:05.000Z\",\"block_id\":0,\"video_block_name\":\"shnth4_20211015_111806_880_1.jpg\",\"video_block_path\":\"F:/images/shnth4_20211015_111806_880_1.jpg\",\"video_block_width\":1260,\"video_block_height\":744,\"create_at\":\"2022-11-08T06:28:35.649Z\",\"bag_coordinate\":\"(744,580),(0,0)\",\"unpackBoxInfoList\":[{\"id\":1,\"categoryId\":1,\"bagId\":5,\"categoryName\":\"刀\",\"box\":\"{\\\"((0,0),(240,160))\\\"}\",\"type\":1},{\"id\":2,\"categoryId\":0,\"bagId\":5,\"categoryName\":\"\",\"box\":\"{\\\"((120,120),(130,130),(140,140),(150,150))\\\"}\",\"type\":2}]}]");
 //        for(const bag1 of tmp) {
@@ -41,10 +42,10 @@ Window {
             const bagList = JSON.parse(bagInfo || "[]");
 //            console.log(insertDirection)
             for(const bag of bagList) {
-                if (insertDirection == 0) {
-                    addImage(bag, 0);
-                } else {
+                if (bag.type == -1) {
                     addImage(bag, -1);
+                } else {
+                    addImage(bag, 0);
                 }
 
 //                console.log(JSON.stringify(bag));
@@ -54,7 +55,7 @@ Window {
 
     property int imageIdx: 1
     // 默认头部插入
-    property int insertDirection: 0
+//    property int insertDirection: 0
 
     // position 0 头部插入， -1 尾部插入
     function addImage(bagInfo, position) {
@@ -363,12 +364,12 @@ Window {
                          console.log(contentY, contentHeight, height, 'ddd', originY)
                          if (contentHeight > height && contentY - originY == contentHeight - height) {
                              console.log('getFromBottom-------');
-                             insertDirection = -1;
+//                             insertDirection = -1;
                              homeSrc.fetchBag(imageModel.get(imageModel.count - 1).id, -1, 1);
                          }
                          if (contentY == 0 || contentY == originY) {
                              console.log('getFromTop----');
-                             insertDirection = 0;
+//                             insertDirection = 0;
                              homeSrc.fetchBag(imageModel.get(0).id, 1, 1);
                          }
 
