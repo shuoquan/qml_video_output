@@ -28,11 +28,11 @@ extern "C"
 Center::Center(QObject *parent) : QObject(parent)
 {
     qDebug() << "center";
-//    ip = "192.168.7.69";
+    ip = "192.168.7.69";
     //    ip = "192.168.8.173";
-//    port = 9999;
-        ip = "localhost";
-        port = 12345;
+    port = 9999;
+//        ip = "localhost";
+//        port = 12345;
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &Center::TimeOutSlot);
     //    this->format_context = avformat_alloc_context();
@@ -86,6 +86,26 @@ Center::Center(QObject *parent) : QObject(parent)
                     byteArr.remove(0, 10);
                 }
                 if(byteArr.size() >= size) {
+                    int index = -1;
+                    for(int i =0; i<byteArr.size() - 2; i++) {
+                        if(byteArr[i]=='0' && byteArr[i+1]=='0' && byteArr[i+2]=='0') {
+                            index = i;
+                            break;
+                        }
+                    }
+                    qDebug() << index << "找到了" << size;
+                    if(index<0) {
+                        break;
+                    }
+                    if(index>0 && index!=size) {
+                        //                    if(index)
+//                        size = index;
+                        size = 0;
+                        byteArr.resize(0);
+                        byteArr.remove(0, index);
+                        break;
+                    }
+
                     cv::Mat img = cv::imdecode(cv::Mat(1, size, CV_8UC1, byteArr.mid(0, size).data()), cv::IMREAD_UNCHANGED);
                     int bufLen = DEFAULT_PIX_HEIGHT * DEFAULT_PIX_WIDTH * 3 / 2;
                     unsigned char* pYuvBuf = new unsigned char[bufLen];
@@ -101,7 +121,7 @@ Center::Center(QObject *parent) : QObject(parent)
                     size = 0;
                     //                    qDebug() <<"2";
                 } else {
-                    flag = true;
+//                    flag = true;
                     break;
                 }
             }
