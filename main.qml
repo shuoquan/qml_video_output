@@ -13,7 +13,9 @@ Window {
 
     Component.onCompleted: {
         video.source = videoSrc
-        homeSrc.fetchBag(0, 0, 2);
+        homeSrc.fetchBag(0, -1, 2);
+
+//        homeSrc.fetchBag(13, 0, 1);
 //        const res = homeSrc.fetchBag(5);
 //        console.log(screen.width, 'aa', res)
 //        mock();
@@ -22,7 +24,7 @@ Window {
     function mock() {
         console.log("mock");
 //        http://192.168.7.25:8256/images/core7/data2/images/raw_data/nj_jms_tf_1/rgb_data/202111/22/njjmstf1_20211122_131655_706_12031733.jpg
-        const bagList = JSON.parse("[{\"id\":5,\"type\":0,\"device\":\"shnth4\",\"block_name\":\"shnth4_20211015_111806_880_1.jpg\",\"block_path\":\"F:/images/shnth4_20211015_111806_880_1.jpg\",\"block_width\":744,\"block_height\":1260,\"block_create_at\":\"2022-11-08T03:52:05.000Z\",\"block_id\":0,\"video_block_name\":\"shnth4_20211015_111806_880_1.jpg\",\"video_block_path\":\"F:/images/shnth4_20211015_111806_880_1.jpg\",\"video_block_width\":1260,\"video_block_height\":744,\"create_at\":\"2022-11-08T06:28:35.649Z\",\"bag_coordinate\":\"(744,580),(0,0)\",\"unpackBoxInfoList\":[{\"id\":1,\"categoryId\":1,\"bagId\":5,\"categoryName\":\"刀\",\"box\":\"{\\\"((160,60),(240,160))\\\"}\",\"type\":1},{\"id\":2,\"categoryId\":0,\"bagId\":5,\"categoryName\":\"\",\"box\":\"{\\\"((120,120),(130,130),(140,140),(150,150))\\\"}\",\"type\":2}]}]");
+        const bagList = JSON.parse("[{\"id\":5,\"type\":0,\"device\":\"shnth4\",\"block_name\":\"shnth4_20211015_111806_880_1.jpg\",\"block_path\":\"/home/core/Pictures/shnth4_20211015_111806_880_1.jpg\",\"block_width\":744,\"block_height\":1260,\"block_create_at\":\"2022-11-08T03:52:05.000Z\",\"block_id\":0,\"video_block_name\":\"shnth4_20211015_111806_880_1.jpg\",\"video_block_path\":\"/home/core/Pictures/shnth4_20211015_111806_880_1.jpg\",\"video_block_width\":1260,\"video_block_height\":744,\"create_at\":\"2022-11-08T06:28:35.649Z\",\"bag_coordinate\":\"(744,580),(0,0)\",\"unpackBoxInfoList\":[{\"id\":1,\"categoryId\":1,\"bagId\":5,\"categoryName\":\"刀\",\"box\":\"{\\\"((160,60),(240,160))\\\"}\",\"type\":1},{\"id\":2,\"categoryId\":0,\"bagId\":5,\"categoryName\":\"\",\"box\":\"{\\\"((120,120),(130,130),(140,140),(150,150))\\\"}\",\"type\":2}]}]");
 //        console.log(insertDirection)
 //        const tmpBagList = bagList.concat(bagList);
         for(const bag of bagList) {
@@ -220,7 +222,8 @@ Window {
                                          sourceSize.width: block_width
                                          sourceSize.height: block_height
                                          sourceClipRect: Qt.rect(x0,y0,x1-x0,y1-y0)
-                                         source: "file:///" + block_path
+//                                         source: "file:///" + block_path
+                                         source: "http://192.168.8.173:8256/images" + block_path
                                          fillMode: Image.PreserveAspectFit
                                          anchors.centerIn: parent
 
@@ -230,8 +233,8 @@ Window {
                                              const ratio = Math.min(widthRatio, heightRatio);
                                              const unpackBoxList = JSON.parse(unpackBoxInfoList);
                                              for(const box of unpackBoxList) {
-                                                 console.log('box')
-                                                 console.log(JSON.stringify(box))
+//                                                 console.log('box')
+//                                                 console.log(JSON.stringify(box))
                                                  // 处理矩形情况
                                                  if (box.type == 1) {
                                                      const pointList = box.box.replace(/[(|)|{|}|"]/g, '').split(",").map(Number);
@@ -290,12 +293,33 @@ Window {
                                                          parent, `myItem${box.id}`)
                                                      }
                                                  } else if(box.type == 2) {
+                                                     const leftTopX = 236;
+                                                     const leftTopY = 345;
+                                                     const rightBottomX = 343;
+                                                     const rightBottomY = 406;
+//                                                     Qt.createQmlObject(`
+//                                                     import QtQuick 2.0
+//                                                     Rectangle {
+//                                                        width: ${rightBottomX - leftTopX} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+//                                                        height: ${rightBottomY - leftTopY} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+//                                                        border.color: 'red'
+//                                                        border.width: 2
+//                                                        anchors.top: parent.top
+//                                                        anchors.left: parent.left
+//                                                        anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.width - (x1-x0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2
+//                                                        anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+//                                                        color: 'transparent'
+//                                                     }
+//                                                     `,
+//                                                     parent, `myItem${box.id}`)
+//                                                     const pointList = [236, 345, 343, 345, 343, 406, 236, 406];
                                                      const pointList = box.box.replace(/[(|)|{|}|"]/g, '').split(",").map(Number);
                                                      let dynamicStr = "";
                                                      for(let i=0; i<pointList.length; i+=2) {
                                                          const [x, y] = [pointList[i], pointList[i+1]];
                                                          let param1, param2;
-                                                         if (heightRatio < ratio) {
+//                                                         console.log(heightRatio, ratio, 'xx');
+                                                         if (heightRatio < widthRatio) {
                                                              param1 = `${x - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.width - (x1-x0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2`;
                                                              param2 = `${y - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))`;
                                                          } else {
@@ -309,7 +333,9 @@ Window {
                                                          }
 
                                                      }
-
+//                                                     console.log(dynamicStr)
+//                                                     dynamicStr = `ctx.moveTo(234 * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.width - (x1-x0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2, 330 * Math.min(image.height / (y1-y0), image.width / (x1-x0))); ctx.lineTo(image.width, image.height);`
+//                                                     console.log(dynamicStr)
                                                      const createQmlStr = `
                                                      import QtQuick 2.0
                                                      Canvas {
@@ -346,7 +372,8 @@ Window {
 //                                         height: 250
                                          width: (imageArea.width - 30) / 2
                                          height: (imageArea.width - 30) / 3
-                                         source: "file:///" + video_block_path
+//                                         source: "file:///" + video_block_path
+                                         source: "http://192.168.8.173:8256/images" + video_block_path
                                          fillMode: Image.PreserveAspectFit
                                          anchors.centerIn: parent
                                      }

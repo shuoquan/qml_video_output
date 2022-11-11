@@ -46,11 +46,18 @@ void Home::fetchBag(int bagId, int type, int ps) {
         QDateTime timeDate = QDateTime::currentDateTime();  // 获取当前时间
         int endTime = timeDate.toTime_t();
         int startTime = endTime - 300;
-        url += "&start=" + QString::number(startTime) + "000";
-        url += "&end=" + QString::number(endTime) + "000";
+//        url += "&start=" + QString::number(startTime) + "000";
+//        url += "&end=" + QString::number(endTime) + "000";
+        url += "&order=-1";
+        url += "&type=-1";
     } else {
         url += "&id=" + QString::number(bagId);
         url += "&type=" + QString::number(type);
+        if (type==-1) {
+            url += "&order=-1";
+        } else {
+            url += "&order=1";
+        }
     }
     qDebug() << url;
     QNetworkRequest request;
