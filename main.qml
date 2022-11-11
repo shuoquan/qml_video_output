@@ -15,7 +15,7 @@ Window {
         video.source = videoSrc
         homeSrc.fetchBag(0, -1, 2);
 
-//        homeSrc.fetchBag(13, 0, 1);
+//        homeSrc.fetchBag(71, 0, 1);
 //        const res = homeSrc.fetchBag(5);
 //        console.log(screen.width, 'aa', res)
 //        mock();
@@ -242,6 +242,11 @@ Window {
                                                      const leftTopY = Math.min(pointList[1], pointList[3]);
                                                      const rightBottomX = Math.max(pointList[0], pointList[2]);
                                                      const rightBottomY = Math.max(pointList[1], pointList[3]);
+                                                     // 超出区局部分不显示
+                                                     if (leftTopX<x0 || leftTopY < y0 || rightBottomX > x1 || rightBottomY > y1) {
+                                                         continue;
+                                                     }
+
                                                      if (heightRatio < widthRatio) {
                                                          console.log('1x')
         //                                                 Qt.createQmlObject(`

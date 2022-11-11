@@ -28,8 +28,8 @@ extern "C"
 Center::Center(QObject *parent) : QObject(parent)
 {
     qDebug() << "center";
-    ip = "192.168.7.69";
-    //    ip = "192.168.8.173";
+//    ip = "192.168.7.69";
+        ip = "192.168.8.173";
     port = 9999;
 //        ip = "localhost";
 //        port = 12345;
