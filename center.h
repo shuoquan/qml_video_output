@@ -5,20 +5,20 @@
 #include <qtcpserver.h>
 #include <qtcpsocket.h>
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-#include <libavformat/avformat.h>
-#include <libavutil/frame.h>
-#include <libavutil/mem.h>
-#include <libswscale/swscale.h>
-#include <libavcodec/avcodec.h>
-#include <libavutil/dict.h>
+//#ifdef __cplusplus
+//extern "C"
+//{
+//#endif
+//#include <libavformat/avformat.h>
+//#include <libavutil/frame.h>
+//#include <libavutil/mem.h>
+//#include <libswscale/swscale.h>
+//#include <libavcodec/avcodec.h>
+//#include <libavutil/dict.h>
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 #pragma execution_character_set("utf-8")
 
 class Center : public QObject
@@ -30,11 +30,11 @@ public:
     bool connected;
     QTcpServer* server; // 服务器对象
     QTcpSocket* socket;//与客户端进行发送接受信息对象
-    AVFormatContext* format_context;
-    AVFormatContext* out_format_context;
+//    AVFormatContext* format_context;
+//    AVFormatContext* out_format_context;
     unsigned char *yuv420p_data;
-    AVPacket* packet;
-    AVFrame* videoFrame;
+//    AVPacket* packet;
+//    AVFrame* videoFrame;
     int video_frame_size;
     int audio_frame_size;
     int video_frame_count;

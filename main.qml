@@ -14,7 +14,7 @@ Window {
     Component.onCompleted: {
         video.source = videoSrc
         homeSrc.fetchBag(0, -1, 2);
-
+        timer.start();
 //        homeSrc.fetchBag(71, 0, 1);
 //        const res = homeSrc.fetchBag(5);
 //        console.log(screen.width, 'aa', res)
@@ -98,449 +98,585 @@ Window {
         }
     }
 
+    Timer {
+        id: timer
+        interval: 1000
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: {
+            const dayMap = {
+                '0': '日',
+                '1': '一',
+                '2': '二',
+                '3': '三',
+                '4': '四',
+                '5': '五',
+                '6': '六',
+            }
+
+//            console.log(new Date().getDay(), '----')
+            time.text = `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}-${new Date()
+            .getDate()
+            .toString()
+            .padStart(2, '0')} 星期${dayMap[new Date().getDay()]} ${new Date()
+            .getHours()
+            .toString()
+            .padStart(2, '0')}:${new Date().getMinutes().toString().padStart(2, '0')}:${new Date()
+            .getSeconds()
+            .toString()
+            .padStart(2, '0')}`;
+//            time.text = `${new Date().getFullYear().toString()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')} +
+//                               '-' +
+//                               ${new Date().getDate().toString().padStart(2, '0')} +
+//                               ' ' +
+//                               ${new Date().getHours().toString().padStart(2, '0')} +
+//                               ':' +
+//                               ${new Date().getMinutes().toString().padStart(2, '0')} +
+//                               ':' +
+//                               ${new Date().getSeconds().toString().padStart(2, '0')}`;
+        }
+    }
+
     Rectangle {
-        id: outer
         anchors.fill: parent
-        color: '#f7f7f7'
-        ScrollView {
-            id: leftBox
-            anchors.left: outer.left
-            anchors.top: outer.top
-            height: parent.height - 20
-            width: parent.width * 2 / 3 - 10
-//            width: 800 - 10
-            //            color: 'green'
-            anchors.leftMargin: 10
-            anchors.topMargin: 10
-            anchors.bottomMargin: 10
-            clip: true
-
-//            flickableItem.onContentYChanged: {
-
-//            }
-
-//            color: '#f7f7f7'
-            //        anchors.margins: 20
-
-            Column {
-                id: column
-                spacing: 10
-//                width: parent.width
-//                height: parent.height
-                anchors.fill: parent // 注意
-
-                 ListModel {
-                     id: imageModel
-                 }
-                 Component {
-                     id: imageDelegate
-
-                     Rectangle {
-//                         height: 370
-//                         width: 790
-                         height: parent.width / 2
-                         width: parent.width
-                         color: '#ffffff'
-                         //                    anchors.margins: 10
-                         Rectangle {
-                             anchors.left: parent.left
-                             anchors.right: parent.right
-                             anchors.top: parent.top
-                             anchors.leftMargin: 20
-                             anchors.rightMargin: 20
-                             anchors.topMargin: 10
-                             //                            color: 'red'
-                             width: parent.width - 40
-//                             height: 80
-                             height:  (parent.width - 40) / 8
-                             Text {
-                                 text: id
-//                                 font.pixelSize: 30
-                                 font.pixelSize: (parent.width - 40) / 24
-                                 font.bold: true
-                                 anchors.left: parent.left
-                                 anchors.verticalCenter: parent.verticalCenter
-                             }
-                             Text {
-                                 text: block_create_at
-//                                 font.pixelSize: 20
-                                 font.pixelSize: (parent.width - 40) / 36
-                                 font.bold: true
-                                 anchors.verticalCenter: parent.verticalCenter
-                                 anchors.left: parent.left
-                                 anchors.leftMargin: 90
-                             }
-                             Button {
-                                 text: '开包检查'
-//                                 font.pixelSize: 18
-                                 font.pixelSize: (parent.width - 40) / 40
-                                 font.bold: true
-                                 anchors.verticalCenter: parent.verticalCenter
-                                 //                                width: 100
-                                 //                                height: 40
-                                 anchors.right: parent.right
-                                 anchors.rightMargin: 20
-                                 background: Rectangle {
-//                                     implicitWidth: 100
-//                                     implicitHeight: 40
-                                     implicitWidth: (parent.width - 40) / 7
-                                     implicitHeight: (parent.width - 40) / 18
-                                     border.color: '#293351'
-                                     border.width: 2
-                                     radius: 4
-                                 }
-                             }
-                         }
-                         Rectangle {
-                             id: imageArea
-                             anchors.right: parent.right
-                             anchors.left: parent.left
-                             anchors.bottom: parent.bottom
-                             anchors.leftMargin: 20
-                             anchors.rightMargin: 20
-                             anchors.bottomMargin: 10
-                             //                            color: 'red'
-                             width: parent.width - 40
-//                             height: 250
-                             height: (parent.width - 40) / 3
-                             Row {
-                                 spacing: 10
-                                 Rectangle {
-//                                     width: 364
-//                                     height: 254
-                                     width: (imageArea.width - 30) / 2 + 4
-                                     height: (imageArea.width - 30) / 3 + 4
-                                     border.color: '#f7f7f7'
-                                     border.width: 2
-                                     radius: 2
-                                     Image {
-                                         id: image
-//                                         width: 360
-//                                         height: 250
-                                         width: (imageArea.width - 30) / 2
-                                         height: (imageArea.width - 30) / 3
-                                         sourceSize.width: block_width
-                                         sourceSize.height: block_height
-                                         sourceClipRect: Qt.rect(x0,y0,x1-x0,y1-y0)
-//                                         source: "file:///" + block_path
-                                         source: "http://192.168.8.173:8256/images" + block_path
-                                         fillMode: Image.PreserveAspectFit
-                                         anchors.centerIn: parent
-
-                                         Component.onCompleted:   {
-                                             const heightRatio = image.height / (y1-y0);
-                                             const widthRatio = image.width / (x1-x0);
-                                             const ratio = Math.min(widthRatio, heightRatio);
-                                             const unpackBoxList = JSON.parse(unpackBoxInfoList);
-                                             for(const box of unpackBoxList) {
-//                                                 console.log('box')
-//                                                 console.log(JSON.stringify(box))
-                                                 // 处理矩形情况
-                                                 if (box.type == 1) {
-                                                     const pointList = box.box.replace(/[(|)|{|}|"]/g, '').split(",").map(Number);
-                                                     const leftTopX = Math.min(pointList[0], pointList[2]);
-                                                     const leftTopY = Math.min(pointList[1], pointList[3]);
-                                                     const rightBottomX = Math.max(pointList[0], pointList[2]);
-                                                     const rightBottomY = Math.max(pointList[1], pointList[3]);
-                                                     // 超出区局部分不显示
-                                                     if (leftTopX<x0 || leftTopY < y0 || rightBottomX > x1 || rightBottomY > y1) {
-                                                         continue;
-                                                     }
-
-                                                     if (heightRatio < widthRatio) {
-                                                         console.log('1x')
-        //                                                 Qt.createQmlObject(`
-        //                                                 import QtQuick 2.0
-        //                                                 Rectangle {
-        //                                                    width: ${width}
-        //                                                    height: ${height}
-        //                                                    border.color: 'red'
-        //                                                    border.width: 2
-        //                                                    anchors.top: parent.top
-        //                                                    anchors.left: parent.left
-        //                                                    anchors.leftMargin: ${160 * ratio + (image.width - (x1-x0)*ratio) / 2}
-        //                                                    anchors.topMargin: ${60 * ratio}
-        //                                                    color: 'transparent'
-        //                                                 }
-        //                                                 `,
-        //                                                 parent, "myItem")
-                                                         Qt.createQmlObject(`
-                                                         import QtQuick 2.0
-                                                         Rectangle {
-                                                            width: ${rightBottomX - leftTopX} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
-                                                            height: ${rightBottomY - leftTopY} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
-                                                            border.color: 'red'
-                                                            border.width: 2
-                                                            anchors.top: parent.top
-                                                            anchors.left: parent.left
-                                                            anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.width - (x1-x0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2
-                                                            anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
-                                                            color: 'transparent'
-                                                         }
-                                                         `,
-                                                         parent, `myItem${box.id}`)
-                                                     } else {
-                                                         console.log('2x')
-                                                         Qt.createQmlObject(`
-                                                         import QtQuick 2.0
-                                                         Rectangle {
-                                                            width: ${rightBottomX - leftTopX} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
-                                                            height: ${rightBottomY - leftTopY} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
-                                                            border.color: 'red'
-                                                            border.width: 2
-                                                            anchors.top: parent.top
-                                                            anchors.left: parent.left
-                                                            anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
-                                                            anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.height - (y1-y0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2
-                                                            color: 'transparent'
-                                                         }
-                                                         `,
-                                                         parent, `myItem${box.id}`)
-                                                     }
-                                                 } else if(box.type == 2) {
-                                                     const leftTopX = 236;
-                                                     const leftTopY = 345;
-                                                     const rightBottomX = 343;
-                                                     const rightBottomY = 406;
-//                                                     Qt.createQmlObject(`
-//                                                     import QtQuick 2.0
-//                                                     Rectangle {
-//                                                        width: ${rightBottomX - leftTopX} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
-//                                                        height: ${rightBottomY - leftTopY} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
-//                                                        border.color: 'red'
-//                                                        border.width: 2
-//                                                        anchors.top: parent.top
-//                                                        anchors.left: parent.left
-//                                                        anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.width - (x1-x0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2
-//                                                        anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
-//                                                        color: 'transparent'
-//                                                     }
-//                                                     `,
-//                                                     parent, `myItem${box.id}`)
-//                                                     const pointList = [236, 345, 343, 345, 343, 406, 236, 406];
-                                                     const pointList = box.box.replace(/[(|)|{|}|"]/g, '').split(",").map(Number);
-                                                     let dynamicStr = "";
-                                                     for(let i=0; i<pointList.length; i+=2) {
-                                                         const [x, y] = [pointList[i], pointList[i+1]];
-                                                         let param1, param2;
-//                                                         console.log(heightRatio, ratio, 'xx');
-                                                         if (heightRatio < widthRatio) {
-                                                             param1 = `${x - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.width - (x1-x0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2`;
-                                                             param2 = `${y - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))`;
-                                                         } else {
-                                                             param1 = `${x - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))`;
-                                                             param2 = `${y - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.height - (y1-y0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2`;
-                                                         }
-                                                         if (i==0) {
-                                                             dynamicStr += `ctx.moveTo(${param1}, ${param2});`
-                                                         } else {
-                                                             dynamicStr += `ctx.lineTo(${param1}, ${param2});`
-                                                         }
-
-                                                     }
-//                                                     console.log(dynamicStr)
-//                                                     dynamicStr = `ctx.moveTo(234 * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.width - (x1-x0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2, 330 * Math.min(image.height / (y1-y0), image.width / (x1-x0))); ctx.lineTo(image.width, image.height);`
-//                                                     console.log(dynamicStr)
-                                                     const createQmlStr = `
-                                                     import QtQuick 2.0
-                                                     Canvas {
-                                                        id: canvas
-                                                        anchors.fill: parent
-                                                        onPaint: {
-                                                           const ctx =  getContext('2d');
-                                                           ctx.beginPath();
-                                                           ctx.strokeStyle = "#FF0000";
-                                                           ctx.lineWidth = 2;
-                                                           ${dynamicStr}
-                                                           ctx.stroke();
-                                                        }
-                                                     }
-                                                     `;
-                                                     Qt.createQmlObject(createQmlStr, parent, `myItem${box.id}`);
-                                                 }
-                                             }
-
-                                         }
-                                     }
-                                 }
-
-                                 Rectangle {
-//                                     width: 364
-//                                     height: 254
-                                     width: (imageArea.width - 30) / 2 + 4
-                                     height: (imageArea.width - 30) / 3 + 4
-                                     border.color: '#f7f7f7'
-                                     border.width: 2
-                                     radius: 2
-                                     Image {
-//                                         width: 360
-//                                         height: 250
-                                         width: (imageArea.width - 30) / 2
-                                         height: (imageArea.width - 30) / 3
-//                                         source: "file:///" + video_block_path
-                                         source: "http://192.168.8.173:8256/images" + video_block_path
-                                         fillMode: Image.PreserveAspectFit
-                                         anchors.centerIn: parent
-                                     }
-                                 }
-                             }
-                         }
-                     }
-                 }
-
-                 ListView {
-                     anchors.fill: parent
-                     model: imageModel
-                     delegate: imageDelegate
-                     onContentYChanged: {
-                         console.log(contentY, contentHeight, height, 'ddd', originY)
-                         if (contentHeight > height && contentY - originY == contentHeight - height) {
-                             console.log('getFromBottom-------');
-//                             insertDirection = -1;
-                             homeSrc.fetchBag(imageModel.get(imageModel.count - 1).id, -1, 1);
-                         }
-                         if (contentY == 0 || contentY == originY) {
-                             console.log('getFromTop----');
-//                             insertDirection = 0;
-                             homeSrc.fetchBag(imageModel.get(0).id, 1, 1);
-                         }
-
-//                         if (contentY === contentHeight - height) {
-//                             addImageToBottom()
-//                         }
-//                         if (contentY >= 1520 && (contentY - 1520) % 370 === 0) {
-//                             addImageToBottom()
-//                         }
-                     }
-                 }
+        Rectangle {
+            id: header
+            width: parent.width
+            height: Math.min(parent.height / 10, 60)
+            color: "#203864"
+            Image {
+                anchors.left: parent.left
+                height: parent.height
+                source: './images/company.png'
+                fillMode: Image.PreserveAspectFit
+                anchors.leftMargin: 0.2 * parent.height
+            }
+            Rectangle {
+                height: parent.height
+                width: Math.max(0.2 * parent.width, 400)
+//                color: "black"
+                color: "#203864"
+                anchors.right: parent.right
+                anchors.rightMargin: 0.3 * parent.height
+                Text {
+                    id: time
+                    text: ""
+                    color: "white"
+                    font.pixelSize: Math.min(20,  parent.height / 2)
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.right: parent.right
+                }
             }
         }
 
         Rectangle {
-            id: rightBox
-            height: parent.height - 20
-//            width: 400 - 20
-            width: (parent.width) / 3 - 20
-//            color: 'yellow'
-            anchors.left: leftBox.right
-            anchors.top: outer.top
-            anchors.leftMargin: 10
-            anchors.topMargin: 10
-            anchors.rightMargin: 10
+            id: footer
+            width: parent.width
+            height: Math.min(parent.height / 5, 120)
+            color: "#203864"
+            anchors.bottom: parent.bottom
+            Rectangle {
+                id: leftArea
+                height: parent.height
+                anchors.left: parent.left
+                color: "#3664b1"
+                width: Math.max(parent.width / 10, 150)
+                Image {
+                    id: search
+                    anchors.left: parent.left
+                    anchors.leftMargin: (leftArea.width - 10 - search.width - searchText.width) / 2
+                    height: parent.height / 2
+                    source: './images/search.jpg'
+                    fillMode: Image.PreserveAspectFit
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+                Text {
+                    id: searchText
+                    anchors.left: search.right
+                    anchors.leftMargin: 10
+                    text: "查询"
+                    color: "white"
+                    font.pixelSize: search.height / 2
+                    anchors.verticalCenter: parent.verticalCenter
+                    font.bold: true
+                }
+            }
+            Rectangle {
+                id: rightArea
+                height: parent.height
+                anchors.right: parent.right
+                color: "#3664b1"
+                width: Math.max(parent.width / 10, 150)
+                Image {
+                    id: setting
+                    anchors.left: parent.left
+                    anchors.leftMargin: (rightArea.width - 10 - setting.width - settingText.width) / 2
+                    height: parent.height / 2
+                    source: './images/setting.jpg'
+                    fillMode: Image.PreserveAspectFit
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+                Text {
+                    id: settingText
+                    anchors.left: setting.right
+                    anchors.leftMargin: 10
+                    text: "设置"
+                    color: "white"
+                    font.pixelSize: setting.height / 2
+                    anchors.verticalCenter: parent.verticalCenter
+                    font.bold: true
+                }
+            }
+        }
 
-//            ScrollView {
-//                anchors.fill: parent
-//                clip: true
-//                Column {
-//                    spacing: 10
-//                    anchors.fill: parent
-//                    Rectangle {
-//    //                    anchors.fill: parent
-//                        height: 250
-//                        width: parent.width
-//                        color: 'red'
-//                    }
-//                    Rectangle {
-//                        height: 250
-//                        width: parent.width
-//                        color: 'green'
-//                    }
-//                    Rectangle {
-//                        height: 200
-//                        width: parent.width
-//                        color: 'yellow'
-//                    }
-//                    Rectangle {
-//                        height: 200
-//                        width: parent.width
-//                        color: 'red'
-//                    }
-//                    Rectangle {
-//                        height: 200
-//                        width: parent.width
-//                        color: 'yellow'
-//                    }
-//                    Rectangle {
-//                        height: 200
-//                        width: parent.width
-//                        color: 'green'
-//                    }
-//                }
-//            }
+        Rectangle {
+            id: outer
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: header.bottom
+            anchors.bottom: footer.top
+//            anchors.fill: parent
+            color: '#f7f7f7'
+            ScrollView {
+                id: leftBox
+                anchors.left: outer.left
+                anchors.top: outer.top
+                height: parent.height - 20
+                width: parent.width * 2 / 3 - 10
+    //            width: 800 - 10
+                //            color: 'green'
+                anchors.leftMargin: 10
+                anchors.topMargin: 10
+                anchors.bottomMargin: 10
+                clip: true
 
+    //            flickableItem.onContentYChanged: {
 
-            VideoOutput {
-                id: video
-                 width: parent.width
-                 height: parent.height
-//                 height: parent.height
-                // anchors.horizontalCenter: parent.horizontalCenter
-                // anchors.verticalCenter: parent.verticalCenter
-                anchors.centerIn: parent
-                fillMode: VideoOutput.PreserveAspectFit
-//                source: camera
-                focus : visible // to receive focus and capture key events when visible
-//                source: provider
+    //            }
+
+    //            color: '#f7f7f7'
+                //        anchors.margins: 20
+
+                Column {
+                    id: column
+                    spacing: 10
+    //                width: parent.width
+    //                height: parent.height
+                    anchors.fill: parent // 注意
+
+                     ListModel {
+                         id: imageModel
+                     }
+                     Component {
+                         id: imageDelegate
+
+                         Rectangle {
+    //                         height: 370
+    //                         width: 790
+                             height: parent.width / 2
+                             width: parent.width
+                             color: '#ffffff'
+                             //                    anchors.margins: 10
+                             Rectangle {
+                                 anchors.left: parent.left
+                                 anchors.right: parent.right
+                                 anchors.top: parent.top
+                                 anchors.leftMargin: 20
+                                 anchors.rightMargin: 20
+                                 anchors.topMargin: 10
+                                 //                            color: 'red'
+                                 width: parent.width - 40
+    //                             height: 80
+                                 height:  (parent.width - 40) / 8
+                                 Text {
+                                     text: id
+    //                                 font.pixelSize: 30
+                                     font.pixelSize: (parent.width - 40) / 24
+                                     font.bold: true
+                                     anchors.left: parent.left
+                                     anchors.verticalCenter: parent.verticalCenter
+                                 }
+                                 Text {
+                                     text: block_create_at
+    //                                 font.pixelSize: 20
+                                     font.pixelSize: (parent.width - 40) / 36
+                                     font.bold: true
+                                     anchors.verticalCenter: parent.verticalCenter
+                                     anchors.left: parent.left
+                                     anchors.leftMargin: 90
+                                 }
+                                 Button {
+                                     text: '开包检查'
+    //                                 font.pixelSize: 18
+                                     font.pixelSize: (parent.width - 40) / 40
+                                     font.bold: true
+                                     anchors.verticalCenter: parent.verticalCenter
+                                     //                                width: 100
+                                     //                                height: 40
+                                     anchors.right: parent.right
+                                     anchors.rightMargin: 20
+                                     background: Rectangle {
+    //                                     implicitWidth: 100
+    //                                     implicitHeight: 40
+                                         implicitWidth: (parent.width - 40) / 7
+                                         implicitHeight: (parent.width - 40) / 18
+                                         border.color: '#293351'
+                                         border.width: 2
+                                         radius: 4
+                                     }
+                                 }
+                             }
+                             Rectangle {
+                                 id: imageArea
+                                 anchors.right: parent.right
+                                 anchors.left: parent.left
+                                 anchors.bottom: parent.bottom
+                                 anchors.leftMargin: 20
+                                 anchors.rightMargin: 20
+                                 anchors.bottomMargin: 10
+                                 //                            color: 'red'
+                                 width: parent.width - 40
+    //                             height: 250
+                                 height: (parent.width - 40) / 3
+                                 Row {
+                                     spacing: 10
+                                     Rectangle {
+    //                                     width: 364
+    //                                     height: 254
+                                         width: (imageArea.width - 30) / 2 + 4
+                                         height: (imageArea.width - 30) / 3 + 4
+                                         border.color: '#f7f7f7'
+                                         border.width: 2
+                                         radius: 2
+                                         Image {
+                                             id: image
+    //                                         width: 360
+    //                                         height: 250
+                                             width: (imageArea.width - 30) / 2
+                                             height: (imageArea.width - 30) / 3
+                                             sourceSize.width: block_width
+                                             sourceSize.height: block_height
+                                             sourceClipRect: Qt.rect(x0,y0,x1-x0,y1-y0)
+    //                                         source: "file:///" + block_path
+                                             source: "http://192.168.8.173:8256/images" + block_path
+                                             fillMode: Image.PreserveAspectFit
+                                             anchors.centerIn: parent
+
+                                             Component.onCompleted:   {
+                                                 const heightRatio = image.height / (y1-y0);
+                                                 const widthRatio = image.width / (x1-x0);
+                                                 const ratio = Math.min(widthRatio, heightRatio);
+                                                 const unpackBoxList = JSON.parse(unpackBoxInfoList);
+                                                 for(const box of unpackBoxList) {
+    //                                                 console.log('box')
+    //                                                 console.log(JSON.stringify(box))
+                                                     // 处理矩形情况
+                                                     if (box.type == 1) {
+                                                         const pointList = box.box.replace(/[(|)|{|}|"]/g, '').split(",").map(Number);
+                                                         const leftTopX = Math.min(pointList[0], pointList[2]);
+                                                         const leftTopY = Math.min(pointList[1], pointList[3]);
+                                                         const rightBottomX = Math.max(pointList[0], pointList[2]);
+                                                         const rightBottomY = Math.max(pointList[1], pointList[3]);
+                                                         // 超出区局部分不显示
+                                                         if (leftTopX<x0 || leftTopY < y0 || rightBottomX > x1 || rightBottomY > y1) {
+                                                             continue;
+                                                         }
+
+                                                         if (heightRatio < widthRatio) {
+                                                             console.log('1x')
+            //                                                 Qt.createQmlObject(`
+            //                                                 import QtQuick 2.0
+            //                                                 Rectangle {
+            //                                                    width: ${width}
+            //                                                    height: ${height}
+            //                                                    border.color: 'red'
+            //                                                    border.width: 2
+            //                                                    anchors.top: parent.top
+            //                                                    anchors.left: parent.left
+            //                                                    anchors.leftMargin: ${160 * ratio + (image.width - (x1-x0)*ratio) / 2}
+            //                                                    anchors.topMargin: ${60 * ratio}
+            //                                                    color: 'transparent'
+            //                                                 }
+            //                                                 `,
+            //                                                 parent, "myItem")
+                                                             Qt.createQmlObject(`
+                                                             import QtQuick 2.0
+                                                             Rectangle {
+                                                                width: ${rightBottomX - leftTopX} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+                                                                height: ${rightBottomY - leftTopY} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+                                                                border.color: 'red'
+                                                                border.width: 2
+                                                                anchors.top: parent.top
+                                                                anchors.left: parent.left
+                                                                anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.width - (x1-x0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2
+                                                                anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+                                                                color: 'transparent'
+                                                             }
+                                                             `,
+                                                             parent, `myItem${box.id}`)
+                                                         } else {
+                                                             console.log('2x')
+                                                             Qt.createQmlObject(`
+                                                             import QtQuick 2.0
+                                                             Rectangle {
+                                                                width: ${rightBottomX - leftTopX} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+                                                                height: ${rightBottomY - leftTopY} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+                                                                border.color: 'red'
+                                                                border.width: 2
+                                                                anchors.top: parent.top
+                                                                anchors.left: parent.left
+                                                                anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+                                                                anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.height - (y1-y0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2
+                                                                color: 'transparent'
+                                                             }
+                                                             `,
+                                                             parent, `myItem${box.id}`)
+                                                         }
+                                                     } else if(box.type == 2) {
+                                                         const leftTopX = 236;
+                                                         const leftTopY = 345;
+                                                         const rightBottomX = 343;
+                                                         const rightBottomY = 406;
+    //                                                     Qt.createQmlObject(`
+    //                                                     import QtQuick 2.0
+    //                                                     Rectangle {
+    //                                                        width: ${rightBottomX - leftTopX} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+    //                                                        height: ${rightBottomY - leftTopY} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+    //                                                        border.color: 'red'
+    //                                                        border.width: 2
+    //                                                        anchors.top: parent.top
+    //                                                        anchors.left: parent.left
+    //                                                        anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.width - (x1-x0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2
+    //                                                        anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+    //                                                        color: 'transparent'
+    //                                                     }
+    //                                                     `,
+    //                                                     parent, `myItem${box.id}`)
+    //                                                     const pointList = [236, 345, 343, 345, 343, 406, 236, 406];
+                                                         const pointList = box.box.replace(/[(|)|{|}|"]/g, '').split(",").map(Number);
+                                                         let dynamicStr = "";
+                                                         for(let i=0; i<pointList.length; i+=2) {
+                                                             const [x, y] = [pointList[i], pointList[i+1]];
+                                                             let param1, param2;
+    //                                                         console.log(heightRatio, ratio, 'xx');
+                                                             if (heightRatio < widthRatio) {
+                                                                 param1 = `${x - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.width - (x1-x0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2`;
+                                                                 param2 = `${y - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))`;
+                                                             } else {
+                                                                 param1 = `${x - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))`;
+                                                                 param2 = `${y - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.height - (y1-y0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2`;
+                                                             }
+                                                             if (i==0) {
+                                                                 dynamicStr += `ctx.moveTo(${param1}, ${param2});`
+                                                             } else {
+                                                                 dynamicStr += `ctx.lineTo(${param1}, ${param2});`
+                                                             }
+
+                                                         }
+    //                                                     console.log(dynamicStr)
+    //                                                     dynamicStr = `ctx.moveTo(234 * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.width - (x1-x0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2, 330 * Math.min(image.height / (y1-y0), image.width / (x1-x0))); ctx.lineTo(image.width, image.height);`
+    //                                                     console.log(dynamicStr)
+                                                         const createQmlStr = `
+                                                         import QtQuick 2.0
+                                                         Canvas {
+                                                            id: canvas
+                                                            anchors.fill: parent
+                                                            onPaint: {
+                                                               const ctx =  getContext('2d');
+                                                               ctx.beginPath();
+                                                               ctx.strokeStyle = "#FF0000";
+                                                               ctx.lineWidth = 2;
+                                                               ${dynamicStr}
+                                                               ctx.stroke();
+                                                            }
+                                                         }
+                                                         `;
+                                                         Qt.createQmlObject(createQmlStr, parent, `myItem${box.id}`);
+                                                     }
+                                                 }
+
+                                             }
+                                         }
+                                     }
+
+                                     Rectangle {
+    //                                     width: 364
+    //                                     height: 254
+                                         width: (imageArea.width - 30) / 2 + 4
+                                         height: (imageArea.width - 30) / 3 + 4
+                                         border.color: '#f7f7f7'
+                                         border.width: 2
+                                         radius: 2
+                                         Image {
+    //                                         width: 360
+    //                                         height: 250
+                                             width: (imageArea.width - 30) / 2
+                                             height: (imageArea.width - 30) / 3
+    //                                         source: "file:///" + video_block_path
+                                             source: "http://192.168.8.173:8256/images" + video_block_path
+                                             fillMode: Image.PreserveAspectFit
+                                             anchors.centerIn: parent
+                                         }
+                                     }
+                                 }
+                             }
+                         }
+                     }
+
+                     ListView {
+                         anchors.fill: parent
+                         model: imageModel
+                         delegate: imageDelegate
+                         onContentYChanged: {
+                             console.log(contentY, contentHeight, height, 'ddd', originY)
+                             if (contentHeight > height && contentY - originY == contentHeight - height) {
+                                 console.log('getFromBottom-------');
+    //                             insertDirection = -1;
+                                 homeSrc.fetchBag(imageModel.get(imageModel.count - 1).id, -1, 1);
+                             }
+                             if (contentY == 0 || contentY == originY) {
+                                 console.log('getFromTop----');
+    //                             insertDirection = 0;
+                                 homeSrc.fetchBag(imageModel.get(0).id, 1, 1);
+                             }
+
+    //                         if (contentY === contentHeight - height) {
+    //                             addImageToBottom()
+    //                         }
+    //                         if (contentY >= 1520 && (contentY - 1520) % 370 === 0) {
+    //                             addImageToBottom()
+    //                         }
+                         }
+                     }
+                }
             }
 
+            Rectangle {
+                id: rightBox
+                height: parent.height - 20
+    //            width: 400 - 20
+                width: (parent.width) / 3 - 20
+    //            color: 'yellow'
+                anchors.left: leftBox.right
+                anchors.top: outer.top
+                anchors.leftMargin: 10
+                anchors.topMargin: 10
+                anchors.rightMargin: 10
 
-//            Rectangle {
-//                width: 100
-//                height: 100
-//                anchors.left: parent.left
-//                anchors.top: video.bottom
-////                color: 'red'
-//                Canvas {
-//                    id: canvas
-//                    anchors.fill: parent
-//                    onPaint: {
-//                        console.log('xxxxx')
-//                        const ctx = getContext('2d');
-////                        ctx.strokeRect(20,20,60,60);
-////                        ctx.strokeStyle = "white";
+    //            ScrollView {
+    //                anchors.fill: parent
+    //                clip: true
+    //                Column {
+    //                    spacing: 10
+    //                    anchors.fill: parent
+    //                    Rectangle {
+    //    //                    anchors.fill: parent
+    //                        height: 250
+    //                        width: parent.width
+    //                        color: 'red'
+    //                    }
+    //                    Rectangle {
+    //                        height: 250
+    //                        width: parent.width
+    //                        color: 'green'
+    //                    }
+    //                    Rectangle {
+    //                        height: 200
+    //                        width: parent.width
+    //                        color: 'yellow'
+    //                    }
+    //                    Rectangle {
+    //                        height: 200
+    //                        width: parent.width
+    //                        color: 'red'
+    //                    }
+    //                    Rectangle {
+    //                        height: 200
+    //                        width: parent.width
+    //                        color: 'yellow'
+    //                    }
+    //                    Rectangle {
+    //                        height: 200
+    //                        width: parent.width
+    //                        color: 'green'
+    //                    }
+    //                }
+    //            }
 
-//                        ctx.beginPath();
-//                        ctx.strokeStyle="#FF0000";
-//                        ctx.lineWidth = 2;
-////                        ctx.moveTo(400, 280);
-////                        ctx.lineTo(420, 300);
-////                        ctx.lineTo(400, 300);
-//                        ctx.moveTo(20, 20);
-//                        ctx.lineTo(60, 60);
-//                        ctx.lineTo(20, 60);
-////                        ctx.closePath();
-//                        ctx.stroke();
-//                        console.log('ajklsjl')
-//                    }
-//                }
-//            }
+
+                VideoOutput {
+                    id: video
+                     width: parent.width
+                     height: parent.height
+    //                 height: parent.height
+                    // anchors.horizontalCenter: parent.horizontalCenter
+                    // anchors.verticalCenter: parent.verticalCenter
+                    anchors.centerIn: parent
+                    fillMode: VideoOutput.PreserveAspectFit
+    //                source: camera
+                    focus : visible // to receive focus and capture key events when visible
+    //                source: provider
+                }
 
 
-//            MediaPlayer {
-//                    id: videoPlayer
-//                    source: "rtmp://192.168.133.128:1935/live/test"
-//                    muted: true
-//                    autoPlay: true
-//              }
+    //            Rectangle {
+    //                width: 100
+    //                height: 100
+    //                anchors.left: parent.left
+    //                anchors.top: video.bottom
+    ////                color: 'red'
+    //                Canvas {
+    //                    id: canvas
+    //                    anchors.fill: parent
+    //                    onPaint: {
+    //                        console.log('xxxxx')
+    //                        const ctx = getContext('2d');
+    ////                        ctx.strokeRect(20,20,60,60);
+    ////                        ctx.strokeStyle = "white";
 
-//            VideoAdapter {
-//                id: provider
-//                source: "rtmp://192.168.133.128:1935/live/test"
-//            }
+    //                        ctx.beginPath();
+    //                        ctx.strokeStyle="#FF0000";
+    //                        ctx.lineWidth = 2;
+    ////                        ctx.moveTo(400, 280);
+    ////                        ctx.lineTo(420, 300);
+    ////                        ctx.lineTo(400, 300);
+    //                        ctx.moveTo(20, 20);
+    //                        ctx.lineTo(60, 60);
+    //                        ctx.lineTo(20, 60);
+    ////                        ctx.closePath();
+    //                        ctx.stroke();
+    //                        console.log('ajklsjl')
+    //                    }
+    //                }
+    //            }
 
-//            Camera {
-//                id: camera
-//            }
 
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-//                    mock();
-//                    videoSrc.startPlay()
-//                    addImageToBottom()
+    //            MediaPlayer {
+    //                    id: videoPlayer
+    //                    source: "rtmp://192.168.133.128:1935/live/test"
+    //                    muted: true
+    //                    autoPlay: true
+    //              }
 
-//                    fruitModel.append({"cost": 5.95, "name":"Pizza"})
-//                    console.log(fruitModel)
+    //            VideoAdapter {
+    //                id: provider
+    //                source: "rtmp://192.168.133.128:1935/live/test"
+    //            }
+
+    //            Camera {
+    //                id: camera
+    //            }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+    //                    mock();
+    //                    videoSrc.startPlay()
+    //                    addImageToBottom()
+
+    //                    fruitModel.append({"cost": 5.95, "name":"Pizza"})
+    //                    console.log(fruitModel)
+                    }
                 }
             }
         }
