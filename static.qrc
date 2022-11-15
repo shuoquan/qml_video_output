@@ -5,5 +5,7 @@
         <file>setting.png</file>
         <file>search.jpg</file>
         <file>setting.jpg</file>
+        <file>logo.ico</file>
+        <file>logo2.ico</file>
     </qresource>
 </RCC>

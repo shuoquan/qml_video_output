@@ -3,7 +3,7 @@
 
 Home::Home(QObject *parent) : QObject(parent)
 {
-    ip = "localhost";
+    ip = "192.168.8.177";
     port = 9528;
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &Home::TimeOutSlot);
@@ -39,7 +39,9 @@ Home::~Home()
 void Home::fetchBag(int bagId, int type, int ps) {
     qDebug() << "fetchBag";
     qDebug() << bagId;
-    QString url = "http://192.168.8.117:3000/bag";
+//    QString url = "http://localhost:3000/bag";
+    QString url = "http://192.168.8.177:3000/bag";
+//    ps = 2;
     url += "?ps=" + QString::number(ps);
     if (bagId == 0) {
         // 初始化时寻找前5分钟的前2个包

@@ -5,10 +5,18 @@ import QtQuick.Controls 2.15
 //import VideoAdapter 1.0
 
 Window {
+    title: "开包台"
     minimumWidth: 640
     minimumHeight: 360
+    width: screen.width
+    height: screen.height
+//    flags:  Qt.FramelessWindowHint
 //    maximumWidth: 1200
 //    maximumHeight: 720
+    property bool fullScreen: true
+//    http://192.168.8.173:8256/images
+    property string imagePath: "http://192.168.8.177:8256/images"
+    flags: fullScreen ? Qt.FramelessWindowHint : Qt.Window
     visible: true
 
     Component.onCompleted: {
@@ -139,6 +147,26 @@ Window {
 
     Rectangle {
         anchors.fill: parent
+        Keys.enabled: true
+        focus: true
+
+        Keys.onPressed: {
+//            console.log('key', event.key);
+            switch (event.key) {
+                case 16777216:
+                    fullScreen = false;
+                    break;
+                case 16777274:
+                    fullScreen = !fullScreen;
+                    break;
+                case 16777329:
+                    fullScreen = !fullScreen;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         Rectangle {
             id: header
             width: parent.width
@@ -242,7 +270,7 @@ Window {
                 anchors.left: outer.left
                 anchors.top: outer.top
                 height: parent.height - 20
-                width: parent.width * 2 / 3 - 10
+                width: parent.width * 0.7 - 10 // 2/3改为3/4
     //            width: 800 - 10
                 //            color: 'green'
                 anchors.leftMargin: 10
@@ -273,11 +301,16 @@ Window {
                          Rectangle {
     //                         height: 370
     //                         width: 790
-                             height: parent.width / 2
+                             id: itemBox
+//                             height: parent.width / 2
+                             height: parent.width / 3
                              width: parent.width
                              color: '#ffffff'
                              //                    anchors.margins: 10
                              Rectangle {
+                                 id: itemTitle
+//                                 border.width: 2
+//                                 border.color: "red"
                                  anchors.left: parent.left
                                  anchors.right: parent.right
                                  anchors.top: parent.top
@@ -287,11 +320,13 @@ Window {
                                  //                            color: 'red'
                                  width: parent.width - 40
     //                             height: 80
-                                 height:  (parent.width - 40) / 8
+//                                 height:  (parent.width - 40) / 8
+                                 height:  (parent.width - 40) / 24
                                  Text {
                                      text: id
     //                                 font.pixelSize: 30
-                                     font.pixelSize: (parent.width - 40) / 24
+//                                     font.pixelSize: (parent.width - 40) / 24
+                                     font.pixelSize: (parent.width - 40) / 48
                                      font.bold: true
                                      anchors.left: parent.left
                                      anchors.verticalCenter: parent.verticalCenter
@@ -299,16 +334,18 @@ Window {
                                  Text {
                                      text: block_create_at
     //                                 font.pixelSize: 20
-                                     font.pixelSize: (parent.width - 40) / 36
+//                                     font.pixelSize: (parent.width - 40) / 36
+                                     font.pixelSize: (parent.width - 40) / 72
                                      font.bold: true
                                      anchors.verticalCenter: parent.verticalCenter
                                      anchors.left: parent.left
                                      anchors.leftMargin: 90
                                  }
                                  Button {
-                                     text: '开包检查'
+                                     id: unpack
+                                     text: '开包记录'
     //                                 font.pixelSize: 18
-                                     font.pixelSize: (parent.width - 40) / 40
+                                     font.pixelSize: (parent.width - 40) / 60 / 1.5
                                      font.bold: true
                                      anchors.verticalCenter: parent.verticalCenter
                                      //                                width: 100
@@ -316,13 +353,22 @@ Window {
                                      anchors.right: parent.right
                                      anchors.rightMargin: 20
                                      background: Rectangle {
-    //                                     implicitWidth: 100
-    //                                     implicitHeight: 40
-                                         implicitWidth: (parent.width - 40) / 7
-                                         implicitHeight: (parent.width - 40) / 18
-                                         border.color: '#293351'
-                                         border.width: 2
-                                         radius: 4
+//                                         implicitWidth: 100
+//                                         implicitHeight: 40
+                                         implicitWidth: (itemBox.width - 40) / 7 / 1.8
+                                         implicitHeight: (itemBox.width - 40) / 18 / 2
+                                         color: "#3664b1"
+//                                         border.color: '#293351'
+//                                         border.width: 2
+                                         radius: 2
+                                     }
+                                     contentItem: Text {
+                                         text: unpack.text
+                                         font.bold: true
+                                         font.pixelSize: unpack.font.pixelSize
+                                         color: "#ffffff"
+                                         horizontalAlignment: Text.AlignHCenter
+                                         verticalAlignment: Text.AlignVCenter
                                      }
                                  }
                              }
@@ -330,21 +376,25 @@ Window {
                                  id: imageArea
                                  anchors.right: parent.right
                                  anchors.left: parent.left
-                                 anchors.bottom: parent.bottom
+                                 anchors.top: itemTitle.bottom
                                  anchors.leftMargin: 20
                                  anchors.rightMargin: 20
-                                 anchors.bottomMargin: 10
+                                 anchors.topMargin: 15
+//                                 border.width: 2
+//                                 border.color: '#000000'
                                  //                            color: 'red'
                                  width: parent.width - 40
     //                             height: 250
-                                 height: (parent.width - 40) / 3
+//                                 height: (parent.width - 40) / 3
+                                 height: (parent.width - 40) / 4 / 1.1
                                  Row {
                                      spacing: 10
                                      Rectangle {
     //                                     width: 364
     //                                     height: 254
                                          width: (imageArea.width - 30) / 2 + 4
-                                         height: (imageArea.width - 30) / 3 + 4
+//                                         height: (imageArea.width - 30) / 3 + 4
+                                         height: (imageArea.width - 30) / 5 * 1.1 + 4
                                          border.color: '#f7f7f7'
                                          border.width: 2
                                          radius: 2
@@ -353,12 +403,13 @@ Window {
     //                                         width: 360
     //                                         height: 250
                                              width: (imageArea.width - 30) / 2
-                                             height: (imageArea.width - 30) / 3
+//                                             height: (imageArea.width - 30) / 3
+                                             height: (imageArea.width - 30) / 5 * 1.1
                                              sourceSize.width: block_width
                                              sourceSize.height: block_height
                                              sourceClipRect: Qt.rect(x0,y0,x1-x0,y1-y0)
     //                                         source: "file:///" + block_path
-                                             source: "http://192.168.8.173:8256/images" + block_path
+                                             source: imagePath + block_path
                                              fillMode: Image.PreserveAspectFit
                                              anchors.centerIn: parent
 
@@ -383,7 +434,7 @@ Window {
                                                          }
 
                                                          if (heightRatio < widthRatio) {
-                                                             console.log('1x')
+//                                                             console.log('1x')
             //                                                 Qt.createQmlObject(`
             //                                                 import QtQuick 2.0
             //                                                 Rectangle {
@@ -415,7 +466,7 @@ Window {
                                                              `,
                                                              parent, `myItem${box.id}`)
                                                          } else {
-                                                             console.log('2x')
+//                                                             console.log('2x')
                                                              Qt.createQmlObject(`
                                                              import QtQuick 2.0
                                                              Rectangle {
@@ -503,7 +554,8 @@ Window {
     //                                     width: 364
     //                                     height: 254
                                          width: (imageArea.width - 30) / 2 + 4
-                                         height: (imageArea.width - 30) / 3 + 4
+//                                         height: (imageArea.width - 30) / 3 + 4
+                                         height: (imageArea.width - 30) / 5 * 1.1 + 4
                                          border.color: '#f7f7f7'
                                          border.width: 2
                                          radius: 2
@@ -511,9 +563,10 @@ Window {
     //                                         width: 360
     //                                         height: 250
                                              width: (imageArea.width - 30) / 2
-                                             height: (imageArea.width - 30) / 3
+//                                             height: (imageArea.width - 30) / 3
+                                             height: (imageArea.width - 30) / 5 * 1.1
     //                                         source: "file:///" + video_block_path
-                                             source: "http://192.168.8.173:8256/images" + video_block_path
+                                             source: imagePath + video_block_path
                                              fillMode: Image.PreserveAspectFit
                                              anchors.centerIn: parent
                                          }
@@ -528,14 +581,14 @@ Window {
                          model: imageModel
                          delegate: imageDelegate
                          onContentYChanged: {
-                             console.log(contentY, contentHeight, height, 'ddd', originY)
+//                             console.log(contentY, contentHeight, height, 'ddd', originY)
                              if (contentHeight > height && contentY - originY == contentHeight - height) {
-                                 console.log('getFromBottom-------');
+//                                 console.log('getFromBottom-------');
     //                             insertDirection = -1;
                                  homeSrc.fetchBag(imageModel.get(imageModel.count - 1).id, -1, 1);
                              }
                              if (contentY == 0 || contentY == originY) {
-                                 console.log('getFromTop----');
+//                                 console.log('getFromTop----');
     //                             insertDirection = 0;
                                  homeSrc.fetchBag(imageModel.get(0).id, 1, 1);
                              }
@@ -555,7 +608,7 @@ Window {
                 id: rightBox
                 height: parent.height - 20
     //            width: 400 - 20
-                width: (parent.width) / 3 - 20
+                width: (parent.width) * 0.3 - 20
     //            color: 'yellow'
                 anchors.left: leftBox.right
                 anchors.top: outer.top
