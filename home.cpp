@@ -11,7 +11,7 @@ Home::Home(QObject *parent) : QObject(parent)
     connected = false;
     socket->connectToHost(ip, port);
     connect(socket, &QTcpSocket::connected, this, [=]() mutable {
-        qDebug() << "连接成功Home";
+        qDebug() << "推送包图关联后台连接成功";
         connected = true;
     });
     connect(socket, &QTcpSocket::readyRead, this, [=]() mutable {
@@ -21,7 +21,7 @@ Home::Home(QObject *parent) : QObject(parent)
         fetchBag(bagId.toInt(), 0, 1);
     });
     connect(socket, &QTcpSocket::disconnected, this, [=]() {
-        qDebug() << "断开连接Home";
+        qDebug() << "推送包图关联后台断开连接";
         connected = false;
     });
     timer->start(5000);
@@ -36,9 +36,12 @@ Home::~Home()
     timer = NULL;
 }
 
+void Home::printLog(QString msg) {
+    qDebug() << "前端debug信息:" << msg;
+}
+
 void Home::fetchBag(int bagId, int type, int ps) {
-    qDebug() << "fetchBag";
-    qDebug() << bagId;
+    qDebug() << "获取包id:" << bagId;
 //    QString url = "http://localhost:3000/bag";
     QString url = "http://192.168.8.177:3000/bag";
 //    ps = 2;
@@ -61,7 +64,7 @@ void Home::fetchBag(int bagId, int type, int ps) {
             url += "&order=1";
         }
     }
-    qDebug() << url;
+    qDebug() << "请求url:" << url;
     QNetworkRequest request;
     QNetworkAccessManager manager;
     connect(&manager, &QNetworkAccessManager::finished, this, &Home::receiveReply);

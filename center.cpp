@@ -12,10 +12,9 @@
 
 Center::Center(QObject *parent) : QObject(parent)
 {
-    qDebug() << "center";
 //    ip = "192.168.7.69";
 //        ip = "192.168.8.173";
-    ip = "192.168.8.177";
+    ip = "192.168.8.173";
     port = 9999;
 //        ip = "localhost";
 //        port = 12345;
@@ -48,7 +47,7 @@ Center::Center(QObject *parent) : QObject(parent)
     QVector<QByteArray> vector;
     bool flag = true;
     connect(socket, &QTcpSocket::connected, this, [=]() mutable {
-        qDebug() << "连接成功";
+        qDebug() << "视频推送后台连接成功";
         size = 0;
         connected = true;
         byteArr.resize(0);
@@ -57,18 +56,18 @@ Center::Center(QObject *parent) : QObject(parent)
     });
     connect(socket, &QTcpSocket::readyRead, this, [=]() mutable {
         QByteArray msg = socket->readAll();
-        qDebug() << "长度--" << msg.size();
+        qDebug() << "视频数据长度:" << msg.size();
         vector.append(msg);                                                              //        qDebug() << msg.data();
         while(vector.size() > 0 && flag) {
             flag = false;
             byteArr.append(vector.first());
             vector.pop_front();
-            qDebug() << "byteArr长度" << byteArr.size();
+//            qDebug() << "byteArr长度" << byteArr.size();
             while (byteArr.size() > 10) {
-                qDebug() << "byteArr长度--while--" << byteArr.size();
+//                qDebug() << "byteArr长度--while--" << byteArr.size();
                 if(size==0) {
                     size = byteArr.left(10).toInt();
-                    qDebug() << size << "s";
+//                    qDebug() << size << "s";
                     byteArr.remove(0, 10);
                 }
                 if(byteArr.size() >= size) {
@@ -79,7 +78,7 @@ Center::Center(QObject *parent) : QObject(parent)
                             break;
                         }
                     }
-                    qDebug() << index << "找到了" << size;
+                    qDebug() << "索引值:" << index << "size值:" << size;
                     if(index<0) {
                         break;
                     }
@@ -219,7 +218,7 @@ Center::Center(QObject *parent) : QObject(parent)
     //        }
     //    });
     connect(socket, &QTcpSocket::disconnected, this, [=]() mutable {
-        qDebug() << "断开连接";
+        qDebug() << "视频推送后台断开连接";
         connected = false;
         size = 0;
         byteArr.resize(0);

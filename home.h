@@ -32,6 +32,7 @@ public:
     Q_INVOKABLE void fetchBag(int bagId = 0, int type = 0, int ps = 1);
     Q_INVOKABLE int test(int id);
     void receiveReply(QNetworkReply *reply);
+    Q_INVOKABLE void printLog(QString msg);
 
 signals:
     void sendBagInfo(QString bagInfo);

@@ -15,7 +15,7 @@ Window {
 //    maximumHeight: 720
     property bool fullScreen: true
 //    http://192.168.8.173:8256/images
-    property string imagePath: "http://192.168.8.177:8256/images"
+    property string imagePath: "http://192.168.8.173:8256/images"
     flags: fullScreen ? Qt.FramelessWindowHint : Qt.Window
     visible: true
 
@@ -418,6 +418,7 @@ Window {
                                                  const widthRatio = image.width / (x1-x0);
                                                  const ratio = Math.min(widthRatio, heightRatio);
                                                  const unpackBoxList = JSON.parse(unpackBoxInfoList);
+                                                 homeSrc.printLog(`比例信息:heightRatio:${heightRatio}:widthRatio:${widthRatio}`);
                                                  for(const box of unpackBoxList) {
     //                                                 console.log('box')
     //                                                 console.log(JSON.stringify(box))
@@ -583,11 +584,13 @@ Window {
                          onContentYChanged: {
 //                             console.log(contentY, contentHeight, height, 'ddd', originY)
                              if (contentHeight > height && contentY - originY == contentHeight - height) {
+                                 homeSrc.printLog("到达底端");
 //                                 console.log('getFromBottom-------');
     //                             insertDirection = -1;
                                  homeSrc.fetchBag(imageModel.get(imageModel.count - 1).id, -1, 1);
                              }
                              if (contentY == 0 || contentY == originY) {
+                                 homeSrc.printLog("到达顶端");
 //                                 console.log('getFromTop----');
     //                             insertDirection = 0;
                                  homeSrc.fetchBag(imageModel.get(0).id, 1, 1);
