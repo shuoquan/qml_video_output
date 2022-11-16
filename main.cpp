@@ -11,17 +11,21 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QGuiApplication app(argc, argv);
-
+//    qDebug() << QDate::currentDate() << "时间";
     // 安装消息处理函数
     LogHandler::Get().installMessageHandler();
 
     QQmlApplicationEngine engine;
 
-    engine.rootContext()->setContextProperty("videoSrc", new VideoAdapter);
-    engine.rootContext()->setContextProperty("homeSrc", new Home);
+    Home home;
+    VideoAdapter videoAdapter;
+    engine.rootContext()->setContextProperty("videoSrc", &videoAdapter);
+    engine.rootContext()->setContextProperty("homeSrc", &home);
 //    qmlRegisterType<VideoAdapter>("VideoAdapter", 1, 0, "VideoAdapter");
 
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+//    engine.
+
     if (engine.rootObjects().isEmpty())
         return -1;
 

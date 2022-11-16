@@ -3,6 +3,7 @@
 
 Home::Home(QObject *parent) : QObject(parent)
 {
+//    ip = "localhost";
     ip = "192.168.8.177";
     port = 9528;
     timer = new QTimer(this);
@@ -37,7 +38,7 @@ Home::~Home()
 }
 
 void Home::printLog(QString msg) {
-    qDebug() << "前端debug信息:" << msg;
+//    qDebug() << "前端debug信息:" << msg;
 }
 
 void Home::fetchBag(int bagId, int type, int ps) {

@@ -8,18 +8,22 @@ Window {
     title: "开包台"
     minimumWidth: 640
     minimumHeight: 360
+//    width: Screen.desktopAvailableWidth
     width: screen.width
     height: screen.height
+    visible: true
+    visibility: "Maximized"
+//    visibility: Window.FullScreen
 //    flags:  Qt.FramelessWindowHint
 //    maximumWidth: 1200
 //    maximumHeight: 720
     property bool fullScreen: true
 //    http://192.168.8.173:8256/images
     property string imagePath: "http://192.168.8.173:8256/images"
-    flags: fullScreen ? Qt.FramelessWindowHint : Qt.Window
-    visible: true
+//    flags: fullScreen ? Qt.FramelessWindowHint : Qt.Window
 
     Component.onCompleted: {
+//        console.log(Screen.height, Screen.desktopAvailableWidth, Screen.desktopAvailableHeight)
         video.source = videoSrc
         homeSrc.fetchBag(0, -1, 2);
         timer.start();
@@ -69,39 +73,56 @@ Window {
 
     // position 0 头部插入， -1 尾部插入
     function addImage(bagInfo, position) {
-        const date = new Date(bagInfo.block_create_at);
-//        console.log(date, 'd')
-        const time = date.getFullYear().toString() +
-                   '-' +
-                   (date.getMonth() + 1).toString().padStart(2, '0') +
-                   '-' +
-                   date.getDate().toString().padStart(2, '0') +
-                   ',' +
-                   date.getHours().toString().padStart(2, '0') +
-                   ':' +
-                   date.getMinutes().toString().padStart(2, '0') +
-                   ':' +
-                   date.getSeconds().toString().padStart(2, '0');
-        bagInfo.block_create_at = time;
-        const bagCoordinateList = bagInfo.bag_coordinate.replace(/\(|\)/g, '').split(',').map(Number);
-        bagInfo.x0 = Math.min(bagCoordinateList[0], bagCoordinateList[2]);
-        bagInfo.x1 = Math.max(bagCoordinateList[0], bagCoordinateList[2]);
-        bagInfo.y0 = Math.min(bagCoordinateList[1], bagCoordinateList[3]);
-        bagInfo.y1 = Math.max(bagCoordinateList[1], bagCoordinateList[3]);
-        bagInfo.unpackBoxInfoList = JSON.stringify(bagInfo.unpackBoxInfoList);
-//        imageModel.append({'imageIdx': imageIdx, 'time': time, 'mainViewSrc': './images/demo.jpg', 'sideViewSrc': 'http://www.gov.cn/xhtml/2016gov/images/guoqing/bigmap.jpg'})
-////                    imageModel.sync()
-//        imageIdx += 1
-        if (position === 0) {
-            imageModel.insert(0, bagInfo);
-        } else {
-            imageModel.append(bagInfo);
+        let index = -1;
+        let curBagInfo = {};
+        for(let i=0; i<imageModel.count; i++) {
+            curBagInfo = imageModel.get(i);
+            if (curBagInfo.id == bagInfo.id) {
+                index = i;
+                break;
+            }
         }
-        while (imageModel.count > 5) {
+        if (index > -1) {
+            curBagInfo.video_block_path = bagInfo.video_block_path;
+            curBagInfo.video_block_name = bagInfo.video_block_name;
+            curBagInfo.video_block_width = bagInfo.video_block_width;
+            curBagInfo.video_block_height = bagInfo.video_block_height;
+            imageModel.set(index, curBagInfo);
+        } else {
+            const date = new Date(bagInfo.block_create_at);
+    //        console.log(date, 'd')
+            const time = date.getFullYear().toString() +
+                       '-' +
+                       (date.getMonth() + 1).toString().padStart(2, '0') +
+                       '-' +
+                       date.getDate().toString().padStart(2, '0') +
+                       ',' +
+                       date.getHours().toString().padStart(2, '0') +
+                       ':' +
+                       date.getMinutes().toString().padStart(2, '0') +
+                       ':' +
+                       date.getSeconds().toString().padStart(2, '0');
+            bagInfo.block_create_at = time;
+            const bagCoordinateList = bagInfo.bag_coordinate.replace(/\(|\)/g, '').split(',').map(Number);
+            bagInfo.x0 = Math.min(bagCoordinateList[0], bagCoordinateList[2]);
+            bagInfo.x1 = Math.max(bagCoordinateList[0], bagCoordinateList[2]);
+            bagInfo.y0 = Math.min(bagCoordinateList[1], bagCoordinateList[3]);
+            bagInfo.y1 = Math.max(bagCoordinateList[1], bagCoordinateList[3]);
+            bagInfo.unpackBoxInfoList = JSON.stringify(bagInfo.unpackBoxInfoList);
+    //        imageModel.append({'imageIdx': imageIdx, 'time': time, 'mainViewSrc': './images/demo.jpg', 'sideViewSrc': 'http://www.gov.cn/xhtml/2016gov/images/guoqing/bigmap.jpg'})
+    ////                    imageModel.sync()
+    //        imageIdx += 1
             if (position === 0) {
-                imageModel.remove(imageModel.count - 1);
+                imageModel.insert(0, bagInfo);
             } else {
-                imageModel.remove(0);
+                imageModel.append(bagInfo);
+            }
+            while (imageModel.count > 5) {
+                if (position === 0) {
+                    imageModel.remove(imageModel.count - 1);
+                } else {
+                    imageModel.remove(0);
+                }
             }
         }
     }
@@ -146,26 +167,26 @@ Window {
     }
 
     Rectangle {
+//        visible: false
         anchors.fill: parent
-        Keys.enabled: true
-        focus: true
+//        Keys.enabled: true
+//        focus: true
 
-        Keys.onPressed: {
-//            console.log('key', event.key);
-            switch (event.key) {
-                case 16777216:
-                    fullScreen = false;
-                    break;
-                case 16777274:
-                    fullScreen = !fullScreen;
-                    break;
-                case 16777329:
-                    fullScreen = !fullScreen;
-                    break;
-                default:
-                    break;
-            }
-        }
+//        Keys.onPressed: {
+//            switch (event.key) {
+//                case 16777216:
+//                    fullScreen = false;
+//                    break;
+//                case 16777274:
+//                    fullScreen = !fullScreen;
+//                    break;
+//                case 16777329:
+//                    fullScreen = !fullScreen;
+//                    break;
+//                default:
+//                    break;
+//            }
+//        }
 
         Rectangle {
             id: header
@@ -174,7 +195,8 @@ Window {
             color: "#203864"
             Image {
                 anchors.left: parent.left
-                height: parent.height
+                anchors.verticalCenter: parent.verticalCenter
+                height: parent.height * 0.7
                 source: './images/company.png'
                 fillMode: Image.PreserveAspectFit
                 anchors.leftMargin: 0.2 * parent.height
@@ -200,7 +222,7 @@ Window {
         Rectangle {
             id: footer
             width: parent.width
-            height: Math.min(parent.height / 5, 120)
+            height: Math.min(parent.height / 5 * 0.75, 80)
             color: "#203864"
             anchors.bottom: parent.bottom
             Rectangle {
@@ -208,7 +230,7 @@ Window {
                 height: parent.height
                 anchors.left: parent.left
                 color: "#3664b1"
-                width: Math.max(parent.width / 10, 150)
+                width: Math.max(parent.width / 12, 100)
                 Image {
                     id: search
                     anchors.left: parent.left
@@ -234,7 +256,7 @@ Window {
                 height: parent.height
                 anchors.right: parent.right
                 color: "#3664b1"
-                width: Math.max(parent.width / 10, 150)
+                width: Math.max(parent.width / 12, 100)
                 Image {
                     id: setting
                     anchors.left: parent.left
@@ -570,6 +592,7 @@ Window {
                                              source: imagePath + video_block_path
                                              fillMode: Image.PreserveAspectFit
                                              anchors.centerIn: parent
+                                             visible: !!video_block_path
                                          }
                                      }
                                  }
@@ -583,13 +606,15 @@ Window {
                          delegate: imageDelegate
                          onContentYChanged: {
 //                             console.log(contentY, contentHeight, height, 'ddd', originY)
-                             if (contentHeight > height && contentY - originY == contentHeight - height) {
+                             // 不再严格相等，允许误差
+                             // contentHeight > height && contentY - originY == contentHeight - height
+                             if (contentHeight > height && Math.abs(contentY - originY - contentHeight + height) < 10 ** -5) {
                                  homeSrc.printLog("到达底端");
 //                                 console.log('getFromBottom-------');
     //                             insertDirection = -1;
                                  homeSrc.fetchBag(imageModel.get(imageModel.count - 1).id, -1, 1);
                              }
-                             if (contentY == 0 || contentY == originY) {
+                             if (contentY == 0 || Math.abs(contentY - originY) < 10 ** -5) {
                                  homeSrc.printLog("到达顶端");
 //                                 console.log('getFromTop----');
     //                             insertDirection = 0;

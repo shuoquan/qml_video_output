@@ -11,6 +11,7 @@
 #include <QTimer>
 #include <QTextStream>
 #include <QTextCodec>
+#include <iostream>
 
 const int g_logLimitSize = 5;
 

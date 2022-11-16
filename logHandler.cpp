@@ -103,6 +103,7 @@ void LogHandlerPrivate::openAndBackupLogFile() {
 // 检测当前日志文件大小
 void LogHandlerPrivate::checkLogFiles() {
     // 如果 protocal.log 文件大小超过5M，重新创建一个日志文件，原文件存档为yyyy-MM-dd_hhmmss.log
+//    qDebug() << "size-file" << logFile->size() ;
     if (logFile->size() > 1024*g_logLimitSize) {
         logFile->flush();
         logFile->close();
@@ -149,6 +150,7 @@ void LogHandlerPrivate::autoDeleteLog()
 // 消息处理函数
 void LogHandlerPrivate::messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
     QMutexLocker locker(&LogHandlerPrivate::logMutex);
+    std::cout << "-------" << QTextCodec::codecForName("GB2312")->fromUnicode(msg).toStdString() << std::endl;
     QString level;
 
     switch (type) {
@@ -181,6 +183,7 @@ void LogHandlerPrivate::messageHandler(QtMsgType type, const QMessageLogContext 
     std::cout << std::string(localMsg) << std::endl;
 
     if (nullptr == LogHandlerPrivate::logOut) {
+        std::cout << "finish" << std::endl;
         return;
     }
 

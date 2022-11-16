@@ -11,6 +11,7 @@ class VideoAdapter : public QObject
     Q_PROPERTY(QAbstractVideoSurface *videoSurface READ getVideoSurface WRITE setVideoSurface NOTIFY videoSurfaceChanged)
 public:
     explicit VideoAdapter(QObject *parent = nullptr);
+    ~VideoAdapter();
 
     QAbstractVideoSurface *getVideoSurface();
     void setVideoSurface(QAbstractVideoSurface *videoSurface);

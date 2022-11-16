@@ -17,6 +17,11 @@ VideoAdapter::VideoAdapter(QObject *parent) :
     connect(pCenter, &Center::updateImgSig, this, &VideoAdapter::updateVideoData);
 }
 
+VideoAdapter::~VideoAdapter() {
+    delete pCenter;
+    pCenter = nullptr;
+}
+
 QAbstractVideoSurface * VideoAdapter::getVideoSurface()
 {
     return pVideoSurface;
