@@ -14,7 +14,7 @@
 #include <QMetaObject>
 #include <QEventLoop>
 #include <qtcpsocket.h>
-
+#include "global.h"
 
 #pragma execution_character_set("utf-8")
 
@@ -24,6 +24,7 @@ class Home : public QObject
 public:
     QString ip;
     int port;
+    QString url;
     bool connected;
     QTcpSocket* socket;
     QTimer *timer;

@@ -4,8 +4,11 @@
 Home::Home(QObject *parent) : QObject(parent)
 {
 //    ip = "localhost";
-    ip = "192.168.8.177";
-    port = 9528;
+//    int value;
+//    qDebug() << "value" << value;
+    ip = config.unpackBackendIp;
+    port = config.unpackBackendPort;
+    url = config.unpackBackendUrl;
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &Home::TimeOutSlot);
     socket = new QTcpSocket(this);
@@ -44,8 +47,9 @@ void Home::printLog(QString msg) {
 void Home::fetchBag(int bagId, int type, int ps) {
     qDebug() << "获取包id:" << bagId;
 //    QString url = "http://localhost:3000/bag";
-    QString url = "http://192.168.8.177:3000/bag";
+//    QString url = "http://192.168.8.177:3000/bag";
 //    ps = 2;
+    qDebug() << url;
     url += "?ps=" + QString::number(ps);
     if (bagId == 0) {
         // 初始化时寻找前5分钟的前2个包

@@ -5,6 +5,8 @@
 #include "home.h"
 #include <QtQml>
 #include "logHandler.h"
+#include "global.cpp"
+#include <QFile>
 
 int main(int argc, char *argv[])
 {
@@ -17,10 +19,38 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
+    QString configPath =  QCoreApplication::applicationDirPath() + "/config.properties";
+    QFile file(configPath);
+    if (file.exists()) {
+        if(file.open(QFile::ReadOnly)) {
+             QString data = file.readAll();
+             // 按照\n分割
+             QStringList list = data.split("\n");
+             for (int i = 0; i < list.size(); i++) {
+                 QString line = list.at(i);
+                 if (line.startsWith("videoIp")) {
+                     config.videoIp = line.split("=").at(1);
+                 } else if (line.startsWith("videoPort")) {
+                     config.videoPort = line.split("=").at(1).toInt();
+                 } else if (line.startsWith("unpackBackendIp")) {
+                     config.unpackBackendIp = line.split("=").at(1);
+                 } else if (line.startsWith("unpackBackendPort")) {
+                     config.unpackBackendPort = line.split("=").at(1).toInt();
+                 } else if (line.startsWith("unpackBackendUrl")) {
+                     config.unpackBackendUrl = line.split("=").at(1);
+                 } else if (line.startsWith("imagePrefix")) {
+                     config.imagePrefix = line.split("=").at(1);
+                 }
+             }
+             file.close();
+        }
+    }
+
     Home home;
     VideoAdapter videoAdapter;
     engine.rootContext()->setContextProperty("videoSrc", &videoAdapter);
     engine.rootContext()->setContextProperty("homeSrc", &home);
+    engine.rootContext()->setContextProperty("imagePrefix", config.imagePrefix);
 //    qmlRegisterType<VideoAdapter>("VideoAdapter", 1, 0, "VideoAdapter");
 
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));

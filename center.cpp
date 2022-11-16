@@ -14,8 +14,8 @@ Center::Center(QObject *parent) : QObject(parent)
 {
 //    ip = "192.168.7.69";
 //        ip = "192.168.8.173";
-    ip = "192.168.8.173";
-    port = 9999;
+    ip = config.videoIp;
+    port = config.videoPort;
 //        ip = "localhost";
 //        port = 12345;
     timer = new QTimer(this);

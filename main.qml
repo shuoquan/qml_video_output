@@ -19,12 +19,13 @@ Window {
 //    maximumHeight: 720
     property bool fullScreen: true
 //    http://192.168.8.173:8256/images
-    property string imagePath: "http://192.168.8.173:8256/images"
+    property string imagePath: ""
 //    flags: fullScreen ? Qt.FramelessWindowHint : Qt.Window
 
     Component.onCompleted: {
 //        console.log(Screen.height, Screen.desktopAvailableWidth, Screen.desktopAvailableHeight)
         video.source = videoSrc
+        imagePath = imagePrefix;
         homeSrc.fetchBag(0, -1, 2);
         timer.start();
 //        homeSrc.fetchBag(71, 0, 1);

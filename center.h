@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <qtcpserver.h>
 #include <qtcpsocket.h>
+#include "global.h"
 
 //#ifdef __cplusplus
 //extern "C"
