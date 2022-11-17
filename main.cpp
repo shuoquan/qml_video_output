@@ -60,6 +60,6 @@ int main(int argc, char *argv[])
         return -1;
 
     // 取消安装自定义消息处理，然后启用
-    LogHandler::Get().uninstallMessageHandler();
+//    LogHandler::Get().uninstallMessageHandler();
     return app.exec();
 }

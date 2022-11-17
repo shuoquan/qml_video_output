@@ -224,7 +224,7 @@ Center::Center(QObject *parent) : QObject(parent)
         byteArr.resize(0);
     });
     connect(socket, &QTcpSocket::errorOccurred, this, [=]() mutable {
-        qDebug() << "视频推送后台异常";
+//        qDebug() << "视频推送后台异常";
 
     });
     timer->start(5000);

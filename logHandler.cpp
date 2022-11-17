@@ -7,7 +7,8 @@ QTextStream* LogHandlerPrivate::logOut = nullptr;
 
 LogHandlerPrivate::LogHandlerPrivate() {
     logDir.setPath("log"); // TODO: 日志文件夹的路径，为 exe 所在目录下的 log 文件夹，可从配置文件读取
-    QString logPath = logDir.absoluteFilePath("today.log"); // 获取日志的路径
+//    QString logPath = logDir.absoluteFilePath("today.log"); // 获取日志的路径
+    QString logPath = logDir.absoluteFilePath(QDate::currentDate().toString("yyyy-MM-dd.log")); // 获取日志的路径
 
     // ========获取日志文件创建的时间========
     // QFileInfo::created(): On most Unix systems, this function returns the time of the last status change.
@@ -17,13 +18,13 @@ LogHandlerPrivate::LogHandlerPrivate() {
     // 打开日志文件，如果不是当天创建的，备份已有日志文件
     openAndBackupLogFile();
 
-    // 十分钟检查一次日志文件创建时间
-    renameLogFileTimer.setInterval(1000 *  2); // TODO: 可从配置文件读取
+    // 5分钟检查一次日志文件创建时间
+    renameLogFileTimer.setInterval(1000 *  60 * 5); // TODO: 可从配置文件读取
     renameLogFileTimer.start();
     QObject::connect(&renameLogFileTimer, &QTimer::timeout, [this] {
         QMutexLocker locker(&LogHandlerPrivate::logMutex);
         openAndBackupLogFile(); // 打开日志文件
-        checkLogFiles(); // 检测当前日志文件大小
+//        checkLogFiles(); // 检测当前日志文件大小
         autoDeleteLog(); // 自动删除30天前的日志
     });
 
@@ -58,14 +59,14 @@ void LogHandlerPrivate::openAndBackupLogFile() {
     // 1. 程序启动时 logFile 为 nullptr，初始化 logFile，有可能是同一天打开已经存在的 logFile，所以使用 Append 模式
     // 2. logFileCreatedDate is nullptr, 说明日志文件在程序开始时不存在，所以记录下创建时间
     // 3. 程序运行时检查如果 logFile 的创建日期和当前日期不相等，则使用它的创建日期重命名，然后再生成一个新的 log.txt 文件
-    // 4. 检查日志文件超过 LOGLIMIT_NUM 个，删除最早的
-    // 备注：log.txt 始终为当天的日志文件，当第二天，会执行第3步，将使用 log.txt 的创建日期重命名它
 
+//    std::cout << QDate::currentDate().toString("yyyy-MM-dd.log").toStdString() << std::endl;
     // 如果日志所在目录不存在，则创建
     if (!logDir.exists()) {
         logDir.mkpath("."); // 可以递归的创建文件夹
     }
-    QString logPath = logDir.absoluteFilePath("today.log"); // log.txt的路径
+//    QString logPath = logDir.absoluteFilePath("today.log"); // log.txt的路径
+    QString logPath = logDir.absoluteFilePath(QDate::currentDate().toString("yyyy-MM-dd.log"));
 
     // [[1]] 程序每次启动时 logFile 为 nullptr
     if (logFile == nullptr) {
@@ -88,11 +89,12 @@ void LogHandlerPrivate::openAndBackupLogFile() {
         delete logFile;
 
         QString newLogPath = logDir.absoluteFilePath(logFileCreatedDate.toString("yyyy-MM-dd.log"));;
-        QFile::copy(logPath, newLogPath); // Bug: 按理说 rename 会更合适，但是 rename 时最后一个文件总是显示不出来，需要 killall Finder 后才出现
-        QFile::remove(logPath); // 删除重新创建，改变创建时间
+//        QFile::copy(logPath, newLogPath); // Bug: 已经存在文件拷贝失败
+//        QFile::remove(logPath); // 删除重新创建，改变创建时间
 
         // 重新创建 log.txt
-        logFile = new QFile(logPath);
+//        logFile = new QFile(logPath);
+        logFile = new QFile(newLogPath);
         logOut  = (logFile->open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) ?  new QTextStream(logFile) : nullptr;
         logFileCreatedDate = QDate::currentDate();
         if (logOut != nullptr)
@@ -103,8 +105,7 @@ void LogHandlerPrivate::openAndBackupLogFile() {
 // 检测当前日志文件大小
 void LogHandlerPrivate::checkLogFiles() {
     // 如果 protocal.log 文件大小超过5M，重新创建一个日志文件，原文件存档为yyyy-MM-dd_hhmmss.log
-//    qDebug() << "size-file" << logFile->size() ;
-    if (logFile->size() > 1024*g_logLimitSize) {
+    if (logFile->size() > 1024 * 1024 * g_logLimitSize) {
         logFile->flush();
         logFile->close();
         delete logOut;
@@ -112,7 +113,7 @@ void LogHandlerPrivate::checkLogFiles() {
 
         QString logPath = logDir.absoluteFilePath("today.log"); // 日志的路径
         QString newLogPath = logDir.absoluteFilePath(logFileCreatedDate.toString("yyyy-MM-dd.log"));
-        QFile::copy(logPath, newLogPath); // Bug: 按理说 rename 会更合适，但是 rename 时最后一个文件总是显示不出来，需要 killall Finder 后才出现
+        QFile::copy(logPath, newLogPath); // Bug: 已经存在文件拷贝失败
         QFile::remove(logPath); // 删除重新创建，改变创建时间
 
         logFile = new QFile(logPath);
@@ -150,7 +151,7 @@ void LogHandlerPrivate::autoDeleteLog()
 // 消息处理函数
 void LogHandlerPrivate::messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
     QMutexLocker locker(&LogHandlerPrivate::logMutex);
-    std::cout << "-------" << QTextCodec::codecForName("GB2312")->fromUnicode(msg).toStdString() << std::endl;
+//    std::cout << "-------" << QTextCodec::codecForName("GB2312")->fromUnicode(msg).toStdString() << std::endl;
     QString level;
 
     switch (type) {
@@ -183,7 +184,6 @@ void LogHandlerPrivate::messageHandler(QtMsgType type, const QMessageLogContext 
     std::cout << std::string(localMsg) << std::endl;
 
     if (nullptr == LogHandlerPrivate::logOut) {
-        std::cout << "finish" << std::endl;
         return;
     }
 

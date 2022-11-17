@@ -24,7 +24,7 @@ class Home : public QObject
 public:
     QString ip;
     int port;
-    QString url;
+    QString urlPrefix;
     bool connected;
     QTcpSocket* socket;
     QTimer *timer;

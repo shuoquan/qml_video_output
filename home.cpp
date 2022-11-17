@@ -8,7 +8,7 @@ Home::Home(QObject *parent) : QObject(parent)
 //    qDebug() << "value" << value;
     ip = config.unpackBackendIp;
     port = config.unpackBackendPort;
-    url = config.unpackBackendUrl;
+    urlPrefix = config.unpackBackendUrl;
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &Home::TimeOutSlot);
     socket = new QTcpSocket(this);
@@ -41,7 +41,7 @@ Home::~Home()
 }
 
 void Home::printLog(QString msg) {
-//    qDebug() << "前端debug信息:" << msg;
+    qDebug() << "前端debug信息:" << msg;
 }
 
 void Home::fetchBag(int bagId, int type, int ps) {
@@ -49,10 +49,10 @@ void Home::fetchBag(int bagId, int type, int ps) {
 //    QString url = "http://localhost:3000/bag";
 //    QString url = "http://192.168.8.177:3000/bag";
 //    ps = 2;
-    qDebug() << url;
-    url += "?ps=" + QString::number(ps);
+//    qDebug() << url;
+    QString url = urlPrefix + "?ps=" + QString::number(ps);
     if (bagId == 0) {
-        // 初始化时寻找前5分钟的前2个包
+        // 初始化时寻找前5分钟的前10个包
         QDateTime timeDate = QDateTime::currentDateTime();  // 获取当前时间
         int endTime = timeDate.toTime_t();
         int startTime = endTime - 300;
@@ -96,6 +96,7 @@ void Home::receiveReply(QNetworkReply *reply)
 
 void Home::TimeOutSlot()
 {
+//    qDebug() << "logtest";
     if (!connected) {
         socket->abort();
         socket->connectToHost(ip, port);
