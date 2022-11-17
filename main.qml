@@ -20,13 +20,15 @@ Window {
     property bool fullScreen: true
 //    http://192.168.8.173:8256/images
     property string imagePath: ""
+    property bool scroll: false
 //    flags: fullScreen ? Qt.FramelessWindowHint : Qt.Window
 
     Component.onCompleted: {
 //        console.log(Screen.height, Screen.desktopAvailableWidth, Screen.desktopAvailableHeight)
         video.source = videoSrc
         imagePath = imagePrefix;
-        homeSrc.fetchBag(0, -1, 2);
+        homeSrc.fetchBag(0, -1, 10);
+//        homeSrc.fetchBag(12456, -1, 2);
         timer.start();
 //        homeSrc.fetchBag(71, 0, 1);
 //        const res = homeSrc.fetchBag(5);
@@ -113,18 +115,25 @@ Window {
     //        imageModel.append({'imageIdx': imageIdx, 'time': time, 'mainViewSrc': './images/demo.jpg', 'sideViewSrc': 'http://www.gov.cn/xhtml/2016gov/images/guoqing/bigmap.jpg'})
     ////                    imageModel.sync()
     //        imageIdx += 1
+            const maxQueueNum = scroll ? 100 : 10;
+//            console.log(scroll, 'ss')
             if (position === 0) {
                 imageModel.insert(0, bagInfo);
-            } else {
-                imageModel.append(bagInfo);
-            }
-            while (imageModel.count > 5) {
-                if (position === 0) {
-                    imageModel.remove(imageModel.count - 1);
-                } else {
-                    imageModel.remove(0);
+            } else { 
+                if (imageModel.count < maxQueueNum) {
+                    imageModel.append(bagInfo);
                 }
             }
+            while (imageModel.count > maxQueueNum) {
+                imageModel.remove(imageModel.count - 1);
+            }
+//            while (imageModel.count > 10) {
+//                if (position === 0) {
+//                    imageModel.remove(imageModel.count - 1);
+//                } else {
+//                    imageModel.remove(0);
+//                }
+//            }
         }
     }
 
@@ -613,13 +622,24 @@ Window {
                                  homeSrc.printLog("到达底端");
 //                                 console.log('getFromBottom-------');
     //                             insertDirection = -1;
-                                 homeSrc.fetchBag(imageModel.get(imageModel.count - 1).id, -1, 1);
+                                 // 超过100不再显示
+                                 if (imageModel.count < 100) {
+                                     homeSrc.fetchBag(imageModel.get(imageModel.count - 1).id, -1, 10);
+                                 }
                              }
                              if (contentY == 0 || Math.abs(contentY - originY) < 10 ** -5) {
                                  homeSrc.printLog("到达顶端");
 //                                 console.log('getFromTop----');
     //                             insertDirection = 0;
-                                 homeSrc.fetchBag(imageModel.get(0).id, 1, 1);
+                                 homeSrc.fetchBag(imageModel.get(0).id, 1, 10);
+                                 scroll = false;
+                                 if (imageModel.count > 10) {
+                                     imageModel.remove(10, imageModel.count - 10);
+                                 }
+                             }
+
+                             if (Math.abs(contentY - originY - height) > 10 ** -5) {
+                                 scroll = true;
                              }
 
     //                         if (contentY === contentHeight - height) {
