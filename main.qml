@@ -5,7 +5,7 @@ import QtQuick.Controls 2.15
 //import VideoAdapter 1.0
 
 Window {
-    title: "开包台"
+    title: " "
     minimumWidth: 640
     minimumHeight: 360
 //    width: Screen.desktopAvailableWidth
@@ -201,15 +201,35 @@ Window {
         Rectangle {
             id: header
             width: parent.width
-            height: Math.min(parent.height / 10, 60)
+            height: Math.min(parent.height / 12, 40)
             color: "#203864"
             Image {
                 anchors.left: parent.left
-                anchors.verticalCenter: parent.verticalCenter
-                height: parent.height * 0.7
+                anchors.top: parent.top
+//                anchors.verticalCenter: parent.verticalCenter
+                height: parent.height * 0.5
                 source: './images/company.png'
                 fillMode: Image.PreserveAspectFit
-                anchors.leftMargin: 0.2 * parent.height
+                anchors.leftMargin: 0.4 * parent.height
+            }
+            Rectangle {
+                id: productBox
+                height: parent.height
+                width: Math.max(0.2 * parent.width, 400)
+//                color: "black"
+                color: "#203864"
+                anchors.right: parent.right
+                anchors.rightMargin: (parent.width - productBox.width) / 2
+                Text {
+                    id: productName
+                    text: "智能查危登记系统"
+                    color: "white"
+                    font.pixelSize: Math.min(20,  parent.height / 2)
+//                    anchors.topMargin: 0.2 * parent.height
+                    anchors.top: parent.top
+                    anchors.topMargin: 0.1 * parent.height
+//                    anchors.right: parent.right
+                }
             }
             Rectangle {
                 height: parent.height
@@ -222,8 +242,10 @@ Window {
                     id: time
                     text: ""
                     color: "white"
-                    font.pixelSize: Math.min(20,  parent.height / 2)
-                    anchors.verticalCenter: parent.verticalCenter
+                    font.pixelSize: Math.min(16,  parent.height / 2 * 0.8)
+                    anchors.topMargin: 0.2 * parent.height
+                     anchors.top: parent.top
+//                    anchors.verticalCenter: parent.verticalCenter
                     anchors.right: parent.right
                 }
             }
