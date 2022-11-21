@@ -201,13 +201,14 @@ Window {
         Rectangle {
             id: header
             width: parent.width
-            height: Math.min(parent.height / 12, 40)
+            height: 60
+//            height: Math.min(parent.height / 12, 40)
             color: "#203864"
             Image {
                 anchors.left: parent.left
                 anchors.top: parent.top
 //                anchors.verticalCenter: parent.verticalCenter
-                height: parent.height * 0.5
+                height: parent.height * 0.6
                 source: './images/company.png'
                 fillMode: Image.PreserveAspectFit
                 anchors.leftMargin: 0.4 * parent.height
@@ -221,13 +222,19 @@ Window {
                 anchors.right: parent.right
                 anchors.rightMargin: (parent.width - productBox.width) / 2
                 Text {
+//                    width: parent.width
+                    height: parent.height
                     id: productName
                     text: "智能查危登记系统"
-                    color: "white"
-                    font.pixelSize: Math.min(20,  parent.height / 2)
+                    font.family: "微软雅黑"
+                    color: "#fff"
+                    font.pixelSize: 28
+                    font.bold: true
+//                    font.pixelSize: Math.min(20,  parent.height / 2)
 //                    anchors.topMargin: 0.2 * parent.height
                     anchors.top: parent.top
-                    anchors.topMargin: 0.1 * parent.height
+//                    anchors.topMargin: 0.06 * parent.height
+                    anchors.horizontalCenter: parent.horizontalCenter
 //                    anchors.right: parent.right
                 }
             }
@@ -237,12 +244,14 @@ Window {
 //                color: "black"
                 color: "#203864"
                 anchors.right: parent.right
-                anchors.rightMargin: 0.3 * parent.height
+                anchors.rightMargin: 0.4 * parent.height
                 Text {
                     id: time
                     text: ""
-                    color: "white"
-                    font.pixelSize: Math.min(16,  parent.height / 2 * 0.8)
+                    color: "#fff"
+                    font.pixelSize: 18
+                    font.family: "微软雅黑"
+//                    font.pixelSize: Math.min(16,  parent.height / 2 * 0.8)
                     anchors.topMargin: 0.2 * parent.height
                      anchors.top: parent.top
 //                    anchors.verticalCenter: parent.verticalCenter
@@ -277,7 +286,8 @@ Window {
                     anchors.left: search.right
                     anchors.leftMargin: 10
                     text: "查询"
-                    color: "white"
+                    color: "#fff"
+                    font.family: "微软雅黑"
                     font.pixelSize: search.height / 2
                     anchors.verticalCenter: parent.verticalCenter
                     font.bold: true
@@ -304,6 +314,7 @@ Window {
                     anchors.leftMargin: 10
                     text: "设置"
                     color: "white"
+                    font.family: "微软雅黑"
                     font.pixelSize: setting.height / 2
                     anchors.verticalCenter: parent.verticalCenter
                     font.bold: true
@@ -399,7 +410,8 @@ Window {
                                      id: unpack
                                      text: '开包记录'
     //                                 font.pixelSize: 18
-                                     font.pixelSize: (parent.width - 40) / 60 / 1.5
+                                     font.family: "微软雅黑"
+                                     font.pixelSize: (parent.width - 40) / 60
                                      font.bold: true
                                      anchors.verticalCenter: parent.verticalCenter
                                      //                                width: 100
@@ -409,8 +421,8 @@ Window {
                                      background: Rectangle {
 //                                         implicitWidth: 100
 //                                         implicitHeight: 40
-                                         implicitWidth: (itemBox.width - 40) / 7 / 1.8
-                                         implicitHeight: (itemBox.width - 40) / 18 / 2
+                                         implicitWidth: (itemBox.width - 40) / 7 / 1.6
+                                         implicitHeight: (itemBox.width - 40) / 18 / 1.4
                                          color: "#3664b1"
 //                                         border.color: '#293351'
 //                                         border.width: 2
