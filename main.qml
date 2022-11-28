@@ -17,6 +17,7 @@ Window {
 //    flags:  Qt.FramelessWindowHint
 //    maximumWidth: 1200
 //    maximumHeight: 720
+//    property int count: 0
     property bool fullScreen: true
 //    http://192.168.8.173:8256/images
     property string imagePath: ""
@@ -90,6 +91,7 @@ Window {
             curBagInfo.video_block_name = bagInfo.video_block_name;
             curBagInfo.video_block_width = bagInfo.video_block_width;
             curBagInfo.video_block_height = bagInfo.video_block_height;
+            curBagInfo.unpackBoxInfoList = JSON.stringify(bagInfo.unpackBoxInfoList || []);
             imageModel.set(index, curBagInfo);
         } else {
             const date = new Date(bagInfo.block_create_at);
@@ -106,17 +108,22 @@ Window {
                        ':' +
                        date.getSeconds().toString().padStart(2, '0');
             bagInfo.block_create_at = time;
+//                        bagInfo.block_path = '/core7/data2/dingshuoquan/images/jms_gj_2_20220106_112704_18461_01.jpg';
+//                        bagInfo.block_width = 362;
+//                        bagInfo.block_height = 360;
+//                        bagInfo.bag_coordinate = '(0, 0),(362, 360)';
+
             const bagCoordinateList = bagInfo.bag_coordinate.replace(/\(|\)/g, '').split(',').map(Number);
             bagInfo.x0 = Math.min(bagCoordinateList[0], bagCoordinateList[2]);
             bagInfo.x1 = Math.max(bagCoordinateList[0], bagCoordinateList[2]);
             bagInfo.y0 = Math.min(bagCoordinateList[1], bagCoordinateList[3]);
             bagInfo.y1 = Math.max(bagCoordinateList[1], bagCoordinateList[3]);
-            bagInfo.unpackBoxInfoList = JSON.stringify(bagInfo.unpackBoxInfoList);
+            bagInfo.unpackBoxInfoList = JSON.stringify(bagInfo.unpackBoxInfoList || []);
+//            bagInfo.unpackBoxInfoList = JSON.stringify(bagInfo.unpackBoxInfoList || JSON.parse('[{"box":"{\\"((20,20),(130,130))\\"}", "type": 1}]'));
     //        imageModel.append({'imageIdx': imageIdx, 'time': time, 'mainViewSrc': './images/demo.jpg', 'sideViewSrc': 'http://www.gov.cn/xhtml/2016gov/images/guoqing/bigmap.jpg'})
     ////                    imageModel.sync()
     //        imageIdx += 1
             const maxQueueNum = scroll ? 100 : 10;
-//            console.log(scroll, 'ss')
             if (position === 0) {
                 imageModel.insert(0, bagInfo);
             } else { 
@@ -143,6 +150,7 @@ Window {
         repeat: true
         triggeredOnStart: true
         onTriggered: {
+//            homeSrc.printLog("aaaaa");
             const dayMap = {
                 '0': '日',
                 '1': '一',
@@ -164,6 +172,19 @@ Window {
             .getSeconds()
             .toString()
             .padStart(2, '0')}`;
+            // http://192.168.7.25:8256/images//core7/data2/dingshuoquan/images/jms_gj_2_20220106_112704_18461_01.jpg
+//            if (count > 1) {
+//                const bag = imageModel.get(0);
+//                bag.block_path = '/core10/data2/images/raw_data/xm_tb_hs_1/202211/19/xm_tb_hs_34_20221119_060956_00000.jpg';
+//                bag.block_width = 544;
+//                bag.block_height = 636;
+//                bag.bag_coordinate = '(0, 0),(362, 360)';
+//                bag.unpackBoxInfoList = '[{"box":"{\\"((120,120),(150,150))\\"}", "type": 1}]';
+//                imageModel.set(0, bag);
+//            }
+//            count += 1;
+
+//            console.log(JSON.stringify(bag), 'xx');
 //            time.text = `${new Date().getFullYear().toString()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')} +
 //                               '-' +
 //                               ${new Date().getDate().toString().padStart(2, '0')} +
@@ -479,15 +500,15 @@ Window {
                                              fillMode: Image.PreserveAspectFit
                                              anchors.centerIn: parent
 
-                                             Component.onCompleted:   {
+                                             onStatusChanged:   {
                                                  const heightRatio = image.height / (y1-y0);
                                                  const widthRatio = image.width / (x1-x0);
                                                  const ratio = Math.min(widthRatio, heightRatio);
                                                  const unpackBoxList = JSON.parse(unpackBoxInfoList);
                                                  homeSrc.printLog(`比例信息:heightRatio:${heightRatio}:widthRatio:${widthRatio}`);
                                                  for(const box of unpackBoxList) {
-    //                                                 console.log('box')
-    //                                                 console.log(JSON.stringify(box))
+//                                                     console.log('box')
+//                                                     console.log(JSON.stringify(box))
                                                      // 处理矩形情况
                                                      if (box.type == 1) {
                                                          const pointList = box.box.replace(/[(|)|{|}|"]/g, '').split(",").map(Number);
