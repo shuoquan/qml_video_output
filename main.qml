@@ -265,6 +265,7 @@ Window {
                 source: './identity.qml'
 //                source: './scale.qml'
 //                source: './login.qml'
+//                source: './rotate.qml'
                 Connections {
                     target: loader.item
                     ignoreUnknownSignals: true

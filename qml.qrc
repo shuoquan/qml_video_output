@@ -7,5 +7,8 @@
         <file>ComBoxComponent.qml</file>
         <file>login.qml</file>
         <file>camera.qml</file>
+        <file>Triangle.qml</file>
+        <file>rotate.qml</file>
+        <file>CategoryItem.qml</file>
     </qresource>
 </RCC>
