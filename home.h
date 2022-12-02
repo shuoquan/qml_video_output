@@ -14,6 +14,8 @@
 #include <QMetaObject>
 #include <QEventLoop>
 #include <qtcpsocket.h>
+#include <QCryptographicHash>
+#include <QJsonDocument>
 #include "global.h"
 
 #pragma execution_character_set("utf-8")
@@ -32,12 +34,14 @@ public:
     ~Home();
     Q_INVOKABLE void fetchBag(int bagId = 0, int type = 0, int ps = 1);
     Q_INVOKABLE int test(int id);
-    void receiveReply(QNetworkReply *reply);
+    void receiveBagListReply(QNetworkReply *reply);
+    void receiveLoginReply(QNetworkReply *reply);
     Q_INVOKABLE void printLog(QString msg);
+    Q_INVOKABLE void login(QString username, QString password);
 
 signals:
     void sendBagInfo(QString bagInfo);
-
+    void sendLoginRes(QString loginRes);
 public slots:
     void TimeOutSlot();
 

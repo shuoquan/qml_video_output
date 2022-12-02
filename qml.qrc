@@ -1,5 +1,11 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
+        <file>identity.qml</file>
+        <file>home.qml</file>
+        <file>scale.qml</file>
+        <file>ComBoxComponent.qml</file>
+        <file>login.qml</file>
+        <file>camera.qml</file>
     </qresource>
 </RCC>

@@ -81,6 +81,7 @@ void LogHandlerPrivate::openAndBackupLogFile() {
         }
     }
 
+//    std::cout << QDate::currentDate().toString().toStdString() << std::endl;
     // [[3]] 程序运行时如果创建日期不是当前日期，则使用创建日期重命名，并生成一个新的 log.txt
     if (logFileCreatedDate != QDate::currentDate()) {
         logFile->flush();
@@ -88,6 +89,7 @@ void LogHandlerPrivate::openAndBackupLogFile() {
         delete logOut;
         delete logFile;
 
+        logFileCreatedDate = QDate::currentDate();
         QString newLogPath = logDir.absoluteFilePath(logFileCreatedDate.toString("yyyy-MM-dd.log"));;
 //        QFile::copy(logPath, newLogPath); // Bug: 已经存在文件拷贝失败
 //        QFile::remove(logPath); // 删除重新创建，改变创建时间
@@ -96,7 +98,6 @@ void LogHandlerPrivate::openAndBackupLogFile() {
 //        logFile = new QFile(logPath);
         logFile = new QFile(newLogPath);
         logOut  = (logFile->open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) ?  new QTextStream(logFile) : nullptr;
-        logFileCreatedDate = QDate::currentDate();
         if (logOut != nullptr)
             logOut->setCodec("UTF-8");
     }

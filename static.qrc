@@ -9,5 +9,18 @@
         <file>logo2.ico</file>
         <file>logo3.ico</file>
         <file>logo4.ico</file>
+        <file>home.png</file>
+        <file>close.png</file>
+        <file>statistic.png</file>
+        <file>camera.jpg</file>
+        <file>bin.png</file>
+        <file>camera.png</file>
+        <file>close-dark.png</file>
+        <file>login.jpg</file>
+        <file>user.jpg</file>
+        <file>password.jpg</file>
+        <file>password.png</file>
+        <file>user.png</file>
+        <file>ok.png</file>
     </qresource>
 </RCC>

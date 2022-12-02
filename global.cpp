@@ -1,9 +1,9 @@
 ﻿#include "global.h"
 Config config = {
-    "192.168.8.173",
-    9999,
+    "localhost",
+    12345,
     "192.168.8.177",
     9528,
-    "http://192.168.8.177:3000/bag",
-    "http://192.168.8.173:8256/images"
+    "http://localhost:3000",
+    "http://192.168.7.25:8256/images"
 };

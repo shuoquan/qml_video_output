@@ -34,6 +34,7 @@ Home::Home(QObject *parent) : QObject(parent)
 
 Home::~Home()
 {
+    qDebug() << "home destructor";
     delete socket;
     socket = NULL;
     delete timer;
@@ -50,14 +51,14 @@ void Home::fetchBag(int bagId, int type, int ps) {
 //    QString url = "http://192.168.8.177:3000/bag";
 //    ps = 2;
 //    qDebug() << url;
-    QString url = urlPrefix + "?ps=" + QString::number(ps);
+    QString url = urlPrefix + "/bag?ps=" + QString::number(ps);
     if (bagId == 0) {
         // 初始化时寻找前5分钟的前10个包
         QDateTime timeDate = QDateTime::currentDateTime();  // 获取当前时间
         int endTime = timeDate.toTime_t();
         int startTime = endTime - 300;
-        url += "&start=" + QString::number(startTime) + "000";
-        url += "&end=" + QString::number(endTime) + "000";
+//        url += "&start=" + QString::number(startTime) + "000";
+//        url += "&end=" + QString::number(endTime) + "000";
         url += "&order=-1";
         url += "&type=-1";
     } else {
@@ -72,7 +73,7 @@ void Home::fetchBag(int bagId, int type, int ps) {
     qDebug() << "请求url:" << url;
     QNetworkRequest request;
     QNetworkAccessManager manager;
-    connect(&manager, &QNetworkAccessManager::finished, this, &Home::receiveReply);
+    connect(&manager, &QNetworkAccessManager::finished, this, &Home::receiveBagListReply);
 
     //get与post的请求方式有所不同，get是在接口名后添加 ? 和传输的数据(type)
     request.setUrl(QUrl(url));
@@ -86,13 +87,45 @@ void Home::fetchBag(int bagId, int type, int ps) {
 }
 
 
-void Home::receiveReply(QNetworkReply *reply)
+void Home::receiveBagListReply(QNetworkReply *reply)
 {
     QString res = reply->readAll();
-//    qDebug() << "receiveRes" << res;
+    qDebug() << "receiveBagInfo" << res;
     emit sendBagInfo(res);
 }
 
+void Home::receiveLoginReply(QNetworkReply *reply)
+{
+    QString res = reply->readAll();
+    qDebug() << "loginReply" << res;
+    emit sendLoginRes(res);
+}
+
+
+void Home::login(QString username, QString password) {
+    qDebug() << "login" << username << password;
+    QString md5Password = QCryptographicHash::hash(password.toLatin1(), QCryptographicHash::Md5).toHex();
+    qDebug() << md5Password;
+    QString url = urlPrefix + "/user/login";
+    QNetworkRequest request;
+    QNetworkAccessManager manager;
+    connect(&manager, &QNetworkAccessManager::finished, this, &Home::receiveLoginReply);
+
+    //get与post的请求方式有所不同，get是在接口名后添加 ? 和传输的数据(type)
+    request.setUrl(QUrl(url));
+    request.setHeader(QNetworkRequest::ContentTypeHeader,QVariant("application/json;charset=utf-8"));
+    QJsonObject object;
+    object.insert("username", username);
+    object.insert("password", md5Password);
+    QJsonDocument document = QJsonDocument(object);
+    QByteArray byteArr = document.toJson(QJsonDocument::Compact);
+    QNetworkReply *reply = manager.post(request, byteArr);    //post请求头
+
+    //开启事件循环，直到请求完成
+    QEventLoop loop;
+    connect(reply,&QNetworkReply::finished,&loop,&QEventLoop::quit);
+    loop.exec();
+}
 
 void Home::TimeOutSlot()
 {
