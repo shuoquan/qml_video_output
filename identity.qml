@@ -15,6 +15,7 @@ Rectangle {
     property int categoryIndex: -1
     property var categoryList: []
     Component.onCompleted: {
+//        camera.setCameraState(Camera.UnloadedState);
         //        camera.stop();
         categoryList = [
                     {
@@ -164,15 +165,18 @@ Rectangle {
         y: parent.height * 0.1
         width: parent.width * 0.8
         height: parent.height * 0.8
+        padding: 0
         background: Rectangle {
             opacity: 0.6
-            border.width: 1
+            border.width: 2
             border.color: "#BFBFBF"
         }
 
         onOpened: {
             modifyOpacity(0.5);
             userCamera = true;
+            camera.setCameraState(Camera.LoadedState);
+            camera.start()
         }
         onClosed: {
             modifyOpacity(1.0);
@@ -210,8 +214,8 @@ Rectangle {
                             //                                if
                             //                            }
 
-                            camera.imageCapture.captureToLocation('H:/capture.jpg');
-                            camera.stop();
+                            camera.imageCapture.captureToLocation('G:/capture.jpg');
+//                            camera.stop();
                         }
 
                         //                        camera.searchAndLock()
@@ -227,12 +231,14 @@ Rectangle {
             }
             Camera {
                 id: camera
+                cameraState: Camera.UnloadedStatus
                 imageCapture {
                     onImageCaptured: {
                         //                        console.log('capture Camera')
                         //                        okPic.source = preview;
                         console.log(preview, 'xx');
                         cameraPreview = preview;
+                        camera.stop();
                         //                        camera.stop();
                         //                        if (camera.cameraStatus == Camera.LoadedStatus) {
                         ////                            console.log('start')
@@ -533,11 +539,25 @@ Rectangle {
                                             font.family: "微软雅黑"
                                         }
                                         Triangle {
+                                            id: myTriangle
                                             width: parent.height / 4
                                             height: parent.height / 4
                                             anchors.verticalCenter: parent.verticalCenter
                                             anchors.right: parent.right
                                             anchors.rightMargin: 0.2 * parent.width
+                                            states: State {
+                                                name: "rotated"
+                                                PropertyChanges {
+                                                    target: myTriangle
+                                                    rotation: 180
+                                                }
+                                            }
+                                            transitions: Transition {
+                                                RotationAnimation {
+                                                    duration: 200
+                                                    direction: RotationAnimation.Clockwise
+                                                }
+                                            }
                                         }
                                         MouseArea {
                                             anchors.fill: parent
@@ -582,7 +602,18 @@ Rectangle {
                                             border.width: 1
                                             border.color: "#BFBFBF"
                                         }
-                                        visible: false
+                                        onOpened: {
+//                                            console.log('11');
+                                            myTriangle.state = "rotated";
+//                                            myTriangle.state = '';
+                                        }
+                                        onClosed: {
+//                                            console.log('22')
+//                                            myTriangle.rotation.
+                                            myTriangle.state = "";
+                                        }
+
+//                                        visible: false
 
                                         //                                        Rectangle {
                                         //                                            anchors.fill: parent
