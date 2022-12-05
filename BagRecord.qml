@@ -125,11 +125,21 @@ Rectangle {
                 onSelectedDateChanged: {
 
                     //                    startTime = new Date(new Date(selectedDate).toLocaleDateString()).getTime()
-                    console.log(new Date(new Date(new Date(selectedDate).getTime()).toLocaleDateString()))
-                    startTime = new Date(new Date(new Date(selectedDate).getTime()).toLocaleDateString()).getTime()
-                    console.log(new Date(new Date(new Date(Qt.formatDateTime(selectedDate, "yyyy-MM-dd hh:mm:ss")).getTime()).toLocaleDateString()))
-                    console.log(new Date('2022/12/5'))
-                    console.log(startTime, 'xxx')
+//                    console.log(new Date(new Date(new Date(selectedDate).getTime()).toLocaleDateString()))
+//                    startTime = new Date(new Date(new Date(selectedDate).getTime()).toLocaleDateString()).getTime()
+//                    console.log(new Date(new Date(new Date(Qt.formatDateTime(selectedDate, "yyyy-MM-dd hh:mm:ss")).getTime()).toLocaleDateString()))
+//                    console.log(new Date('2022/12/5'))
+//                    console.log(startTime, 'xxx')
+                    console.log(new Date(selectedDate).getFullYear(), 'xxx')
+                    console.log(new Date(selectedDate).getMonth() + 1, 'xxx')
+                    console.log(new Date(selectedDate).getDate(), 'xxx')
+                    const date = new Date(selectedDate);
+                    let curTime = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
+                    console.log('cur', curTime)
+                    curTime = '05/12/2022'
+                    const time =  Date.fromLocaleString(Qt.locale(), curTime, "dd/MM/yyyy")
+//                    var test = someDateTest.getDate()
+                    console.log(new Date(time).getTime(), 'xx')
                 }
             }
             Text {

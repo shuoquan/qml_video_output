@@ -12,6 +12,7 @@ Rectangle {
     anchors.fill: parent
     color: "green"
     Component.onCompleted: {
+        imageList = [...imageList, ...imageList, ...imageList]
 //        timer2.start()
     }
 
@@ -42,6 +43,8 @@ Rectangle {
             anchors.rightMargin: 0.05 * parent.width
             anchors.topMargin: 0.05 * parent.height
             anchors.bottomMargin: 0.05 * parent.height
+            ScrollBar.vertical.policy: ScrollBar.AlwaysOff
+            contentHeight: picArea.height + time.height + contraband.height + auditor.height + bagUser.height * 2
 //            width: parent.width / 10 * 9
 //            height: parent.height / 10 * 9
 //            anchors.centerIn: parent
@@ -51,7 +54,7 @@ Rectangle {
                 anchors.left: parent.left
                 width: parent.width
                 height: grid.height
-                color: "Red"
+//                color: "Red"
                 Grid {
                     id: grid
                     columns: 2
