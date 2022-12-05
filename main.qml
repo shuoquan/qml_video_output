@@ -262,10 +262,12 @@ Window {
                 anchors.fill: parent
 //                sourceComponent: comp
 //                source: './home.qml'
-                source: './identity.qml'
+//                source: './identity.qml'
 //                source: './scale.qml'
 //                source: './login.qml'
 //                source: './rotate.qml'
+//                source: './BagRecord.qml'
+                source: './BagDetail.qml'
                 Connections {
                     target: loader.item
                     ignoreUnknownSignals: true

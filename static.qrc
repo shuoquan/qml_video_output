@@ -22,5 +22,7 @@
         <file>password.png</file>
         <file>user.png</file>
         <file>ok.png</file>
+        <file>calendar.png</file>
+        <file>little-search.png</file>
     </qresource>
 </RCC>

@@ -10,5 +10,7 @@
         <file>Triangle.qml</file>
         <file>rotate.qml</file>
         <file>CategoryItem.qml</file>
+        <file>BagRecord.qml</file>
+        <file>BagDetail.qml</file>
     </qresource>
 </RCC>
