@@ -19,6 +19,7 @@ Rectangle {
     property var userPicMap: ({})
     property string curUserPath: ''
     property string lastUserPath: ''
+    property string userPicSource: './images/camera.png'
     //    signal dealStack()
     Component.onCompleted: {
         //        camera.setCameraState(Camera.UnloadedState);
@@ -222,21 +223,30 @@ Rectangle {
                             //                                if
                             //                            }
                             if (!lastUserPath) {
-                                lastUserPath = `H:/user_1.jpg`;
-                                curUserPath = `H:/user_1.jpg`;
+                                lastUserPath = `G:/pic/user_1.jpg`;
+                                curUserPath = `G:/pic/user_1.jpg`;
                                 camera.imageCapture.captureToLocation(curUserPath);
                             } else {
                                 if (lastUserPath == curUserPath) {
-                                    curUserPath = `H:/user_2.jpg`;
+                                    curUserPath = `G:/pic/user_2.jpg`;
                                     camera.imageCapture.captureToLocation(curUserPath);
                                 } else {
-                                    if (lastUserPath === `H:/user_1.jpg`) {
-                                        lastUserPath = `H:/user_2.jpg`;
-                                        curUserPath = `H:/user_1.jpg`;
+                                    if (lastUserPath === `G:/pic/user_1.jpg`) {
+                                        if (userPicMap[`G:/pic/user_1.jpg`] == userPicSource) {
+                                            curUserPath = `G:/pic/user_2.jpg`;
+                                        } else {
+                                            lastUserPath = `G:/pic/user_2.jpg`;
+                                            curUserPath = `G:/pic/user_1.jpg`;
+                                        }
                                     } else {
-                                        lastUserPath = `H:/user_1.jpg`;
-                                        curUserPath = `H:/user_2.jpg`;
+                                        if (userPicMap[`G:/pic/user_2.jpg`] == userPicSource) {
+                                            curUserPath = `G:/pic/user_1.jpg`;
+                                        } else {
+                                            lastUserPath = `G:/pic/user_1.jpg`;
+                                            curUserPath = `G:/pic/user_2.jpg`;
+                                        }
                                     }
+                                    camera.imageCapture.captureToLocation(curUserPath);
                                 }
                             }
 
@@ -334,7 +344,8 @@ Rectangle {
                         anchors.fill: parent
                         onClicked: {
                             userPopup.close();
-                            console.log('okokok', cameraPng.source, cameraPreview, curUserPath, JSON.stringify(userPicMap))
+                            console.log('close', cameraPng.source, cameraPreview, curUserPath, JSON.stringify(userPicMap))
+                            camera.stop();
                         }
                     }
                 }
@@ -360,11 +371,12 @@ Rectangle {
                         anchors.fill: parent
                         onClicked: {
                             if (cameraPreview) {
-                                cameraPng.source = cameraPreview;
+                                userPicSource = cameraPreview;
 //                                homeSrc.loadImage(cameraPreview);
                                 console.log('okokok', cameraPng.source, cameraPreview, curUserPath, JSON.stringify(userPicMap))
                             }
                             userPopup.close();
+                            camera.stop();
                         }
                     }
                 }
@@ -1121,26 +1133,22 @@ Rectangle {
                     id: myCam
 //                    color: "red"
                     Image {
-                        id: cameraPng
-//                        anchors.fill: parent
-                        source: './images/camera.png'
-                        height: myCam.height
-                        width: myCam.width
-//                        width: parent.width * 0.6
-                        //                         source: 'H:/shnhs4_20210804_212305_00020.jpg'
+                        id: cameraPng_1
+                        source: userPicSource
+                        height: myCam.height * 0.6
+                        width: myCam.width * 0.75
                         fillMode: Image.PreserveAspectFit
                         anchors.centerIn: parent
-                        onStatusChanged: {
-                            console.log('--tt---', cameraPng.source)
-//                            if(cameraPng.source != './images/camera.png') {
-//                                console.log('-sfs')
-//                                cameraPng.width = myCam.width;
-//                                cameraPng.height = myCam.height;
-//                            } else {
-//                                cameraPng.width = myCam.width * 0.6;
-//                                cameraPng.height = myCam.height * 0.75;
-//                            }
-                        }
+                        visible: userPicSource === './images/camera.png'
+                    }
+                    Image {
+                        id: cameraPng
+                        source: userPicSource
+                        height: myCam.height
+                        width: myCam.width
+                        fillMode: Image.PreserveAspectFit
+                        anchors.centerIn: parent
+                        visible: userPicSource !== './images/camera.png'
                     }
                 }
                 MouseArea {
