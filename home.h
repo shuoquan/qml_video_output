@@ -17,6 +17,7 @@
 #include <QCryptographicHash>
 #include <QJsonDocument>
 #include "global.h"
+#include <QQuickImageProvider>
 
 #pragma execution_character_set("utf-8")
 
@@ -38,10 +39,14 @@ public:
     void receiveLoginReply(QNetworkReply *reply);
     Q_INVOKABLE void printLog(QString msg);
     Q_INVOKABLE void login(QString username, QString password);
+    Q_INVOKABLE void saveToken(QString token);
+    Q_INVOKABLE void registerBag(int bagId, QString bagInfo);
+    Q_INVOKABLE void loadImage(QString imagePath);
 
 signals:
     void sendBagInfo(QString bagInfo);
     void sendLoginRes(QString loginRes);
+    void navigatePage(int pageState, QString params);
 public slots:
     void TimeOutSlot();
 

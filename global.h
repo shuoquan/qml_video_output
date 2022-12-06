@@ -8,6 +8,7 @@ struct Config {
     int unpackBackendPort;
     QString unpackBackendUrl;
     QString imagePrefix;
+    QString token;
 };
 extern Config config;
 #endif // GLOBAL_H

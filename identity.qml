@@ -14,9 +14,17 @@ Rectangle {
     property int bagStaus: 0
     property int categoryIndex: -1
     property var categoryList: []
+    property var bagInfo: ({})
+    property string imagePath: ""
+    property var userPicMap: ({})
+    property string curUserPath: ''
+    property string lastUserPath: ''
+    //    signal dealStack()
     Component.onCompleted: {
-//        camera.setCameraState(Camera.UnloadedState);
+        //        camera.setCameraState(Camera.UnloadedState);
         //        camera.stop();
+        imagePath = imagePrefix;
+//        console.log(JSON.stringify(bagInfo), 'test')
         categoryList = [
                     {
                         id: 1,
@@ -68,15 +76,15 @@ Rectangle {
                     },
                     {
                         id: 13,
-                        name: '打火机',
+                        name: '未知',
                     },
                     {
                         id: 14,
                         name: '其他',
                     }
                 ];
-        console.log(JSON.stringify(categoryList))
-//        timer.start()
+//        console.log(JSON.stringify(categoryList))
+        //        timer.start()
     }
     Timer {
         id: timer
@@ -213,9 +221,39 @@ Rectangle {
                             //                            while(true) {
                             //                                if
                             //                            }
+                            if (!lastUserPath) {
+                                lastUserPath = `H:/user_1.jpg`;
+                                curUserPath = `H:/user_1.jpg`;
+                                camera.imageCapture.captureToLocation(curUserPath);
+                            } else {
+                                if (lastUserPath == curUserPath) {
+                                    curUserPath = `H:/user_2.jpg`;
+                                    camera.imageCapture.captureToLocation(curUserPath);
+                                } else {
+                                    if (lastUserPath === `H:/user_1.jpg`) {
+                                        lastUserPath = `H:/user_2.jpg`;
+                                        curUserPath = `H:/user_1.jpg`;
+                                    } else {
+                                        lastUserPath = `H:/user_1.jpg`;
+                                        curUserPath = `H:/user_2.jpg`;
+                                    }
+                                }
+                            }
 
-                            camera.imageCapture.captureToLocation('G:/capture.jpg');
-//                            camera.stop();
+//                            if (!curUserPath) {
+//                                camera.imageCapture.captureToLocation(`H:/user_1.jpg`);
+//                                curUserPath = `H:/user_1.jpg`;
+//                            } else {
+//                                if (userPicMap['H:/user_2.jpg']) {
+//                                   userPicMap['H:/user_1.jpg'] = userPicMap['H:/user_2.jpg'];
+//                                } else {
+//                                    camera.imageCapture.captureToLocation(`H:/user_2.jpg`);
+//                                    curUserPath = `H:/user_2.jpg`;
+//                                }
+//                            }
+
+//                            camera.imageCapture.captureToLocation('G:/capture.jpg');
+                            //                            camera.stop();
                         }
 
                         //                        camera.searchAndLock()
@@ -237,7 +275,10 @@ Rectangle {
                         //                        console.log('capture Camera')
                         //                        okPic.source = preview;
                         console.log(preview, 'xx');
+                        //  capturedImagePath
                         cameraPreview = preview;
+                        userPicMap[curUserPath] = preview;
+
                         camera.stop();
                         //                        camera.stop();
                         //                        if (camera.cameraStatus == Camera.LoadedStatus) {
@@ -293,6 +334,7 @@ Rectangle {
                         anchors.fill: parent
                         onClicked: {
                             userPopup.close();
+                            console.log('okokok', cameraPng.source, cameraPreview, curUserPath, JSON.stringify(userPicMap))
                         }
                     }
                 }
@@ -319,7 +361,8 @@ Rectangle {
                         onClicked: {
                             if (cameraPreview) {
                                 cameraPng.source = cameraPreview;
-                                console.log('okokok')
+//                                homeSrc.loadImage(cameraPreview);
+                                console.log('okokok', cameraPng.source, cameraPreview, curUserPath, JSON.stringify(userPicMap))
                             }
                             userPopup.close();
                         }
@@ -388,11 +431,140 @@ Rectangle {
                     border.width: 2
                     border.color: "#BFBFBF"
                     Image {
-                        source: './images/demo.jpg'
+                        id: image
+                        source: imagePath + bagInfo.block_path
                         fillMode: Image.PreserveAspectFit
                         anchors.centerIn: parent
                         width: imageArea.width - 4
                         height: imageArea.height - 4
+                        sourceSize.width: bagInfo.block_width
+                        sourceSize.height: bagInfo.block_height
+                        sourceClipRect: Qt.rect(bagInfo.x0,bagInfo.y0,bagInfo.x1-bagInfo.x0,bagInfo.y1-bagInfo.y0)
+                        onStatusChanged:   {
+                            const {x0,x1,y0,y1,unpackBoxInfoList,box} = bagInfo;
+                            const heightRatio = image.height / (y1-y0);
+                            const widthRatio = image.width / (x1-x0);
+                            const ratio = Math.min(widthRatio, heightRatio);
+                            const unpackBoxList = JSON.parse(unpackBoxInfoList);
+                            if(heightRatio < 0 || widthRatio < 0) {
+                                return;
+                            }
+
+                            console.log(x0, x1, y0, y1, 'ddddddddd', heightRatio, widthRatio)
+//                            homeSrc.printLog(`比例信息:heightRatio:${heightRatio}:widthRatio:${widthRatio}`);
+                            for(const box of unpackBoxList) {
+                                //                                                     console.log('box')
+                                //                                                     console.log(JSON.stringify(box))
+                                // 处理矩形情况
+                                if (box.type == 1) {
+                                    const pointList = box.box.replace(/[(|)|{|}|"]/g, '').split(",").map(Number);
+                                    const leftTopX = Math.min(pointList[0], pointList[2]);
+                                    const leftTopY = Math.min(pointList[1], pointList[3]);
+                                    const rightBottomX = Math.max(pointList[0], pointList[2]);
+                                    const rightBottomY = Math.max(pointList[1], pointList[3]);
+                                    // 超出区局部分不显示
+                                    if (leftTopX<x0 || leftTopY < y0 || rightBottomX > x1 || rightBottomY > y1) {
+                                        continue;
+                                    }
+                                    if (heightRatio < widthRatio) {
+                                        Qt.createQmlObject(`
+                                                           import QtQuick 2.0
+                                                           Rectangle {
+                                                           width: ${rightBottomX - leftTopX} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))
+                                                           height: ${rightBottomY - leftTopY} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))
+                                                           border.color: 'red'
+                                                           border.width: 2
+                                                           anchors.top: parent.top
+                                                           anchors.left: parent.left
+                                                           anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0)) + (image.width - (bagInfo.x1-bagInfo.x0)*Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))) / 2
+                                                           anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))
+                                                           color: 'transparent'
+                                                           }
+                                                           `,
+                                                           parent, `myItem${box.id}`)
+                                    } else {
+                                        //                                                             console.log('2x')
+                                        Qt.createQmlObject(`
+                                                           import QtQuick 2.0
+                                                           Rectangle {
+                                                           width: ${rightBottomX - leftTopX} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))
+                                                           height: ${rightBottomY - leftTopY} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))
+                                                           border.color: 'red'
+                                                           border.width: 2
+                                                           anchors.top: parent.top
+                                                           anchors.left: parent.left
+                                                           anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))
+                                                           anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0)) + (image.height - (bagInfo.y1-bagInfo.y0)*Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))) / 2
+                                                           color: 'transparent'
+                                                           }
+                                                           `,
+                                                           parent, `myItem${box.id}`)
+                                    }
+                                } else if(box.type == 2) {
+                                    const leftTopX = 236;
+                                    const leftTopY = 345;
+                                    const rightBottomX = 343;
+                                    const rightBottomY = 406;
+                                    //                                                     Qt.createQmlObject(`
+                                    //                                                     import QtQuick 2.0
+                                    //                                                     Rectangle {
+                                    //                                                        width: ${rightBottomX - leftTopX} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+                                    //                                                        height: ${rightBottomY - leftTopY} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+                                    //                                                        border.color: 'red'
+                                    //                                                        border.width: 2
+                                    //                                                        anchors.top: parent.top
+                                    //                                                        anchors.left: parent.left
+                                    //                                                        anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.width - (x1-x0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2
+                                    //                                                        anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+                                    //                                                        color: 'transparent'
+                                    //                                                     }
+                                    //                                                     `,
+                                    //                                                     parent, `myItem${box.id}`)
+                                    //                                                     const pointList = [236, 345, 343, 345, 343, 406, 236, 406];
+                                    const pointList = box.box.replace(/[(|)|{|}|"]/g, '').split(",").map(Number);
+                                    let dynamicStr = "";
+                                    for(let i=0; i<pointList.length; i+=2) {
+                                        const [x, y] = [pointList[i], pointList[i+1]];
+                                        let param1, param2;
+                                        //                                                         console.log(heightRatio, ratio, 'xx');
+                                        if (heightRatio < widthRatio) {
+                                            param1 = `${x - x0} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0)) + (image.width - (bagInfo.x1-bagInfo.x0)*Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))) / 2`;
+                                            param2 = `${y - y0} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))`;
+                                        } else {
+                                            param1 = `${x - x0} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))`;
+                                            param2 = `${y - y0} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0)) + (image.height - (bagInfo.y1-bagInfo.y0)*Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))) / 2`;
+                                        }
+                                        if (i==0) {
+                                            dynamicStr += `ctx.moveTo(${param1}, ${param2});`
+                                        } else {
+                                            dynamicStr += `ctx.lineTo(${param1}, ${param2});`
+                                        }
+
+                                    }
+                                    //                                                     console.log(dynamicStr)
+                                    //                                                     dynamicStr = `ctx.moveTo(234 * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.width - (x1-x0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2, 330 * Math.min(image.height / (y1-y0), image.width / (x1-x0))); ctx.lineTo(image.width, image.height);`
+                                    //                                                     console.log(dynamicStr)
+                                    const createQmlStr = `
+                                    import QtQuick 2.0
+                                    Canvas {
+                                    id: canvas
+                                    anchors.fill: parent
+                                    onPaint: {
+                                    const ctx =  getContext('2d');
+                                    ctx.beginPath();
+                                    ctx.strokeStyle = "#FF0000";
+                                    ctx.lineWidth = 2;
+                                    ${dynamicStr}
+                                    ctx.stroke();
+                                    }
+                                    }
+                                    `;
+                                    Qt.createQmlObject(createQmlStr, parent, `myItem${box.id}`);
+                                }
+                            }
+
+                        }
+
                     }
                     MouseArea {
                         anchors.fill: parent
@@ -462,7 +634,8 @@ Rectangle {
                                 verticalAlignment: Text.AlignVCenter
                             }
                             onClicked: {
-                                bagStaus = 2;
+                                console.log('sssf')
+                                //                                 dealStack()
                             }
                         }
                     }
@@ -603,17 +776,17 @@ Rectangle {
                                             border.color: "#BFBFBF"
                                         }
                                         onOpened: {
-//                                            console.log('11');
+                                            //                                            console.log('11');
                                             myTriangle.state = "rotated";
-//                                            myTriangle.state = '';
+                                            //                                            myTriangle.state = '';
                                         }
                                         onClosed: {
-//                                            console.log('22')
-//                                            myTriangle.rotation.
+                                            //                                            console.log('22')
+                                            //                                            myTriangle.rotation.
                                             myTriangle.state = "";
                                         }
 
-//                                        visible: false
+                                        //                                        visible: false
 
                                         //                                        Rectangle {
                                         //                                            anchors.fill: parent
@@ -651,6 +824,7 @@ Rectangle {
                                                         anchors.fill: parent
                                                         onClicked: {
                                                             categoryName = modelData.name
+                                                            categoryPopup.close()
                                                         }
                                                     }
                                                 }
@@ -944,13 +1118,29 @@ Rectangle {
                     anchors.fill: parent
                     anchors.centerIn: parent
                     color: "#f2f2f2"
+                    id: myCam
+//                    color: "red"
                     Image {
                         id: cameraPng
-                        anchors.fill: parent
+//                        anchors.fill: parent
                         source: './images/camera.png'
+                        height: myCam.height
+                        width: myCam.width
+//                        width: parent.width * 0.6
                         //                         source: 'H:/shnhs4_20210804_212305_00020.jpg'
                         fillMode: Image.PreserveAspectFit
-                        // anchors.centerIn: parent
+                        anchors.centerIn: parent
+                        onStatusChanged: {
+                            console.log('--tt---', cameraPng.source)
+//                            if(cameraPng.source != './images/camera.png') {
+//                                console.log('-sfs')
+//                                cameraPng.width = myCam.width;
+//                                cameraPng.height = myCam.height;
+//                            } else {
+//                                cameraPng.width = myCam.width * 0.6;
+//                                cameraPng.height = myCam.height * 0.75;
+//                            }
+                        }
                     }
                 }
                 MouseArea {

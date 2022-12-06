@@ -24,5 +24,7 @@
         <file>ok.png</file>
         <file>calendar.png</file>
         <file>little-search.png</file>
+        <file>new-home.png</file>
+        <file>next.png</file>
     </qresource>
 </RCC>

@@ -103,9 +103,9 @@ void Home::receiveLoginReply(QNetworkReply *reply)
 
 
 void Home::login(QString username, QString password) {
-    qDebug() << "login" << username << password;
+//    qDebug() << "login" << username << password;
     QString md5Password = QCryptographicHash::hash(password.toLatin1(), QCryptographicHash::Md5).toHex();
-    qDebug() << md5Password;
+//    qDebug() << md5Password;
     QString url = urlPrefix + "/user/login";
     QNetworkRequest request;
     QNetworkAccessManager manager;
@@ -125,6 +125,42 @@ void Home::login(QString username, QString password) {
     QEventLoop loop;
     connect(reply,&QNetworkReply::finished,&loop,&QEventLoop::quit);
     loop.exec();
+}
+
+void Home::saveToken(QString token) {
+    config.token = token;
+//    qDebug() << config.token << "1";
+}
+
+void Home::loadImage(QString imagePath) {
+    qDebug() << "image" << imagePath;
+//    auto myQmlEngine = qmlEngine(this);
+//    qDebug() << "111";
+//    QUrl imageUrl(imagePath);
+//    qDebug() << "222" << imageUrl;
+//    QImage img = provider->requestImage(imageUrl.path().remove(0,1),nullptr,QSize());
+    //        qDebug() << "D";
+    //        qDebug() << img;
+////    auto provider = reinterpret_cast<QQuickImageProvider*>( myQmlEngine->imageProvider(imageUrl.host()));
+//     auto provider = static_cast<QQuickImageProvider*>( myQmlEngine->imageProvider(imageUrl.host()));
+//    qDebug() << "333";
+//    QQmlEngine *engine = QQmlEngine::contextForObject(this)->engine();
+
+//    if (provider->imageType()==QQuickImageProvider::Image){
+//        QImage img = provider->requestImage(imageUrl.path().remove(0,1),nullptr,QSize());
+//        qDebug() << "D";
+//        qDebug() << img;
+//        // do whatever you want with the image
+//    }
+}
+
+void Home::registerBag(int bagId, QString bagInfo) {
+//    qDebug() << "register" << bagId << bagInfo;
+//    QJsonObject object;
+//    object.insert("bagId", bagId);
+//    QJsonDocument document = QJsonDocument(object);
+//    emit navigatePage(2, document.toJson(QJsonDocument::Indented));
+    emit navigatePage(2, bagInfo);
 }
 
 void Home::TimeOutSlot()

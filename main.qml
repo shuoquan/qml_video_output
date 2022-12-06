@@ -5,6 +5,7 @@ import QtQuick.Controls 2.15
 //import VideoAdapter 1.0
 
 Window {
+    id: root
     title: " "
     minimumWidth: 1280
     minimumHeight: 720
@@ -21,11 +22,32 @@ Window {
     property bool fullScreen: true
     property double mainOpacity: 1
     property bool loginPage: false
+    property int pageState: 1  // 页面状态 1-首页, 2-登记页面， 3-统计页面， 4-详情页面
+    signal dealStack()
 //    http://192.168.8.173:8256/images
 //    flags: fullScreen ? Qt.FramelessWindowHint : Qt.Window
 
     Component.onCompleted: {
         timer.start();
+        content.push('./home.qml');
+    }
+
+    Connections {
+        target: homeSrc
+        function onNavigatePage(state, params) {
+//            console.log(pageState, params, 'xxxxxx')
+            const obj = JSON.parse(params || '{}');
+            if (state == 2) {
+                console.log("getBagId", obj['id'])
+                content.push('./identity.qml', {bagInfo: obj});
+                search.source = './images/new-home.png';
+                searchText.text = "返回";
+                setting.source = "./images/next.png";
+                settingText.text = "下一个";
+                pageState = 2;
+                console.log(pageState, '-----')
+            }
+        }
     }
 
     Timer {
@@ -221,6 +243,21 @@ Window {
                     anchors.verticalCenter: parent.verticalCenter
                     font.bold: true
                 }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        console.log('ppp', pageState)
+                        if (pageState == 2) {
+                            pageState = 1;
+                            search.source = './images/search.jpg';
+                            searchText.text = "查询";
+                            setting.source = "./images/setting.jpg";
+                            settingText.text = "设置";
+                            content.pop()
+//                            dealStack()
+                        }
+                    }
+                }
             }
             Rectangle {
                 id: rightArea
@@ -251,12 +288,43 @@ Window {
             }
         }
 
-        Rectangle {
+        StackView {
             id: content
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.top: header.bottom
             anchors.bottom: footer.top
+            pushEnter: Transition {
+
+            }
+            pushExit: Transition {
+
+            }
+            popEnter: Transition {
+
+            }
+            popExit: Transition {
+
+            }
+
+//            Connections {
+//                target: root
+//                function onDealStack() {
+//                    console.log('aasfs', content.depth)
+//                    content.pop();
+//                }
+//            }
+
+//            function onRegisterBag(bagId) {
+//                console.log("getBagId", bagId)
+//                content.push('./identity.qml');
+//                search.source = './images/new-home.png';
+//                searchText.text = "返回";
+//                setting.source = "./images/next.png";
+//                settingText.text = "下一个";
+//                pageState = 2;
+//            }
+
             Loader {
                 id: loader
                 anchors.fill: parent
@@ -267,13 +335,30 @@ Window {
 //                source: './login.qml'
 //                source: './rotate.qml'
 //                source: './BagRecord.qml'
-                source: './BagDetail.qml'
+//                source: './BagDetail.qml'
+//                source: './scroll.qml'
                 Connections {
                     target: loader.item
                     ignoreUnknownSignals: true
                     function onModifyOpacity(opacity) {
 //                        console.log("receive", opacity);
                         mainOpacity = opacity;
+                    }
+                    function onLoginSuccess(status) {
+                        console.log(status)
+                        if (status) {
+                            loginPage = false;
+                            loader.source = './home.qml';
+                        }
+                    }
+                    function onRegisterBag(bagId) {
+                        console.log("getBagId", bagId)
+                        content.push('./identity.qml');
+                        search.source = './images/new-home.png';
+                        searchText.text = "返回";
+                        setting.source = "./images/next.png";
+                        settingText.text = "下一个";
+                        pageState = 2;
                     }
                 }
             }

@@ -5,7 +5,7 @@ import QtQuick.Controls 2.15
 
 Rectangle {
     anchors.fill: parent
-
+    signal loginSuccess(bool status)
     Connections {
         target: homeSrc
         function onSendLoginRes(loginRes) {
@@ -19,6 +19,8 @@ Rectangle {
                 if (message.includes('密码')) {
                     passwordMsg.text = message;
                 }
+            } else {
+                homeSrc.saveToken(loginObj['token'] || '');
             }
         }
     }
@@ -37,6 +39,7 @@ Rectangle {
         }
         if (userText.text && passwordText.text) {
             homeSrc.login(userText.text, passwordText.text);
+            loginSuccess(true);
         }
     }
 
@@ -129,6 +132,11 @@ Rectangle {
                     onEditingFinished: {
 //                        login();
                     }
+                    Keys.onReleased: {
+                        if (event.key === Qt.Key_Return) {
+                            login();
+                        }
+                    }
                 }
             }
             Rectangle {
@@ -199,6 +207,11 @@ Rectangle {
                     }
                     onEditingFinished: {
 //                        login();
+                    }
+                    Keys.onReleased: {
+                        if (event.key === Qt.Key_Return) {
+                            login();
+                        }
                     }
                 }
             }
