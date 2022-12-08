@@ -21,6 +21,9 @@ Rectangle {
                 }
             } else {
                 homeSrc.saveToken(loginObj['token'] || '');
+//                console.log(loginRes, 'abc')
+//                return
+                homeSrc.goToPage(1, JSON.stringify({username: (loginObj['user'] || {})['username']}));
             }
         }
     }
@@ -39,7 +42,7 @@ Rectangle {
         }
         if (userText.text && passwordText.text) {
             homeSrc.login(userText.text, passwordText.text);
-            loginSuccess(true);
+//            loginSuccess(true);
         }
     }
 

@@ -17,7 +17,9 @@ Rectangle {
     property string auditorName: ''
     property int categoryIndex: -1
     property var categoryList: []
+    property string imagePath: ""
     Component.onCompleted: {
+        imagePath = imagePrefix;
         categoryList = [
                     {
                         id: 1,
@@ -69,13 +71,23 @@ Rectangle {
                     },
                     {
                         id: 13,
-                        name: '打火机',
+                        name: '未知',
                     },
                     {
                         id: 14,
                         name: '其他',
                     }
                 ];
+        let date = new Date();
+        const curTime = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`
+        const time =  Date.fromLocaleString(Qt.locale(), curTime, "dd/MM/yyyy")
+        startTime = new Date(time).getTime();
+        console.log(startTime, 'dddd')
+        endTime = startTime + 86400000;
+        leftTime.text = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
+        //        date = new Date(date.getTime() + 86400000)
+        rightTime.text = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
+        timer.start()
     }
     MouseArea {
         anchors.fill: parent
@@ -84,6 +96,79 @@ Rectangle {
             rightCalendar = false;
         }
     }
+    Timer {
+        id: timer
+        interval: 1000
+        repeat: false
+        triggeredOnStart: false
+        onTriggered: {
+            getBagList()
+        }
+    }
+
+    Connections {
+        target: homeSrc
+        function onSendBagInfo(bagListStr) {
+//            console.log('----------dfa---------', bagListStr)
+            if (pageState != 3) {
+                return;
+            }
+            const bagList = JSON.parse(bagListStr || "[]");
+            bagModel.remove(0, bagModel.count);
+            for(const bagInfo of bagList) {
+//                console.log('aaa', JSON.stringify(bagInfo))
+                const date = new Date(bagInfo.block_create_at);
+                //                const time = date.getFullYear().toString() +
+                //                           '-' +
+                //                           (date.getMonth() + 1).toString().padStart(2, '0') +
+                //                           '-' +
+                //                           date.getDate().toString().padStart(2, '0') +
+                //                           ',' +
+                //                           date.getHours().toString().padStart(2, '0') +
+                //                           ':' +
+                //                           date.getMinutes().toString().padStart(2, '0') +
+                //                           ':' +
+                //                           date.getSeconds().toString().padStart(2, '0');
+                //                bagInfo.block_create_at = time;
+                bagInfo.date = date.getFullYear().toString() +
+                        '-' +
+                        (date.getMonth() + 1).toString().padStart(2, '0') +
+                        '-' +
+                        date.getDate().toString().padStart(2, '0');
+                bagInfo.time =  date.getHours().toString().padStart(2, '0') +
+                        ':' +
+                        date.getMinutes().toString().padStart(2, '0') +
+                        ':' +
+                        date.getSeconds().toString().padStart(2, '0');
+                bagInfo.contraband = (bagInfo.unpackBoxInfoList || []).map(v=>v.categoryName).filter(v=>v!=="").join(',');
+                bagInfo.bagNum = 1001 + bagInfo.id - bagInfo.minIndex;
+
+                const bagCoordinateList = bagInfo.bag_coordinate.replace(/\(|\)/g, '').split(',').map(Number);
+                bagInfo.x0 = Math.min(bagCoordinateList[0], bagCoordinateList[2]);
+                bagInfo.x1 = Math.max(bagCoordinateList[0], bagCoordinateList[2]);
+                bagInfo.y0 = Math.min(bagCoordinateList[1], bagCoordinateList[3]);
+                bagInfo.y1 = Math.max(bagCoordinateList[1], bagCoordinateList[3]);
+                bagInfo.unpackBoxInfoList = JSON.stringify(bagInfo.unpackBoxInfoList || []);
+                bagModel.append(bagInfo);
+            }
+
+            //            console.log(insertDirection)
+            //            for(const bag of bagList) {
+            //                if (bag.type == -1) {
+            //                    addImage(bag, -1);
+            //                } else {
+            //                    addImage(bag, 0);
+            //                }
+
+            //                //                console.log(JSON.stringify(bag));
+            //            }
+        }
+    }
+
+    function getBagList() {
+        console.log(startTime, endTime, categoryName, userText.text, auditorName.text)
+        homeSrc.getBagList(startTime / 1000, endTime / 1000, categoryName == "类别" ? "" : categoryName, userText.text, auditorName.text);
+    }
 
     Rectangle {
         z: 2
@@ -91,7 +176,7 @@ Rectangle {
         width: parent.width * 0.92
         anchors.left: parent.left
         anchors.leftMargin: 0.04 * parent.width
-//        color: "green"
+        //        color: "green"
         Rectangle {
             id: dateSelect
             height: parent.height / 2
@@ -102,7 +187,7 @@ Rectangle {
             border.color: "#bfbfbf"
             Text {
                 id: leftTime
-                text: "2022-10-30"
+                text: ""
                 font.family: "微软雅黑"
                 font.pixelSize: parent.height / 3
                 anchors.verticalCenter: parent.verticalCenter
@@ -118,29 +203,26 @@ Rectangle {
             }
             Con1_4.Calendar {
                 //                minimumDate: new Date(2022, 1, 1)
+                id: leftCalendarComp
                 anchors.top: dateSelect.bottom
                 anchors.left: leftTime.left
                 anchors.topMargin: 1
                 visible: leftCalendar
                 onSelectedDateChanged: {
-
-                    //                    startTime = new Date(new Date(selectedDate).toLocaleDateString()).getTime()
-//                    console.log(new Date(new Date(new Date(selectedDate).getTime()).toLocaleDateString()))
-//                    startTime = new Date(new Date(new Date(selectedDate).getTime()).toLocaleDateString()).getTime()
-//                    console.log(new Date(new Date(new Date(Qt.formatDateTime(selectedDate, "yyyy-MM-dd hh:mm:ss")).getTime()).toLocaleDateString()))
-//                    console.log(new Date('2022/12/5'))
-//                    console.log(startTime, 'xxx')
-                    console.log(new Date(selectedDate).getFullYear(), 'xxx')
-                    console.log(new Date(selectedDate).getMonth() + 1, 'xxx')
-                    console.log(new Date(selectedDate).getDate(), 'xxx')
+                    //                    console.log(new Date(new Date(new Date(selectedDate).getTime()).toLocaleDateString()))
+                    //                    startTime = new Date(new Date(new Date(selectedDate).getTime()).toLocaleDateString()).getTime()
+                    //                    console.log(new Date(new Date(new Date(Qt.formatDateTime(selectedDate, "yyyy-MM-dd hh:mm:ss")).getTime()).toLocaleDateString()))
                     const date = new Date(selectedDate);
-                    let curTime = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
-                    console.log('cur', curTime)
-                    curTime = '05/12/2022'
+                    const curTime = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`
+                    leftTime.text = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
                     const time =  Date.fromLocaleString(Qt.locale(), curTime, "dd/MM/yyyy")
-//                    var test = someDateTest.getDate()
-                    console.log(new Date(time).getTime(), 'xx')
+                    startTime = new Date(time).getTime();
+                    //                    console.log(new Date(time).getTime(), 'xx')
+                    getBagList()
                 }
+                //                Component.onCompleted: {
+                //                    console.log(leftCalendarComp.__selectNextDay())
+                //                }
             }
             Text {
                 id: middleText
@@ -153,7 +235,7 @@ Rectangle {
             }
             Text {
                 id: rightTime
-                text: "2022-10-30"
+                text: ""
                 font.family: "微软雅黑"
                 font.pixelSize: parent.height / 3
                 anchors.verticalCenter: parent.verticalCenter
@@ -169,11 +251,25 @@ Rectangle {
             }
             Con1_4.Calendar {
                 //                minimumDate: new Date(2022, 1, 1)
+                id: rightCalendarComp
                 anchors.top: dateSelect.bottom
                 anchors.left: rightTime.left
                 anchors.topMargin: 1
                 visible: rightCalendar
-//                z: 3
+                //                z: 3
+                onSelectedDateChanged: {
+                    const date = new Date(selectedDate);
+                    const curTime = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`
+                    rightTime.text = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
+                    const time =  Date.fromLocaleString(Qt.locale(), curTime, "dd/MM/yyyy")
+                    endTime = new Date(time).getTime() + 86400000;
+                    getBagList()
+                    console.log('---change---')
+                }
+
+                //                Component.onCompleted: {
+                //                    rightCalendarComp.__selectNextDay()
+                //                }
             }
             Image {
                 source: './images/calendar.png'
@@ -249,6 +345,7 @@ Rectangle {
             }
             onClosed: {
                 myTriangle.state = "";
+                getBagList()
             }
 
             Grid {
@@ -278,6 +375,7 @@ Rectangle {
                             anchors.fill: parent
                             onClicked: {
                                 categoryName = modelData.name
+                                categoryPopup.close()
                             }
                         }
                     }
@@ -314,6 +412,11 @@ Rectangle {
                 onEditingFinished: {
                     //                        login();
                 }
+                Keys.onReleased: {
+                    if (event.key === Qt.Key_Return) {
+                        getBagList();
+                    }
+                }
             }
             Rectangle {
                 height: parent.height
@@ -327,6 +430,12 @@ Rectangle {
                     width: parent.width
                     height: parent.height / 2
                     anchors.centerIn: parent
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        getBagList();
+                    }
                 }
             }
 
@@ -360,6 +469,11 @@ Rectangle {
                 onEditingFinished: {
                     //                        login();
                 }
+                Keys.onReleased: {
+                    if (event.key === Qt.Key_Return) {
+                        getBagList();
+                    }
+                }
             }
             Rectangle {
                 height: parent.height
@@ -373,6 +487,12 @@ Rectangle {
                     width: parent.width
                     height: parent.height / 2
                     anchors.centerIn: parent
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        getBagList();
+                    }
                 }
             }
 
@@ -402,6 +522,20 @@ Rectangle {
                 verticalAlignment: Text.AlignVCenter
             }
             onClicked: {
+                console.log('refresh')
+                categoryName = '类别';
+                let date = new Date();
+                const curTime = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`
+                const time =  Date.fromLocaleString(Qt.locale(), curTime, "dd/MM/yyyy")
+                startTime = new Date(time).getTime();
+                endTime = startTime + 86400000;
+                leftTime.text = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
+                //                date = new Date(date.getTime() + 86400000)
+                rightTime.text = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
+                userText.text = '';
+                auditorName.text = '';
+                //                leftCalendarComp.__select
+                //                homeSrc.goToPage(100);
             }
         }
 
@@ -413,7 +547,7 @@ Rectangle {
         width: parent.width * 0.92
         anchors.left: parent.left
         anchors.leftMargin: 0.04 * parent.width
-//        color: "blue"
+        //        color: "blue"
         Rectangle {
             id: header
             width: parent.width
@@ -527,48 +661,49 @@ Rectangle {
             anchors.top: header.bottom
             anchors.bottom: parent.bottom
             clip: true
+
             Column {
                 id: column
                 spacing: 10
                 anchors.fill: parent
                 ListModel {
                     id: bagModel
-                    ListElement {
-                        bagId: 1007
-                        date: '2022-12-05'
-                        time: '09:19:05'
-                        contraband: '刀具,枪支'
-                        bagUserName: '张三'
-                        auditorName: '李四'
-                        blockPath: './images/demo.jpg'
-                    }
-                    ListElement {
-                        bagId: 1006
-                        date: '2022-12-05'
-                        time: '09:19:05'
-                        contraband: '刀具,枪支'
-                        bagUserName: '张三'
-                        auditorName: '李四'
-                        blockPath: './images/demo.jpg'
-                    }
-                    ListElement {
-                        bagId: 1006
-                        date: '2022-12-05'
-                        time: '09:19:05'
-                        contraband: '刀具,枪支'
-                        bagUserName: '张三'
-                        auditorName: '李四'
-                        blockPath: './images/demo.jpg'
-                    }
-                    ListElement {
-                        bagId: 1006
-                        date: '2022-12-05'
-                        time: '09:19:05'
-                        contraband: '刀具,枪支'
-                        bagUserName: '张三'
-                        auditorName: '李四'
-                        blockPath: './images/demo.jpg'
-                    }
+                    //                    ListElement {
+                    //                        bagId: 1007
+                    //                        date: '2022-12-05'
+                    //                        time: '09:19:05'
+                    //                        contraband: '刀具,枪支'
+                    //                        bagUserName: '张三'
+                    //                        auditorName: '李四'
+                    //                        blockPath: './images/demo.jpg'
+                    //                    }
+                    //                    ListElement {
+                    //                        bagId: 1006
+                    //                        date: '2022-12-05'
+                    //                        time: '09:19:05'
+                    //                        contraband: '刀具,枪支'
+                    //                        bagUserName: '张三'
+                    //                        auditorName: '李四'
+                    //                        blockPath: './images/demo.jpg'
+                    //                    }
+                    //                    ListElement {
+                    //                        bagId: 1006
+                    //                        date: '2022-12-05'
+                    //                        time: '09:19:05'
+                    //                        contraband: '刀具,枪支'
+                    //                        bagUserName: '张三'
+                    //                        auditorName: '李四'
+                    //                        blockPath: './images/demo.jpg'
+                    //                    }
+                    //                    ListElement {
+                    //                        bagId: 1006
+                    //                        date: '2022-12-05'
+                    //                        time: '09:19:05'
+                    //                        contraband: '刀具,枪支'
+                    //                        bagUserName: '张三'
+                    //                        auditorName: '李四'
+                    //                        blockPath: './images/demo.jpg'
+                    //                    }
                 }
                 Component {
                     id: bagDelegate
@@ -586,7 +721,7 @@ Rectangle {
                         }
                         Row {
                             id: bagItem
-//                            anchors.fill: parent
+                            //                            anchors.fill: parent
                             width: parent.width
                             height: parent.height - 1
                             spacing: 0
@@ -595,7 +730,7 @@ Rectangle {
                                 width: parent.width / 16
                                 color: "transparent"
                                 Text {
-                                    text: bagId
+                                    text: bagNum
                                     font.family: "微软雅黑"
                                     font.pixelSize: parent.height / 8
                                     anchors.centerIn: parent
@@ -639,7 +774,7 @@ Rectangle {
                                 width: parent.width / 16 * 2
                                 color: "transparent"
                                 Text {
-                                    text: bagUserName
+                                    text: bag_user_name
                                     font.family: "微软雅黑"
                                     font.pixelSize: parent.height / 8
                                     anchors.centerIn: parent
@@ -650,7 +785,7 @@ Rectangle {
                                 width: parent.width / 16 * 2
                                 color: "transparent"
                                 Text {
-                                    text: auditorName
+                                    text: unpack_auditor_name
                                     font.family: "微软雅黑"
                                     font.pixelSize: parent.height / 8
                                     anchors.centerIn: parent
@@ -671,9 +806,127 @@ Rectangle {
                                         id: image
                                         width: parent.width
                                         height: parent.height
-                                        source: blockPath
+                                        sourceSize.width: block_width
+                                        sourceSize.height: block_height
+                                        sourceClipRect: Qt.rect(x0,y0,x1-x0,y1-y0)                                                                            //                                         source: "file:///" + block_path
+                                        source: imagePath + block_path
                                         fillMode: Image.PreserveAspectFit
                                         anchors.centerIn: parent
+                                        onStatusChanged:   {
+                                            const heightRatio = image.height / (y1-y0);
+                                            const widthRatio = image.width / (x1-x0);
+                                            const ratio = Math.min(widthRatio, heightRatio);
+                                            const unpackBoxList = JSON.parse(unpackBoxInfoList);
+                                            homeSrc.printLog(`比例信息:heightRatio:${heightRatio}:widthRatio:${widthRatio}`);
+                                            for(const box of unpackBoxList) {
+                                                //                                                     console.log('box')
+                                                //                                                     console.log(JSON.stringify(box))
+                                                // 处理矩形情况
+                                                if (box.type == 1) {
+                                                    const pointList = box.box.replace(/[(|)|{|}|"]/g, '').split(",").map(Number);
+                                                    const leftTopX = Math.min(pointList[0], pointList[2]);
+                                                    const leftTopY = Math.min(pointList[1], pointList[3]);
+                                                    const rightBottomX = Math.max(pointList[0], pointList[2]);
+                                                    const rightBottomY = Math.max(pointList[1], pointList[3]);
+                                                    // 超出区局部分不显示
+                                                    if (leftTopX<x0 || leftTopY < y0 || rightBottomX > x1 || rightBottomY > y1) {
+                                                        continue;
+                                                    }
+
+                                                    if (heightRatio < widthRatio) {
+                                                        //                                                             console.log('1x')
+                                                        //                                                 Qt.createQmlObject(`
+                                                        //                                                 import QtQuick 2.0
+                                                        //                                                 Rectangle {
+                                                        //                                                    width: ${width}
+                                                        //                                                    height: ${height}
+                                                        //                                                    border.color: 'red'
+                                                        //                                                    border.width: 2
+                                                        //                                                    anchors.top: parent.top
+                                                        //                                                    anchors.left: parent.left
+                                                        //                                                    anchors.leftMargin: ${160 * ratio + (image.width - (x1-x0)*ratio) / 2}
+                                                        //                                                    anchors.topMargin: ${60 * ratio}
+                                                        //                                                    color: 'transparent'
+                                                        //                                                 }
+                                                        //                                                 `,
+                                                        //                                                 parent, "myItem")
+                                                        Qt.createQmlObject(`
+                                                                           import QtQuick 2.0
+                                                                           Rectangle {
+                                                                           width: ${rightBottomX - leftTopX} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+                                                                           height: ${rightBottomY - leftTopY} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+                                                                           border.color: 'red'
+                                                                           border.width: 2
+                                                                           anchors.top: parent.top
+                                                                           anchors.left: parent.left
+                                                                           anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.width - (x1-x0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2
+                                                                           anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+                                                                           color: 'transparent'
+                                                                           }
+                                                                           `,
+                                                                           parent, `myItem${box.id}`)
+                                                    } else {
+                                                        //                                                             console.log('2x')
+                                                        Qt.createQmlObject(`
+                                                                           import QtQuick 2.0
+                                                                           Rectangle {
+                                                                           width: ${rightBottomX - leftTopX} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+                                                                           height: ${rightBottomY - leftTopY} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+                                                                           border.color: 'red'
+                                                                           border.width: 2
+                                                                           anchors.top: parent.top
+                                                                           anchors.left: parent.left
+                                                                           anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
+                                                                           anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.height - (y1-y0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2
+                                                                           color: 'transparent'
+                                                                           }
+                                                                           `,
+                                                                           parent, `myItem${box.id}`)
+                                                    }
+                                                } else if(box.type == 2) {
+                                                    const pointList = box.box.replace(/[(|)|{|}|"]/g, '').split(",").map(Number);
+                                                    let dynamicStr = "";
+                                                    for(let i=0; i<pointList.length; i+=2) {
+                                                        const [x, y] = [pointList[i], pointList[i+1]];
+                                                        let param1, param2;
+                                                        //                                                         console.log(heightRatio, ratio, 'xx');
+                                                        if (heightRatio < widthRatio) {
+                                                            param1 = `${x - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.width - (x1-x0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2`;
+                                                            param2 = `${y - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))`;
+                                                        } else {
+                                                            param1 = `${x - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))`;
+                                                            param2 = `${y - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.height - (y1-y0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2`;
+                                                        }
+                                                        if (i==0) {
+                                                            dynamicStr += `ctx.moveTo(${param1}, ${param2});`
+                                                        } else {
+                                                            dynamicStr += `ctx.lineTo(${param1}, ${param2});`
+                                                        }
+
+                                                    }
+                                                    //                                                     console.log(dynamicStr)
+                                                    //                                                     dynamicStr = `ctx.moveTo(234 * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.width - (x1-x0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2, 330 * Math.min(image.height / (y1-y0), image.width / (x1-x0))); ctx.lineTo(image.width, image.height);`
+                                                    //                                                     console.log(dynamicStr)
+                                                    const createQmlStr = `
+                                                    import QtQuick 2.0
+                                                    Canvas {
+                                                    id: canvas
+                                                    anchors.fill: parent
+                                                    onPaint: {
+                                                    const ctx =  getContext('2d');
+                                                    ctx.beginPath();
+                                                    ctx.strokeStyle = "#FF0000";
+                                                    ctx.lineWidth = 2;
+                                                    ${dynamicStr}
+                                                    ctx.stroke();
+                                                    }
+                                                    }
+                                                    `;
+                                                    Qt.createQmlObject(createQmlStr, parent, `myItem${box.id}`);
+                                                }
+                                            }
+
+                                        }
                                     }
                                 }
                             }
@@ -687,9 +940,9 @@ Rectangle {
                                     background: Rectangle {
                                         implicitWidth:  parent.width * 0.6
                                         implicitHeight: parent.width * 1.2
-//                                        border.width: 1
-//                                        border.color: "#BFBFBF"
-//                                        color: "#293351"
+                                        //                                        border.width: 1
+                                        //                                        border.color: "#BFBFBF"
+                                        //                                        color: "#293351"
                                     }
                                     contentItem: Text {
                                         text: "详情"
@@ -700,7 +953,7 @@ Rectangle {
                                         verticalAlignment: Text.AlignVCenter
                                     }
                                     onClicked: {
-//                                        bagStaus = 1;
+                                        homeSrc.goToPage(4, JSON.stringify(bagModel.get(index)));
                                     }
                                 }
                             }

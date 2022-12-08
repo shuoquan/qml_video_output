@@ -30,7 +30,11 @@ Rectangle {
 
     Connections {
         target: homeSrc
-        function onSendBagInfo(bagInfo) {
+        function onSendBagInfo(bagInfo, pageState) {
+            if (pageState != 1) {
+                return;
+            }
+            console.log(bagInfo, 'eeeeee', pageState)
             const bagList = JSON.parse(bagInfo || "[]");
             //            console.log(insertDirection)
             for(const bag of bagList) {
@@ -209,7 +213,7 @@ Rectangle {
                             radius: 8
                             color: "#EC9A0F"
                             Text {
-                                text: id
+                                text: id - (minIndex ? minIndex : 0) + 1001
                                 anchors.centerIn: parent
                                 font.family: "微软雅黑"
                                 font.pixelSize: bagNum.width / 4
@@ -480,20 +484,23 @@ Rectangle {
                                         //                                         implicitHeight: 40
 
 //                                        color: "#3664b1"
-                                        border.color: '#203864'
+                                        border.color: status == '0' ? '#293351' : "#b4c7e7"
                                         border.width: 1
                                         radius: 2
                                     }
                                     contentItem: Text {
-                                        text: '开包'
+                                        text: status == '0' ? '开包' : '已开包'
                                         font.bold: true
                                         font.pixelSize: parent.width / 4
-                                        color: "#203864"
+                                        color: status == '0' ? "#203864" : "#8FAADC"
                                         horizontalAlignment: Text.AlignHCenter
                                         verticalAlignment: Text.AlignVCenter
                                     }
                                     onClicked: {
-                                        homeSrc.registerBag(id, JSON.stringify(imageModel.get(index)));
+                                        if (imageModel.get(index).status == '0') {
+                                            console.log('abc')
+                                            homeSrc.registerBag(id, JSON.stringify(imageModel.get(index)));
+                                        }
                                     }
                                 }
                             }

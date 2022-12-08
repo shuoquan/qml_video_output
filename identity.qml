@@ -11,7 +11,7 @@ Rectangle {
     property bool userCamera: false
     property string cameraPreview: ''
     // 包状态 0 - 默认 1 - 放行 2 - 登记
-    property int bagStaus: 0
+    property int bagStaus: 2
     property int categoryIndex: -1
     property var categoryList: []
     property var bagInfo: ({})
@@ -20,12 +20,17 @@ Rectangle {
     property string curUserPath: ''
     property string lastUserPath: ''
     property string userPicSource: './images/camera.png'
+    property int popType: 1 // 1-用户 2-违禁品
+    property int categoryModelIndex: -1  // 当前违禁品列表索引
+    property var categoryModelPicMap: ({})
+    property string curModelPicPath: ''
+    property var qmlObject: []
     //    signal dealStack()
     Component.onCompleted: {
         //        camera.setCameraState(Camera.UnloadedState);
         //        camera.stop();
         imagePath = imagePrefix;
-//        console.log(JSON.stringify(bagInfo), 'test')
+        console.log(JSON.stringify(bagInfo), 'test')
         categoryList = [
                     {
                         id: 1,
@@ -84,9 +89,97 @@ Rectangle {
                         name: '其他',
                     }
                 ];
-//        console.log(JSON.stringify(categoryList))
+        //        console.log(JSON.stringify(categoryList))
         //        timer.start()
     }
+
+    Connections {
+        target: root
+        function onGetNext() {
+            console.log('ss', bagStaus, nameInputText.text, phoneInputText.text, userPicSource);
+            const submitCategoryList = [];
+            for(let i=0; i<categoryModel.count; i++) {
+                console.log(JSON.stringify(categoryModel.get(i)))
+                const curCategoryModel = categoryModel.get(i);
+                if (curCategoryModel.categoryName != "类别" && curCategoryModel.imageSource.includes("file")) {
+                    submitCategoryList.push({
+                                                categoryName: curCategoryModel.categoryName,
+                                                categoryId: categoryList.find(v=>v.name ==  curCategoryModel.categoryName).id,
+                                                path: curCategoryModel.imageSource.replace('file:///', '')
+
+                                            }
+                                            )
+                }
+            }
+            const userInfo = {
+                bagId: bagInfo.id,
+                bagUserName: nameInputText.text || '',
+                bagUserPhone: phoneInputText.text || '',
+                userPic: userPicSource.includes('file') ? userPicSource.replace('file:///', '') : ''
+            }
+
+            //            homeSrc.submitBagRegisterInfo(JSON.stringify(userInfo), JSON.stringify(submitCategoryList), bagStaus)
+
+            homeSrc.fetchBag(bagInfo.id, 1, 1, 2);
+        }
+
+    }
+
+    Connections {
+        target: homeSrc
+        function onSendBagInfo(bagListInfo, pageState) {
+            if (pageState != 2) {
+                return;
+            }
+            console.log(bagListInfo, '222222222', pageState);
+            const bagList = JSON.parse(bagListInfo || '[]');
+            if (bagList.length) {
+                if (categoryModel.count) {
+                    categoryModel.remove(0, categoryModel.count);
+                    categoryModel.append( {
+                                             categoryName: "类别",
+                                             imageSource: '',
+                                             selectActive: false
+                                         })
+                }
+                nameInputText.text = '';
+                phoneInputText.text = '';
+                bagStaus = 2;
+                userPicSource = './images/camera.png';
+                //                bagInfo = {};
+                const curBag = bagList[0];
+                //                bagInfo = JSON.parse(JSON.stringify(bagList[0]));
+                const date = new Date(curBag.block_create_at);
+                //        console.log(date, 'd')
+                const time = date.getFullYear().toString() +
+                           '-' +
+                           (date.getMonth() + 1).toString().padStart(2, '0') +
+                           '-' +
+                           date.getDate().toString().padStart(2, '0') +
+                           ',' +
+                           date.getHours().toString().padStart(2, '0') +
+                           ':' +
+                           date.getMinutes().toString().padStart(2, '0') +
+                           ':' +
+                           date.getSeconds().toString().padStart(2, '0');
+                bagInfo.block_create_at = time;
+                console.log(time, 'ddddddddddfsfgs')
+                bagInfo.id = curBag.id;
+                bagInfo.device = curBag.device;
+                bagInfo.block_name = curBag.block_name;
+                bagInfo.b
+
+                const bagCoordinateList = curBag.bag_coordinate.replace(/\(|\)/g, '').split(',').map(Number);
+                bagInfo.x0 = Math.min(bagCoordinateList[0], bagCoordinateList[2]);
+                bagInfo.x1 = Math.max(bagCoordinateList[0], bagCoordinateList[2]);
+                bagInfo.y0 = Math.min(bagCoordinateList[1], bagCoordinateList[3]);
+                bagInfo.y1 = Math.max(bagCoordinateList[1], bagCoordinateList[3]);
+                bagInfo.unpackBoxInfoList = JSON.stringify(bagInfo.unpackBoxInfoList || []);
+                console.log('abcddfg', bagInfo.block_create_at)
+            }
+        }
+    }
+
     Timer {
         id: timer
         interval: 5000
@@ -110,7 +203,7 @@ Rectangle {
         height: parent.height * 0.8
         background: Rectangle {
             //            color: "#f2f2f2"
-            opacity: 0.6
+            //            opacity: 0.6
             //            color: "transparent"
             //            border.color: "transparent"
             border.width: 1
@@ -119,21 +212,135 @@ Rectangle {
 
         //        dim: true
         onOpened: {
-            modifyOpacity(0.5);
+            homeSrc.modifyOpacity(0.7);
         }
         onClosed: {
-            modifyOpacity(1.0);
+            homeSrc.modifyOpacity(1.0);
         }
 
         Rectangle {
             anchors.fill: parent
             //            color: "#f2f2f2"
             Image {
-                source: './images/demo.jpg'
+                id: popImage
+                source: imagePath + bagInfo.block_path
                 fillMode: Image.PreserveAspectFit
                 anchors.centerIn: parent
                 width: parent.width
                 height: parent.height
+                sourceSize.width: bagInfo.block_width
+                sourceSize.height: bagInfo.block_height
+                sourceClipRect: Qt.rect(bagInfo.x0,bagInfo.y0,bagInfo.x1-bagInfo.x0,bagInfo.y1-bagInfo.y0)
+                onStatusChanged:   {
+                    while (qmlObject.length) {
+                        console.log('pop')
+                        const curQml = qmlObject.pop();
+                        curQml.destroy();
+                    }
+                    const {x0,x1,y0,y1,unpackBoxInfoList,box} = bagInfo;
+                    const heightRatio = popImage.height / (y1-y0);
+                    const widthRatio = popImage.width / (x1-x0);
+                    const ratio = Math.min(widthRatio, heightRatio);
+                    const unpackBoxList = JSON.parse(unpackBoxInfoList);
+                    if(heightRatio <= 0 || widthRatio <= 0) {
+                        return;
+                    }
+
+                    console.log(x0, x1, y0, y1, 'ddddddddd', heightRatio, widthRatio)
+                    //                            homeSrc.printLog(`比例信息:heightRatio:${heightRatio}:widthRatio:${widthRatio}`);
+                    for(const box of unpackBoxList) {
+                        //                                                     console.log('box')
+                        //                                                     console.log(JSON.stringify(box))
+                        // 处理矩形情况
+                        if (box.type == 1) {
+                            const pointList = box.box.replace(/[(|)|{|}|"]/g, '').split(",").map(Number);
+                            const leftTopX = Math.min(pointList[0], pointList[2]);
+                            const leftTopY = Math.min(pointList[1], pointList[3]);
+                            const rightBottomX = Math.max(pointList[0], pointList[2]);
+                            const rightBottomY = Math.max(pointList[1], pointList[3]);
+                            // 超出区局部分不显示
+                            if (leftTopX<x0 || leftTopY < y0 || rightBottomX > x1 || rightBottomY > y1) {
+                                continue;
+                            }
+                            if (heightRatio < widthRatio) {
+                                qmlObject.push(Qt.createQmlObject(`
+                                                                  import QtQuick 2.0
+                                                                  Rectangle {
+                                                                  width: ${rightBottomX - leftTopX} * Math.min(popImage.height / (bagInfo.y1-bagInfo.y0), popImage.width / (bagInfo.x1-bagInfo.x0))
+                                                                  height: ${rightBottomY - leftTopY} * Math.min(popImage.height / (bagInfo.y1-bagInfo.y0), popImage.width / (bagInfo.x1-bagInfo.x0))
+                                                                  border.color: 'red'
+                                                                  border.width: 2
+                                                                  anchors.top: parent.top
+                                                                  anchors.left: parent.left
+                                                                  anchors.leftMargin: ${leftTopX - x0} * Math.min(popImage.height / (bagInfo.y1-bagInfo.y0), popImage.width / (bagInfo.x1-bagInfo.x0)) + (popImage.width - (bagInfo.x1-bagInfo.x0)*Math.min(popImage.height / (bagInfo.y1-bagInfo.y0), popImage.width / (bagInfo.x1-bagInfo.x0))) / 2
+                                                                  anchors.topMargin: ${leftTopY - y0} * Math.min(popImage.height / (bagInfo.y1-bagInfo.y0), popImage.width / (bagInfo.x1-bagInfo.x0))
+                                                                  color: 'transparent'
+                                                                  }
+                                                                  `,
+                                                                  parent, `myItem${box.id}`))
+                            } else {
+                                //                                                             console.log('2x')
+                                qmlObject.push(Qt.createQmlObject(`
+                                                                  import QtQuick 2.0
+                                                                  Rectangle {
+                                                                  width: ${rightBottomX - leftTopX} * Math.min(popImage.height / (bagInfo.y1-bagInfo.y0), popImage.width / (bagInfo.x1-bagInfo.x0))
+                                                                  height: ${rightBottomY - leftTopY} * Math.min(popImage.height / (bagInfo.y1-bagInfo.y0), popImage.width / (bagInfo.x1-bagInfo.x0))
+                                                                  border.color: 'red'
+                                                                  border.width: 2
+                                                                  anchors.top: parent.top
+                                                                  anchors.left: parent.left
+                                                                  anchors.leftMargin: ${leftTopX - x0} * Math.min(popImage.height / (bagInfo.y1-bagInfo.y0), popImage.width / (bagInfo.x1-bagInfo.x0))
+                                                                  anchors.topMargin: ${leftTopY - y0} * Math.min(popImage.height / (bagInfo.y1-bagInfo.y0), popImage.width / (bagInfo.x1-bagInfo.x0)) + (popImage.height - (bagInfo.y1-bagInfo.y0)*Math.min(popImage.height / (bagInfo.y1-bagInfo.y0), popImage.width / (bagInfo.x1-bagInfo.x0))) / 2
+                                                                  color: 'transparent'
+                                                                  }
+                                                                  `,
+                                                                  parent, `myItem${box.id}`))
+                            }
+                        } else if(box.type == 2) {
+                            const pointList = box.box.replace(/[(|)|{|}|"]/g, '').split(",").map(Number);
+                            let dynamicStr = "";
+                            for(let i=0; i<pointList.length; i+=2) {
+                                const [x, y] = [pointList[i], pointList[i+1]];
+                                let param1, param2;
+                                //                                                         console.log(heightRatio, ratio, 'xx');
+                                if (heightRatio < widthRatio) {
+                                    param1 = `${x - x0} * Math.min(popImage.height / (bagInfo.y1-bagInfo.y0), popImage.width / (bagInfo.x1-bagInfo.x0)) + (popImage.width - (bagInfo.x1-bagInfo.x0)*Math.min(popImage.height / (bagInfo.y1-bagInfo.y0), popImage.width / (bagInfo.x1-bagInfo.x0))) / 2`;
+                                    param2 = `${y - y0} * Math.min(popImage.height / (bagInfo.y1-bagInfo.y0), popImage.width / (bagInfo.x1-bagInfo.x0))`;
+                                } else {
+                                    param1 = `${x - x0} * Math.min(popImage.height / (bagInfo.y1-bagInfo.y0), popImage.width / (bagInfo.x1-bagInfo.x0))`;
+                                    param2 = `${y - y0} * Math.min(popImage.height / (bagInfo.y1-bagInfo.y0), popImage.width / (bagInfo.x1-bagInfo.x0)) + (popImage.height - (bagInfo.y1-bagInfo.y0)*Math.min(popImage.height / (bagInfo.y1-bagInfo.y0), popImage.width / (bagInfo.x1-bagInfo.x0))) / 2`;
+                                }
+                                if (i==0) {
+                                    dynamicStr += `ctx.moveTo(${param1}, ${param2});`
+                                } else {
+                                    dynamicStr += `ctx.lineTo(${param1}, ${param2});`
+                                }
+
+                            }
+                            //                                                     console.log(dynamicStr)
+                            //                                                     dynamicStr = `ctx.moveTo(234 * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.width - (x1-x0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2, 330 * Math.min(image.height / (y1-y0), image.width / (x1-x0))); ctx.lineTo(image.width, image.height);`
+                            //                                                     console.log(dynamicStr)
+                            const createQmlStr = `
+                            import QtQuick 2.0
+                            Canvas {
+                            id: canvas
+                            anchors.fill: parent
+                            onPaint: {
+                            const ctx =  getContext('2d');
+                            ctx.beginPath();
+                            ctx.strokeStyle = "#FF0000";
+                            ctx.lineWidth = 2;
+                            ${dynamicStr}
+                            ctx.stroke();
+                            }
+                            }
+                            `;
+                            qmlObject.push(Qt.createQmlObject(createQmlStr, parent, `myItem${box.id}`));
+                        }
+                    }
+
+                }
+
             }
             Rectangle {
                 height: parent.height / 10
@@ -176,20 +383,60 @@ Rectangle {
         height: parent.height * 0.8
         padding: 0
         background: Rectangle {
-            opacity: 0.6
-            border.width: 2
+            //            opacity: 0.6
+            border.width: 1
             border.color: "#BFBFBF"
         }
 
         onOpened: {
-            modifyOpacity(0.5);
-            userCamera = true;
-            camera.setCameraState(Camera.LoadedState);
-            camera.start()
+            console.log(camera.availability, Camera.Available, Camera.Unavailable, camera.cameraStatus, camera.cameraState, 'abcdefg')
+            homeSrc.modifyOpacity(0.7);
+            if (popType == 1) {
+                if (userPicSource == './images/camera.png') {
+                    if (camera.availability == Camera.Available) {
+                        userCamera = true;
+                        camera.setCameraState(Camera.LoadedState);
+                        camera.start();
+                    }
+                } else {
+                    popUpImage.source = userPicSource;
+                }
+            } else if (popType == 2) {
+                const curCategoryModel = categoryModel.get(categoryModelIndex);
+                if (!curCategoryModel.imageSource) {
+                    if (camera.availability == Camera.Available) {
+                        userCamera = true;
+                        camera.setCameraState(Camera.LoadedState);
+                        camera.start();
+                    }
+                } else {
+                    popUpImage.source = curCategoryModel.imageSource;
+                }
+            }
         }
         onClosed: {
-            modifyOpacity(1.0);
-            userCamera = false;
+            homeSrc.modifyOpacity(1.0);
+            if (userCamera) {
+                if (camera.availability == Camera.Available) {
+                    userCamera = false;
+                    camera.stop();
+                }
+            }
+            //            if (popType == 1) {
+            //                if (userCamera) {
+            //                    if (camera.availability == Camera.Available) {
+            //                        userCamera = false;
+            //                        camera.stop();
+            //                    }
+            //                }
+            //            } else if (popType == 2) {
+            //                if (userCamera) {
+            //                    if (camera.availability == Camera.Available) {
+            //                        userCamera = false;
+            //                        camera.stop();
+            //                    }
+            //                }
+            //            }
         }
 
         Rectangle {
@@ -210,60 +457,54 @@ Rectangle {
                 focus : visible;
                 anchors.fill: parent;
                 autoOrientation: true;
-                visible: !hasUserPic && userCamera
+                visible: userCamera
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
                         console.log('click 111')
-                        if (camera.cameraStatus == Camera.LoadedStatus) {
-                            camera.start();
-                        } else if(camera.cameraStatus == Camera.ActiveStatus) {
-                            //                            camera.stop();
-                            //                            while(true) {
-                            //                                if
-                            //                            }
-                            if (!lastUserPath) {
-                                lastUserPath = `G:/pic/user_1.jpg`;
-                                curUserPath = `G:/pic/user_1.jpg`;
-                                camera.imageCapture.captureToLocation(curUserPath);
-                            } else {
-                                if (lastUserPath == curUserPath) {
-                                    curUserPath = `G:/pic/user_2.jpg`;
+                        if (popType == 1) {
+                            if (camera.cameraStatus == Camera.LoadedStatus) {
+                                camera.start();
+                            } else if(camera.cameraStatus == Camera.ActiveStatus) {
+                                //                            camera.stop();
+                                //                            while(true) {
+                                //                                if
+                                //                            }
+                                if (!lastUserPath) {
+                                    lastUserPath = `F:/pic/user_1.jpg`;
+                                    curUserPath = `F:/pic/user_1.jpg`;
                                     camera.imageCapture.captureToLocation(curUserPath);
                                 } else {
-                                    if (lastUserPath === `G:/pic/user_1.jpg`) {
-                                        if (userPicMap[`G:/pic/user_1.jpg`] == userPicSource) {
-                                            curUserPath = `G:/pic/user_2.jpg`;
-                                        } else {
-                                            lastUserPath = `G:/pic/user_2.jpg`;
-                                            curUserPath = `G:/pic/user_1.jpg`;
-                                        }
+                                    if (lastUserPath == curUserPath) {
+                                        curUserPath = `F:/pic/user_2.jpg`;
+                                        camera.imageCapture.captureToLocation(curUserPath);
                                     } else {
-                                        if (userPicMap[`G:/pic/user_2.jpg`] == userPicSource) {
-                                            curUserPath = `G:/pic/user_1.jpg`;
+                                        if (lastUserPath === `F:/pic/user_1.jpg`) {
+                                            if (userPicMap[`F:/pic/user_1.jpg`] == userPicSource) {
+                                                curUserPath = `F:/pic/user_2.jpg`;
+                                            } else {
+                                                lastUserPath = `F:/pic/user_2.jpg`;
+                                                curUserPath = `F:/pic/user_1.jpg`;
+                                            }
                                         } else {
-                                            lastUserPath = `G:/pic/user_1.jpg`;
-                                            curUserPath = `G:/pic/user_2.jpg`;
+                                            if (userPicMap[`F:/pic/user_2.jpg`] == userPicSource) {
+                                                curUserPath = `F:/pic/user_1.jpg`;
+                                            } else {
+                                                lastUserPath = `F:/pic/user_1.jpg`;
+                                                curUserPath = `F:/pic/user_2.jpg`;
+                                            }
                                         }
+                                        camera.imageCapture.captureToLocation(curUserPath);
                                     }
-                                    camera.imageCapture.captureToLocation(curUserPath);
                                 }
                             }
-
-//                            if (!curUserPath) {
-//                                camera.imageCapture.captureToLocation(`H:/user_1.jpg`);
-//                                curUserPath = `H:/user_1.jpg`;
-//                            } else {
-//                                if (userPicMap['H:/user_2.jpg']) {
-//                                   userPicMap['H:/user_1.jpg'] = userPicMap['H:/user_2.jpg'];
-//                                } else {
-//                                    camera.imageCapture.captureToLocation(`H:/user_2.jpg`);
-//                                    curUserPath = `H:/user_2.jpg`;
-//                                }
-//                            }
-
-//                            camera.imageCapture.captureToLocation('G:/capture.jpg');
-                            //                            camera.stop();
+                        } else if (popType == 2) {
+                            if (camera.cameraStatus == Camera.LoadedStatus) {
+                                camera.start();
+                            } else if(camera.cameraStatus == Camera.ActiveStatus) {
+                                curModelPicPath = `F:/pic/cat_${new Date().getTime()}.jpg`;
+                                camera.imageCapture.captureToLocation(curModelPicPath);
+                            }
                         }
 
                         //                        camera.searchAndLock()
@@ -287,7 +528,11 @@ Rectangle {
                         console.log(preview, 'xx');
                         //  capturedImagePath
                         cameraPreview = preview;
-                        userPicMap[curUserPath] = preview;
+                        if (popType == 1) {
+                            userPicMap[curUserPath] = preview;
+                        } else if(popType == 2) {
+                            categoryModelPicMap[curModelPicPath] = preview;
+                        }
 
                         camera.stop();
                         //                        camera.stop();
@@ -305,12 +550,24 @@ Rectangle {
                 }
             }
 
+            Image {
+                id: popUpImage
+                visible: !userCamera
+                //                source: './images/close-dark.png'
+                fillMode: Image.PreserveAspectCrop
+                anchors.fill: parent
+                anchors.centerIn: parent
+            }
+
             Rectangle {
-                visible: hasUserPic
+                visible: !userCamera
                 height: parent.height / 10
                 width: parent.height / 10
+                anchors.topMargin: parent.height / 30
+                anchors.rightMargin: parent.height / 30
                 anchors.top: parent.top
                 anchors.right: parent.right
+                color: "transparent"
                 //                color: "green"
                 Image {
                     source: './images/close-dark.png'
@@ -321,13 +578,13 @@ Rectangle {
                         anchors.fill: parent
                         onClicked: {
                             console.log('close')
-                            mainImagePopup.close();
+                            userPopup.close();
                         }
                     }
                 }
             }
             Rectangle {
-                visible: !hasUserPic
+                visible: userCamera
                 height: parent.height / 12
                 width: parent.height / 12
                 anchors.bottom: parent.bottom
@@ -345,14 +602,13 @@ Rectangle {
                         onClicked: {
                             userPopup.close();
                             console.log('close', cameraPng.source, cameraPreview, curUserPath, JSON.stringify(userPicMap))
-                            camera.stop();
                         }
                     }
                 }
             }
 
             Rectangle {
-                visible: !hasUserPic
+                visible: userCamera
                 height: parent.height / 12
                 width: parent.height / 12
                 anchors.bottom: parent.bottom
@@ -371,12 +627,30 @@ Rectangle {
                         anchors.fill: parent
                         onClicked: {
                             if (cameraPreview) {
-                                userPicSource = cameraPreview;
-//                                homeSrc.loadImage(cameraPreview);
-                                console.log('okokok', cameraPng.source, cameraPreview, curUserPath, JSON.stringify(userPicMap))
+                                if (popType == 1) {
+                                    const localPath = Object.keys(userPicMap).find(v=>userPicMap[v]===cameraPreview);
+                                    if (localPath) {
+                                        userPicSource = `file:///${localPath}`;
+                                    }
+
+                                    //                                    userPicSource = cameraPreview;
+                                    console.log(JSON.stringify(Object.keys(userPicMap).find(v=>userPicMap[v]===cameraPreview)))
+                                    console.log('okokok', cameraPng.source, cameraPreview, curUserPath, JSON.stringify(userPicMap))
+                                } else if (popType == 2) {
+                                    const curCategoryModel = categoryModel.get(categoryModelIndex);
+                                    const localPath = Object.keys(categoryModelPicMap).find(v=>categoryModelPicMap[v]===cameraPreview);
+                                    if (localPath) {
+                                        curCategoryModel.imageSource = `file:///${localPath}`;
+                                    }
+                                    //                                    curCategoryModel.imageSource = cameraPreview;
+                                    categoryModel.set(categoryModelIndex, curCategoryModel);
+                                    console.log('22ok', cameraPreview, curModelPicPath, JSON.stringify(categoryModelPicMap), JSON.stringify(curCategoryModel));
+                                }
+
+                                //                                homeSrc.loadImage(cameraPreview);
+
                             }
                             userPopup.close();
-                            camera.stop();
                         }
                     }
                 }
@@ -410,7 +684,7 @@ Rectangle {
                     radius: 10
                     color: "#EC9A0F"
                     Text {
-                        text: "1006"
+                        text: bagInfo.id - (bagInfo.minIndex || 0) + 1001
                         anchors.centerIn: parent
                         font.family: "微软雅黑"
                         font.pixelSize: bagNum.width / 4
@@ -418,7 +692,7 @@ Rectangle {
                     }
                 }
                 Text {
-                    text: "2022-11-03,09:19:05"
+                    text: bagInfo.block_create_at
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.left: bagNum.right
                     anchors.leftMargin: bagNum.width / 2
@@ -458,12 +732,12 @@ Rectangle {
                             const widthRatio = image.width / (x1-x0);
                             const ratio = Math.min(widthRatio, heightRatio);
                             const unpackBoxList = JSON.parse(unpackBoxInfoList);
-                            if(heightRatio < 0 || widthRatio < 0) {
+                            if(heightRatio <= 0 || widthRatio <= 0) {
                                 return;
                             }
 
                             console.log(x0, x1, y0, y1, 'ddddddddd', heightRatio, widthRatio)
-//                            homeSrc.printLog(`比例信息:heightRatio:${heightRatio}:widthRatio:${widthRatio}`);
+                            //                            homeSrc.printLog(`比例信息:heightRatio:${heightRatio}:widthRatio:${widthRatio}`);
                             for(const box of unpackBoxList) {
                                 //                                                     console.log('box')
                                 //                                                     console.log(JSON.stringify(box))
@@ -611,18 +885,18 @@ Rectangle {
                                 implicitHeight: buttonArea.height * 0.8
                                 border.width: 1
                                 border.color: "#BFBFBF"
-                                color: bagStaus == 1 ? '#7f7f7f' : "#fff"
+                                color: bagStaus == 2 ? '#7f7f7f' : "#fff"
                             }
                             contentItem: Text {
                                 text: "禁带品登记"
                                 font.family: "微软雅黑"
-                                color: bagStaus == 1 ? '#fff' : '#000'
+                                color: bagStaus == 2 ? '#fff' : '#000'
                                 font.pixelSize: buttonArea.height / 4
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
                             }
                             onClicked: {
-                                bagStaus = 1;
+                                bagStaus = 2;
                             }
                         }
                         Button {
@@ -635,18 +909,19 @@ Rectangle {
                                 implicitHeight: buttonArea.height * 0.8
                                 border.width: 1
                                 border.color: "#BFBFBF"
-                                color: bagStaus == 2 ? '#7f7f7f' : "#fff"
+                                color: bagStaus == 1 ? '#7f7f7f' : "#fff"
                             }
                             contentItem: Text {
                                 text: "放行"
                                 font.family: "微软雅黑"
-                                color: bagStaus == 2 ? '#fff' : '#000'
+                                color: bagStaus == 1 ? '#fff' : '#000'
                                 font.pixelSize: buttonArea.height / 4
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
                             }
                             onClicked: {
-                                console.log('sssf')
+                                bagStaus = 1;
+                                //                                console.log('sssf')
                                 //                                 dealStack()
                             }
                         }
@@ -703,7 +978,7 @@ Rectangle {
                                             text: index + 1
                                             anchors.centerIn: parent
                                             font.family: "微软雅黑"
-                                            font.pixelSize: parent.width / 2
+                                            font.pixelSize: parent.width / 3
                                             //                                font.bold: true
                                         }
                                     }
@@ -874,10 +1149,31 @@ Rectangle {
                                         anchors.left: selectArea.right
                                         anchors.leftMargin: parent.width / 3 * 0.2
                                         Image {
-                                            source: imageSource ? imageSource : './images/camera.png'
+                                            source: './images/camera.png'
                                             fillMode: Image.PreserveAspectFit
                                             height: parent.height / 2
                                             anchors.centerIn: parent
+                                            visible: !imageSource
+                                        }
+                                        Image {
+                                            //                                            source: `file:///${catagoryModelPicMap[imageSource]}`
+                                            //                                            source: `file:///${Object.keys(catagoryModelPicMap).find(v=>categoryModelPicMap[v]==imageSource)}`
+                                            source: imageSource
+                                            height: parent.height
+                                            width: parent.width
+                                            fillMode: Image.PreserveAspectFit
+                                            anchors.centerIn: parent
+                                            visible: !!imageSource
+                                        }
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            onClicked: {
+                                                console.log(index, 'abcdf');
+                                                categoryModelIndex = index;
+                                                popType = 2;
+                                                cameraPreview = '';
+                                                userPopup.open();
+                                            }
                                         }
                                     }
                                     Rectangle {
@@ -1053,6 +1349,7 @@ Rectangle {
                     anchors.rightMargin: 0.1 * parent.width
                     color: "#f2f2f2"
                     TextInput {
+                        id: nameInputText
                         anchors.fill: parent
                         anchors.margins: 6
                         font.pointSize: parent.height / 3
@@ -1089,6 +1386,7 @@ Rectangle {
                     anchors.rightMargin: 0.1 * parent.width
                     color: "#f2f2f2"
                     TextInput {
+                        id: phoneInputText
                         anchors.fill: parent
                         anchors.margins: 6
                         font.pointSize: parent.height / 3
@@ -1131,9 +1429,10 @@ Rectangle {
                     anchors.centerIn: parent
                     color: "#f2f2f2"
                     id: myCam
-//                    color: "red"
+                    //                    color: "red"
                     Image {
                         id: cameraPng_1
+                        //                        source: "file:///H:/pic/user_1.jpg"
                         source: userPicSource
                         height: myCam.height * 0.6
                         width: myCam.width * 0.75
@@ -1154,9 +1453,9 @@ Rectangle {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        userPopup.open();
+                        popType = 1;
                         cameraPreview = '';
-                        camera.start()
+                        userPopup.open();
                     }
                 }
             }
