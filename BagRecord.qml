@@ -219,6 +219,7 @@ Rectangle {
                     startTime = new Date(time).getTime();
                     //                    console.log(new Date(time).getTime(), 'xx')
                     getBagList()
+                    leftCalendar = false;
                 }
                 //                Component.onCompleted: {
                 //                    console.log(leftCalendarComp.__selectNextDay())
@@ -263,8 +264,9 @@ Rectangle {
                     rightTime.text = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
                     const time =  Date.fromLocaleString(Qt.locale(), curTime, "dd/MM/yyyy")
                     endTime = new Date(time).getTime() + 86400000;
-                    getBagList()
-                    console.log('---change---')
+                    getBagList();
+                    rightCalendar = false;
+//                    console.log('---change---')
                 }
 
                 //                Component.onCompleted: {
@@ -534,6 +536,8 @@ Rectangle {
                 rightTime.text = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
                 userText.text = '';
                 auditorName.text = '';
+                leftCalendarComp.selectedDate = new Date();
+                rightCalendarComp.selectedDate = new Date();
                 //                leftCalendarComp.__select
                 //                homeSrc.goToPage(100);
             }

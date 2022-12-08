@@ -25,6 +25,8 @@ Rectangle {
     property var categoryModelPicMap: ({})
     property string curModelPicPath: ''
     property var qmlObject: []
+    property var popQmlObject: []
+    property bool timerStart: false
     //    signal dealStack()
     Component.onCompleted: {
         //        camera.setCameraState(Camera.UnloadedState);
@@ -96,7 +98,7 @@ Rectangle {
     Connections {
         target: root
         function onGetNext() {
-            console.log('ss', bagStaus, nameInputText.text, phoneInputText.text, userPicSource);
+//            console.log('ss', bagStaus, nameInputText.text, phoneInputText.text, userPicSource);
             const submitCategoryList = [];
             for(let i=0; i<categoryModel.count; i++) {
                 console.log(JSON.stringify(categoryModel.get(i)))
@@ -119,7 +121,7 @@ Rectangle {
             }
 
             //            homeSrc.submitBagRegisterInfo(JSON.stringify(userInfo), JSON.stringify(submitCategoryList), bagStaus)
-
+            homeSrc.changeBagStatus(bagInfo.id, bagStaus);
             homeSrc.fetchBag(bagInfo.id, 1, 1, 2);
         }
 
@@ -131,9 +133,23 @@ Rectangle {
             if (pageState != 2) {
                 return;
             }
-            console.log(bagListInfo, '222222222', pageState);
+            if (timerStart) {
+                timer.stop();
+                timerStart = false;
+            }
+//            console.log(bagListInfo, '222222222', pageState);
             const bagList = JSON.parse(bagListInfo || '[]');
             if (bagList.length) {
+                while (qmlObject.length) {
+                    console.log('pop')
+                    const curQml = qmlObject.pop();
+                    curQml.destroy();
+                }
+                while (popQmlObject.length) {
+                    console.log('pop2')
+                    const curQml = popQmlObject.pop();
+                    curQml.destroy();
+                }
                 if (categoryModel.count) {
                     categoryModel.remove(0, categoryModel.count);
                     categoryModel.append( {
@@ -146,6 +162,8 @@ Rectangle {
                 phoneInputText.text = '';
                 bagStaus = 2;
                 userPicSource = './images/camera.png';
+                categoryModelPicMap = {};
+                curModelPicPath = "";
                 //                bagInfo = {};
                 const curBag = bagList[0];
                 //                bagInfo = JSON.parse(JSON.stringify(bagList[0]));
@@ -162,20 +180,25 @@ Rectangle {
                            date.getMinutes().toString().padStart(2, '0') +
                            ':' +
                            date.getSeconds().toString().padStart(2, '0');
-                bagInfo.block_create_at = time;
-                console.log(time, 'ddddddddddfsfgs')
-                bagInfo.id = curBag.id;
-                bagInfo.device = curBag.device;
-                bagInfo.block_name = curBag.block_name;
-                bagInfo.b
+                curBag.block_create_at = time;
 
                 const bagCoordinateList = curBag.bag_coordinate.replace(/\(|\)/g, '').split(',').map(Number);
-                bagInfo.x0 = Math.min(bagCoordinateList[0], bagCoordinateList[2]);
-                bagInfo.x1 = Math.max(bagCoordinateList[0], bagCoordinateList[2]);
-                bagInfo.y0 = Math.min(bagCoordinateList[1], bagCoordinateList[3]);
-                bagInfo.y1 = Math.max(bagCoordinateList[1], bagCoordinateList[3]);
-                bagInfo.unpackBoxInfoList = JSON.stringify(bagInfo.unpackBoxInfoList || []);
-                console.log('abcddfg', bagInfo.block_create_at)
+                curBag.x0 = Math.min(bagCoordinateList[0], bagCoordinateList[2]);
+                curBag.x1 = Math.max(bagCoordinateList[0], bagCoordinateList[2]);
+                curBag.y0 = Math.min(bagCoordinateList[1], bagCoordinateList[3]);
+                curBag.y1 = Math.max(bagCoordinateList[1], bagCoordinateList[3]);
+                curBag.unpackBoxInfoList = JSON.stringify(curBag.unpackBoxInfoList || []);
+                bagInfo = JSON.parse(JSON.stringify(curBag));
+                console.log('abcddfg', bagInfo.unpackBoxInfoList, bagInfo.id);
+                homeSrc.changeNextStatus(true);
+//                homeSrc.deleteHistoryPic();
+            } else {
+//                console.log(timer.running);
+                if (!timerStart) {
+                    timer.start();
+                    timerStart = true;
+                    homeSrc.changeNextStatus(false);
+                }
             }
         }
     }
@@ -185,7 +208,8 @@ Rectangle {
         interval: 5000
         triggeredOnStart: false
         onTriggered: {
-            categoryList = categoryList.slice(1);
+            console.log('timer, fetch')
+            homeSrc.fetchBag(bagInfo.id, 1, 1, 2);
         }
     }
 
@@ -232,11 +256,6 @@ Rectangle {
                 sourceSize.height: bagInfo.block_height
                 sourceClipRect: Qt.rect(bagInfo.x0,bagInfo.y0,bagInfo.x1-bagInfo.x0,bagInfo.y1-bagInfo.y0)
                 onStatusChanged:   {
-                    while (qmlObject.length) {
-                        console.log('pop')
-                        const curQml = qmlObject.pop();
-                        curQml.destroy();
-                    }
                     const {x0,x1,y0,y1,unpackBoxInfoList,box} = bagInfo;
                     const heightRatio = popImage.height / (y1-y0);
                     const widthRatio = popImage.width / (x1-x0);
@@ -753,7 +772,7 @@ Rectangle {
                                         continue;
                                     }
                                     if (heightRatio < widthRatio) {
-                                        Qt.createQmlObject(`
+                                        popQmlObject.push(Qt.createQmlObject(`
                                                            import QtQuick 2.0
                                                            Rectangle {
                                                            width: ${rightBottomX - leftTopX} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))
@@ -767,10 +786,10 @@ Rectangle {
                                                            color: 'transparent'
                                                            }
                                                            `,
-                                                           parent, `myItem${box.id}`)
+                                                           parent, `myItem${box.id}`))
                                     } else {
                                         //                                                             console.log('2x')
-                                        Qt.createQmlObject(`
+                                        popQmlObject.push(Qt.createQmlObject(`
                                                            import QtQuick 2.0
                                                            Rectangle {
                                                            width: ${rightBottomX - leftTopX} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))
@@ -784,7 +803,7 @@ Rectangle {
                                                            color: 'transparent'
                                                            }
                                                            `,
-                                                           parent, `myItem${box.id}`)
+                                                           parent, `myItem${box.id}`))
                                     }
                                 } else if(box.type == 2) {
                                     const leftTopX = 236;
@@ -845,7 +864,7 @@ Rectangle {
                                     }
                                     }
                                     `;
-                                    Qt.createQmlObject(createQmlStr, parent, `myItem${box.id}`);
+                                    popQmlObject.push(Qt.createQmlObject(createQmlStr, parent, `myItem${box.id}`));
                                 }
                             }
 

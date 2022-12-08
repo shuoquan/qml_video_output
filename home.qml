@@ -14,6 +14,7 @@ Rectangle {
     color: '#f7f7f7'
     property string imagePath: ""
     property bool scroll: false
+
 //    signal registerBag(int bagId)
 
     Component.onCompleted: {
@@ -34,7 +35,6 @@ Rectangle {
             if (pageState != 1) {
                 return;
             }
-            console.log(bagInfo, 'eeeeee', pageState)
             const bagList = JSON.parse(bagInfo || "[]");
             //            console.log(insertDirection)
             for(const bag of bagList) {
@@ -45,6 +45,17 @@ Rectangle {
                 }
 
                 //                console.log(JSON.stringify(bag));
+            }
+        }
+        function onModifyBagStatus(bagId, bagStatus) {
+            console.log(bagId, bagStatus, '878');
+            for(let i=0; i<imageModel.count; i++) {
+                const curBagInfo = imageModel.get(i);
+                if (curBagInfo.id == bagId) {
+                    curBagInfo.status = bagStatus.toString();
+                    imageModel.set(i, curBagInfo);
+                    break;
+                }
             }
         }
     }

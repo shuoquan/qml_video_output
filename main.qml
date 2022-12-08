@@ -9,36 +9,38 @@ Window {
     title: " "
     minimumWidth: 1280
     minimumHeight: 720
-//    width: Screen.desktopAvailableWidth
+    //    width: Screen.desktopAvailableWidth
     width: screen.width
     height: screen.height
     visible: true
     visibility: "Maximized"
-//    visibility: Window.FullScreen
-//    flags:  Qt.FramelessWindowHint
-//    maximumWidth: 1200
-//    maximumHeight: 720
-//    property int count: 0
+    //    visibility: Window.FullScreen
+    //    flags:  Qt.FramelessWindowHint
+    //    maximumWidth: 1200
+    //    maximumHeight: 720
+    //    property int count: 0
     property bool fullScreen: true
     property double mainOpacity: 1
     property bool loginPage: true
     property int pageState: 1  // 页面状态 1-首页, 2-登记页面， 3-统计页面， 4-详情页面
     property string username: ""
+    property bool nextEnable: true
     signal dealStack()
     signal getNext()
-//    http://192.168.8.173:8256/images
-//    flags: fullScreen ? Qt.FramelessWindowHint : Qt.Window
+    //    http://192.168.8.173:8256/images
+    //    flags: fullScreen ? Qt.FramelessWindowHint : Qt.Window
 
     Component.onCompleted: {
         timer.start();
         content.push('./home.qml');
         loginPage = false;
-//        content.push('./login.qml');
+        //        content.push('./login.qml');
     }
 
     Connections {
         target: homeSrc
         function onNavigatePage(state, params) {
+            //            back.visible = false;
             console.log(pageState, params, 'page', state)
             const obj = JSON.parse(params || '{}');
             if (state == 2) {
@@ -49,6 +51,7 @@ Window {
                 setting.source = "./images/next.png";
                 settingText.text = "下一个";
                 pageState = 2;
+                nextEnable = true;
                 console.log(pageState, '-----')
             } else if (state == 1) {
                 content.push('./home.qml');
@@ -66,8 +69,15 @@ Window {
             }
         }
         function onModifyOpacity(opacity) {
-//                        console.log("receive", opacity);
+            //                        console.log("receive", opacity);
             mainOpacity = opacity;
+        }
+        function onModifyNextStatus(flag) {
+            console.log(flag, 'onModifyNextStatus');
+            if (pageState == 2) {
+                nextEnable = flag;
+                setting.source = flag ? "./images/next.png" :  "./images/next-dark.png"
+            }
         }
     }
 
@@ -77,7 +87,7 @@ Window {
         repeat: true
         triggeredOnStart: true
         onTriggered: {
-//            homeSrc.printLog("aaaaa");
+            //            homeSrc.printLog("aaaaa");
             const dayMap = {
                 '0': '日',
                 '1': '一',
@@ -88,17 +98,17 @@ Window {
                 '6': '六',
             }
 
-//            console.log(new Date().getDay(), '----')
-//            time.text = `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}-${new Date()
-//            .getDate()
-//            .toString()
-//            .padStart(2, '0')} 星期${dayMap[new Date().getDay()]} ${new Date()
-//            .getHours()
-//            .toString()
-//            .padStart(2, '0')}:${new Date().getMinutes().toString().padStart(2, '0')}:${new Date()
-//            .getSeconds()
-//            .toString()
-//            .padStart(2, '0')}`;
+            //            console.log(new Date().getDay(), '----')
+            //            time.text = `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}-${new Date()
+            //            .getDate()
+            //            .toString()
+            //            .padStart(2, '0')} 星期${dayMap[new Date().getDay()]} ${new Date()
+            //            .getHours()
+            //            .toString()
+            //            .padStart(2, '0')}:${new Date().getMinutes().toString().padStart(2, '0')}:${new Date()
+            //            .getSeconds()
+            //            .toString()
+            //            .padStart(2, '0')}`;
 
             time.text = `${new Date()
             .getHours()
@@ -108,94 +118,101 @@ Window {
             .toString()
             .padStart(2, '0')}      开包员:   ${username}`;
             // http://192.168.7.25:8256/images//core7/data2/dingshuoquan/images/jms_gj_2_20220106_112704_18461_01.jpg
-//            if (count > 1) {
-//                const bag = imageModel.get(0);
-//                bag.block_path = '/core10/data2/images/raw_data/xm_tb_hs_1/202211/19/xm_tb_hs_34_20221119_060956_00000.jpg';
-//                bag.block_width = 544;
-//                bag.block_height = 636;
-//                bag.bag_coordinate = '(0, 0),(362, 360)';
-//                bag.unpackBoxInfoList = '[{"box":"{\\"((120,120),(150,150))\\"}", "type": 1}]';
-//                imageModel.set(0, bag);
-//            }
-//            count += 1;
+            //            if (count > 1) {
+            //                const bag = imageModel.get(0);
+            //                bag.block_path = '/core10/data2/images/raw_data/xm_tb_hs_1/202211/19/xm_tb_hs_34_20221119_060956_00000.jpg';
+            //                bag.block_width = 544;
+            //                bag.block_height = 636;
+            //                bag.bag_coordinate = '(0, 0),(362, 360)';
+            //                bag.unpackBoxInfoList = '[{"box":"{\\"((120,120),(150,150))\\"}", "type": 1}]';
+            //                imageModel.set(0, bag);
+            //            }
+            //            count += 1;
 
-//            console.log(JSON.stringify(bag), 'xx');
-//            time.text = `${new Date().getFullYear().toString()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')} +
-//                               '-' +
-//                               ${new Date().getDate().toString().padStart(2, '0')} +
-//                               ' ' +
-//                               ${new Date().getHours().toString().padStart(2, '0')} +
-//                               ':' +
-//                               ${new Date().getMinutes().toString().padStart(2, '0')} +
-//                               ':' +
-//                               ${new Date().getSeconds().toString().padStart(2, '0')}`;
+            //            console.log(JSON.stringify(bag), 'xx');
+            //            time.text = `${new Date().getFullYear().toString()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')} +
+            //                               '-' +
+            //                               ${new Date().getDate().toString().padStart(2, '0')} +
+            //                               ' ' +
+            //                               ${new Date().getHours().toString().padStart(2, '0')} +
+            //                               ':' +
+            //                               ${new Date().getMinutes().toString().padStart(2, '0')} +
+            //                               ':' +
+            //                               ${new Date().getSeconds().toString().padStart(2, '0')}`;
         }
     }
 
     Rectangle {
-//        visible: false
+        //        visible: false
         anchors.fill: parent
         opacity: mainOpacity
-//        Keys.enabled: true
-//        focus: true
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                //                back.visible = false;
+            }
+        }
 
-//        Keys.onPressed: {
-//            switch (event.key) {
-//                case 16777216:
-//                    fullScreen = false;
-//                    break;
-//                case 16777274:
-//                    fullScreen = !fullScreen;
-//                    break;
-//                case 16777329:
-//                    fullScreen = !fullScreen;
-//                    break;
-//                default:
-//                    break;
-//            }
-//        }
+        //        Keys.enabled: true
+        //        focus: true
+
+        //        Keys.onPressed: {
+        //            switch (event.key) {
+        //                case 16777216:
+        //                    fullScreen = false;
+        //                    break;
+        //                case 16777274:
+        //                    fullScreen = !fullScreen;
+        //                    break;
+        //                case 16777329:
+        //                    fullScreen = !fullScreen;
+        //                    break;
+        //                default:
+        //                    break;
+        //            }
+        //        }
 
         Rectangle {
             id: header
             width: parent.width
             height: loginPage ? 0 : 60
-//            height: Math.min(parent.height / 12, 40)
+            //            height: Math.min(parent.height / 12, 40)
             color: "#203864"
             Image {
                 anchors.left: parent.left
                 anchors.top: parent.top
-//                anchors.verticalCenter: parent.verticalCenter
+                //                anchors.verticalCenter: parent.verticalCenter
                 height: parent.height * 0.6
                 source: './images/company.png'
                 fillMode: Image.PreserveAspectFit
                 anchors.leftMargin: 0.4 * parent.height
             }
-//            Rectangle {
-//                id: productBox
-//                height: parent.height
-//                width: Math.max(0.2 * parent.width, 400)
-////                color: "black"
-//                color: "#203864"
-//                anchors.right: parent.right
-//                anchors.rightMargin: (parent.width - productBox.width) / 2
-////                opacity: mainOpacity
-//                Text {
-////                    width: parent.width
-//                    height: parent.height
-//                    id: productName
-//                    text: "智能查危登记系统"
-//                    font.family: "微软雅黑"
-//                    color: "#fff"
-//                    font.pixelSize: 28
-//                    font.bold: true
-////                    font.pixelSize: Math.min(20,  parent.height / 2)
-////                    anchors.topMargin: 0.2 * parent.height
-//                    anchors.top: parent.top
-////                    anchors.topMargin: 0.06 * parent.height
-//                    anchors.horizontalCenter: parent.horizontalCenter
-////                    anchors.right: parent.right
-//                }
-//            }
+            //            Rectangle {
+            //                id: productBox
+            //                height: parent.height
+            //                width: Math.max(0.2 * parent.width, 400)
+            ////                color: "black"
+            //                color: "#203864"
+            //                anchors.right: parent.right
+            //                anchors.rightMargin: (parent.width - productBox.width) / 2
+            ////                opacity: mainOpacity
+            //                Text {
+            ////                    width: parent.width
+            //                    height: parent.height
+            //                    id: productName
+            //                    text: "智能查危登记系统"
+            //                    font.family: "微软雅黑"
+            //                    color: "#fff"
+            //                    font.pixelSize: 28
+            //                    font.bold: true
+            ////                    font.pixelSize: Math.min(20,  parent.height / 2)
+            ////                    anchors.topMargin: 0.2 * parent.height
+            //                    anchors.top: parent.top
+            ////                    anchors.topMargin: 0.06 * parent.height
+            //                    anchors.horizontalCenter: parent.horizontalCenter
+            ////                    anchors.right: parent.right
+            //                }
+            //            }
             Text {
                 height: parent.height
                 id: productName
@@ -207,26 +224,26 @@ Window {
                 anchors.top: parent.top
                 anchors.horizontalCenter: parent.horizontalCenter
             }
-//            Rectangle {
-//                height: parent.height
-//                width: Math.max(0.2 * parent.width, 400)
-////                color: "black"
-//                color: "#203864"
-//                anchors.right: parent.right
-//                anchors.rightMargin: 0.4 * parent.height
-//                Text {
-//                    id: time
-//                    text: ""
-//                    color: "#fff"
-//                    font.pixelSize: 18
-//                    font.family: "微软雅黑"
-////                    font.pixelSize: Math.min(16,  parent.height / 2 * 0.8)
-//                    anchors.topMargin: 0.2 * parent.height
-//                     anchors.top: parent.top
-////                    anchors.verticalCenter: parent.verticalCenter
-//                    anchors.right: parent.right
-//                }
-//            }
+            //            Rectangle {
+            //                height: parent.height
+            //                width: Math.max(0.2 * parent.width, 400)
+            ////                color: "black"
+            //                color: "#203864"
+            //                anchors.right: parent.right
+            //                anchors.rightMargin: 0.4 * parent.height
+            //                Text {
+            //                    id: time
+            //                    text: ""
+            //                    color: "#fff"
+            //                    font.pixelSize: 18
+            //                    font.family: "微软雅黑"
+            ////                    font.pixelSize: Math.min(16,  parent.height / 2 * 0.8)
+            //                    anchors.topMargin: 0.2 * parent.height
+            //                     anchors.top: parent.top
+            ////                    anchors.verticalCenter: parent.verticalCenter
+            //                    anchors.right: parent.right
+            //                }
+            //            }
             Text {
                 id: time
                 text: ""
@@ -283,7 +300,7 @@ Window {
                             setting.source = "./images/setting.jpg";
                             settingText.text = "设置";
                             content.pop()
-//                            dealStack()
+                            //                            dealStack()
                         } else if (pageState == 3) {
                             pageState = 1;
                             search.source = './images/search.jpg';
@@ -364,7 +381,7 @@ Window {
                     anchors.left: setting.right
                     anchors.leftMargin: 10
                     text: "设置"
-                    color: "white"
+                    color: pageState == 2 && !nextEnable ? "#bfbfbf" : "#fff"
                     font.family: "微软雅黑"
                     font.pixelSize: setting.height / 2
                     anchors.verticalCenter: parent.verticalCenter
@@ -376,41 +393,98 @@ Window {
                         if (pageState == 2) {
                             console.log('get next')
                             getNext();
+                        } else if (pageState == 1) {
+                            //                            back.visible = true;
+                            backPopup.open();
                         }
                     }
                 }
             }
-        }
-        Rectangle {
-            id: back
-            width: rightArea.width
-            height: rightArea.height * 3
-            anchors.right: parent.right
-            anchors.bottom: footer.top
-            visible: false
-//            color: "red"
-            z: 3
-            Rectangle {
-                width: parent.width - 2
-                height: parent.height - 2
-                anchors.centerIn: parent
-                color: "#DBE8F9"
-                Rectangle {
-                    id: backArea
-                    anchors.left: parent.left
-                    height: parent.height / 3
-                    width: parent.width
-                    anchors.top: parent.top
-//                    color: "Red"
+            Popup {
+                id: backPopup
+                //                parent: Overlay.overlay
+                x: parent.width - rightArea.width
+                y:  0 - rightArea.height * 3
+                width: rightArea.width
+                height: rightArea.height * 3
+                background: Rectangle {
+                    //                    color: "red"
                 }
+                padding: 0
+
                 Rectangle {
-                    id: blankLine
-                    width: parent.width * 0.9
-                    height: 2
-                    anchors.top: backArea.bottom
-                    anchors.left: parent.left
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    color: "red"
+                    anchors.fill: parent
+                    id: back
+                    width: rightArea.width
+                    height: rightArea.height * 3
+                    anchors.right: parent.right
+                    anchors.bottom: footer.top
+                    //                    visible: false
+                    //                    z: 3
+                    Rectangle {
+                        width: parent.width - 2
+                        height: parent.height - 2
+                        anchors.centerIn: parent
+                        color: "#DBE8F9"
+                        Rectangle {
+                            id: backArea
+                            anchors.left: parent.left
+                            height: parent.height / 3
+                            width: parent.width
+                            anchors.top: parent.top
+                            color: "transparent"
+                            //                    color: "green"
+                            Rectangle {
+                                width: parent.width / 3
+                                height: parent.height
+                                anchors.left: parent.left
+                                //                        color: "red"
+                                color: "transparent"
+                                Image {
+                                    anchors.left: parent.left
+                                    //                                    height: parent.height / 4
+                                    source: './images/logout.png'
+                                    fillMode: Image.PreserveAspectFit
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.right: parent.right
+                                }
+                            }
+
+                            Rectangle {
+                                width: parent.width / 3 * 2
+                                height: parent.height
+                                anchors.right: parent.right
+                                //                        color: "green"
+                                color: "transparent"
+                                Text {
+                                    text: '退出'
+                                    //                            anchors.centerIn: parent
+                                    font.family: "微软雅黑"
+                                    font.pixelSize: parent.height / 4
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.left: parent.left
+                                    anchors.leftMargin: parent.width / 6
+                                }
+                            }
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    if (pageState == 1) {
+                                        content.pop();
+                                        console.log('goout')
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle {
+                            id: blankLine
+                            width: parent.width * 0.9
+                            height: 2
+                            anchors.top: backArea.bottom
+                            //                    anchors.left: parent.left
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
+                    }
                 }
             }
         }
@@ -440,41 +514,41 @@ Window {
 
             }
 
-//            Connections {
-//                target: root
-//                function onDealStack() {
-//                    console.log('aasfs', content.depth)
-//                    content.pop();
-//                }
-//            }
+            //            Connections {
+            //                target: root
+            //                function onDealStack() {
+            //                    console.log('aasfs', content.depth)
+            //                    content.pop();
+            //                }
+            //            }
 
-//            function onRegisterBag(bagId) {
-//                console.log("getBagId", bagId)
-//                content.push('./identity.qml');
-//                search.source = './images/new-home.png';
-//                searchText.text = "返回";
-//                setting.source = "./images/next.png";
-//                settingText.text = "下一个";
-//                pageState = 2;
-//            }
+            //            function onRegisterBag(bagId) {
+            //                console.log("getBagId", bagId)
+            //                content.push('./identity.qml');
+            //                search.source = './images/new-home.png';
+            //                searchText.text = "返回";
+            //                setting.source = "./images/next.png";
+            //                settingText.text = "下一个";
+            //                pageState = 2;
+            //            }
 
             Loader {
                 id: loader
                 anchors.fill: parent
-//                sourceComponent: comp
-//                source: './home.qml'
-//                source: './identity.qml'
-//                source: './scale.qml'
-//                source: './login.qml'
-//                source: './rotate.qml'
-//                source: './BagRecord.qml'
-//                source: './BagDetail.qml'
-//                source: './scroll.qml'
+                //                sourceComponent: comp
+                //                source: './home.qml'
+                //                source: './identity.qml'
+                //                source: './scale.qml'
+                //                source: './login.qml'
+                //                source: './rotate.qml'
+                //                source: './BagRecord.qml'
+                //                source: './BagDetail.qml'
+                //                source: './scroll.qml'
                 Connections {
                     target: loader.item
                     ignoreUnknownSignals: true
                     function onModifyOpacity(opacity) {
-//                        console.log("receive", opacity);
+                        //                        console.log("receive", opacity);
                         mainOpacity = opacity;
                     }
                     function onLoginSuccess(status) {
@@ -496,22 +570,22 @@ Window {
                 }
             }
         }
-//        Component {
-//            id: comp
-//            Rectangle {
-//                width: 30
-//                height: 30
-//                color: "red"
-//                signal modifyOpacity(double opacity)
-//                MouseArea {
-//                    anchors.fill: parent
+        //        Component {
+        //            id: comp
+        //            Rectangle {
+        //                width: 30
+        //                height: 30
+        //                color: "red"
+        //                signal modifyOpacity(double opacity)
+        //                MouseArea {
+        //                    anchors.fill: parent
 
-//                    onClicked: {
-//                        console.log("11111")
-//                        modifyOpacity(0.2);
-//                    }
-//                }
-//            }
-//        }
+        //                    onClicked: {
+        //                        console.log("11111")
+        //                        modifyOpacity(0.2);
+        //                    }
+        //                }
+        //            }
+        //        }
     }
 }

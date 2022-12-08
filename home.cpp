@@ -162,7 +162,34 @@ void Home::receiveSubmitBagRegisterReply(QNetworkReply *reply)
 //    emit sendLoginRes(res);
 }
 
+void Home::changeBagStatus(int bagId, int status) {
+    emit modifyBagStatus(bagId, status);
+}
 
+void Home::deleteHistoryPic() {
+    qDebug() << "delete file";
+    QDir dir("F:/pic");
+    if(!dir.exists())
+    {
+        return;
+    }
+    dir.setFilter(QDir::Files | QDir::NoSymLinks);
+    QFileInfoList fileList = dir.entryInfoList();
+    for(int i=0; i< fileList.count(); i++) {
+        QFileInfo fileInfo = fileList.at(i);
+        if ((fileInfo.birthTime() < QDateTime::currentDateTime()) && fileInfo.absoluteFilePath().contains("cat")) {
+            QFile::remove(fileInfo.absoluteFilePath());
+        }
+//        qDebug() << fileInfo.absoluteFilePath();
+//        qDebug() << fileInfo.birthTime();
+//        qDebug() << (fileInfo.birthTime() < QDateTime::currentDateTime());
+//        qDebug() << fileInfo.absoluteFilePath().contains("cat");
+    }
+}
+
+void Home::changeNextStatus(bool flag) {
+    emit modifyNextStatus(flag);
+}
 
 void Home::login(QString username, QString password) {
 //    qDebug() << "login" << username << password;
