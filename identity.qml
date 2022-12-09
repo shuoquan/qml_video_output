@@ -120,7 +120,7 @@ Rectangle {
                 userPic: userPicSource.includes('file') ? userPicSource.replace('file:///', '') : ''
             }
 
-            //            homeSrc.submitBagRegisterInfo(JSON.stringify(userInfo), JSON.stringify(submitCategoryList), bagStaus)
+            homeSrc.submitBagRegisterInfo(JSON.stringify(userInfo), JSON.stringify(submitCategoryList), bagStaus)
             homeSrc.changeBagStatus(bagInfo.id, bagStaus);
             homeSrc.fetchBag(bagInfo.id, 1, 1, 2);
         }
@@ -141,12 +141,10 @@ Rectangle {
             const bagList = JSON.parse(bagListInfo || '[]');
             if (bagList.length) {
                 while (qmlObject.length) {
-                    console.log('pop')
                     const curQml = qmlObject.pop();
                     curQml.destroy();
                 }
                 while (popQmlObject.length) {
-                    console.log('pop2')
                     const curQml = popQmlObject.pop();
                     curQml.destroy();
                 }
@@ -168,7 +166,6 @@ Rectangle {
                 const curBag = bagList[0];
                 //                bagInfo = JSON.parse(JSON.stringify(bagList[0]));
                 const date = new Date(curBag.block_create_at);
-                //        console.log(date, 'd')
                 const time = date.getFullYear().toString() +
                            '-' +
                            (date.getMonth() + 1).toString().padStart(2, '0') +
@@ -189,7 +186,6 @@ Rectangle {
                 curBag.y1 = Math.max(bagCoordinateList[1], bagCoordinateList[3]);
                 curBag.unpackBoxInfoList = JSON.stringify(curBag.unpackBoxInfoList || []);
                 bagInfo = JSON.parse(JSON.stringify(curBag));
-                console.log('abcddfg', bagInfo.unpackBoxInfoList, bagInfo.id);
                 homeSrc.changeNextStatus(true);
 //                homeSrc.deleteHistoryPic();
             } else {
@@ -208,7 +204,7 @@ Rectangle {
         interval: 5000
         triggeredOnStart: false
         onTriggered: {
-            console.log('timer, fetch')
+            console.log('start timer to fetch bag')
             homeSrc.fetchBag(bagInfo.id, 1, 1, 2);
         }
     }
@@ -264,8 +260,6 @@ Rectangle {
                     if(heightRatio <= 0 || widthRatio <= 0) {
                         return;
                     }
-
-                    console.log(x0, x1, y0, y1, 'ddddddddd', heightRatio, widthRatio)
                     //                            homeSrc.printLog(`比例信息:heightRatio:${heightRatio}:widthRatio:${widthRatio}`);
                     for(const box of unpackBoxList) {
                         //                                                     console.log('box')
@@ -375,7 +369,6 @@ Rectangle {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            console.log('close')
                             mainImagePopup.close();
                         }
                     }
@@ -480,7 +473,7 @@ Rectangle {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        console.log('click 111')
+                        console.log('click camera')
                         if (popType == 1) {
                             if (camera.cameraStatus == Camera.LoadedStatus) {
                                 camera.start();
@@ -544,7 +537,7 @@ Rectangle {
                     onImageCaptured: {
                         //                        console.log('capture Camera')
                         //                        okPic.source = preview;
-                        console.log(preview, 'xx');
+                        console.log('preview', preview);
                         //  capturedImagePath
                         cameraPreview = preview;
                         if (popType == 1) {
@@ -596,7 +589,6 @@ Rectangle {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            console.log('close')
                             userPopup.close();
                         }
                     }
@@ -654,7 +646,7 @@ Rectangle {
 
                                     //                                    userPicSource = cameraPreview;
                                     console.log(JSON.stringify(Object.keys(userPicMap).find(v=>userPicMap[v]===cameraPreview)))
-                                    console.log('okokok', cameraPng.source, cameraPreview, curUserPath, JSON.stringify(userPicMap))
+                                    console.log('camera capture 1', cameraPng.source, cameraPreview, curUserPath, JSON.stringify(userPicMap))
                                 } else if (popType == 2) {
                                     const curCategoryModel = categoryModel.get(categoryModelIndex);
                                     const localPath = Object.keys(categoryModelPicMap).find(v=>categoryModelPicMap[v]===cameraPreview);
@@ -663,7 +655,7 @@ Rectangle {
                                     }
                                     //                                    curCategoryModel.imageSource = cameraPreview;
                                     categoryModel.set(categoryModelIndex, curCategoryModel);
-                                    console.log('22ok', cameraPreview, curModelPicPath, JSON.stringify(categoryModelPicMap), JSON.stringify(curCategoryModel));
+                                    console.log('camera capture 2', cameraPreview, curModelPicPath, JSON.stringify(categoryModelPicMap), JSON.stringify(curCategoryModel));
                                 }
 
                                 //                                homeSrc.loadImage(cameraPreview);
@@ -754,8 +746,6 @@ Rectangle {
                             if(heightRatio <= 0 || widthRatio <= 0) {
                                 return;
                             }
-
-                            console.log(x0, x1, y0, y1, 'ddddddddd', heightRatio, widthRatio)
                             //                            homeSrc.printLog(`比例信息:heightRatio:${heightRatio}:widthRatio:${widthRatio}`);
                             for(const box of unpackBoxList) {
                                 //                                                     console.log('box')
@@ -1082,13 +1072,9 @@ Rectangle {
                                             border.color: "#BFBFBF"
                                         }
                                         onOpened: {
-                                            //                                            console.log('11');
                                             myTriangle.state = "rotated";
-                                            //                                            myTriangle.state = '';
                                         }
                                         onClosed: {
-                                            //                                            console.log('22')
-                                            //                                            myTriangle.rotation.
                                             myTriangle.state = "";
                                         }
 
@@ -1187,7 +1173,6 @@ Rectangle {
                                         MouseArea {
                                             anchors.fill: parent
                                             onClicked: {
-                                                console.log(index, 'abcdf');
                                                 categoryModelIndex = index;
                                                 popType = 2;
                                                 cameraPreview = '';

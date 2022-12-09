@@ -32,9 +32,9 @@ Window {
 
     Component.onCompleted: {
         timer.start();
-        content.push('./home.qml');
-        loginPage = false;
-        //        content.push('./login.qml');
+//        content.push('./home.qml');
+//        loginPage = false;
+                content.push('./login.qml');
     }
 
     Connections {
@@ -52,16 +52,17 @@ Window {
                 settingText.text = "下一个";
                 pageState = 2;
                 nextEnable = true;
-                console.log(pageState, '-----')
             } else if (state == 1) {
                 content.push('./home.qml');
                 username = obj['username'];
                 loginPage = false;
                 pageState = 1;
             } else if (state == 3) {
-                content.push('./BagRecord.qml');
+                const item = content.push('./BagRecord.qml');
                 search.source = './images/new-home.png';
                 searchText.text = "返回";
+//                StackView子组件传递信号案例
+//                item.compTest.connect(onCompTest);
                 pageState = 3;
             } else if (state == 4) {
                 content.push('./BagDetail.qml', {bagInfo: obj});
@@ -80,6 +81,10 @@ Window {
             }
         }
     }
+    // StackView子组件传递信号案例
+//    function onCompTest(msg) {
+//        console.log(msg, 'sssss');
+//    }
 
     Timer {
         id: timer
@@ -292,7 +297,7 @@ Window {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        console.log('ppp', pageState)
+                        console.log('change page', pageState)
                         if (pageState == 2) {
                             pageState = 1;
                             search.source = './images/search.jpg';
@@ -353,7 +358,6 @@ Window {
                     onClicked: {
                         console.log('go to statistic page')
                         if (pageState == 1) {
-                            console.log('222')
                             homeSrc.goToPage(3);
                         }
                     }
@@ -471,6 +475,8 @@ Window {
                                 onClicked: {
                                     if (pageState == 1) {
                                         content.pop();
+                                        backPopup.close()
+                                        loginPage = true;
                                         console.log('goout')
                                     }
                                 }

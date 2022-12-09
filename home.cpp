@@ -151,7 +151,7 @@ void Home::receiveBagStatisticReply(QNetworkReply *reply)
 void Home::receiveLoginReply(QNetworkReply *reply)
 {
     QString res = reply->readAll();
-    qDebug() << "loginReply" << res;
+//    qDebug() << "loginReply" << res;
     emit sendLoginRes(res);
 }
 
@@ -272,10 +272,19 @@ void Home::submitBagRegisterInfo(QString userInfo, QString categoryInfo, int bag
     object.insert("bagUserName", userObj["bagUserName"].toString());
     object.insert("bagUserPhone", userObj["bagUserPhone"].toString());
     object.insert("bagUserPic", QString(bagUserPic.toBase64()));
-    qDebug() << unpackCategoryList.size() << "ddddddddddddd";
+//    qDebug() << unpackCategoryList.size() << "ddddddddddddd";
+//    qDebug() << unpackCategoryList;
     if (unpackCategoryList.size() > 0) {
-        object.insert("unpackCategoryList", unpackCategoryList);
+//        qDebug() << "123";
+        QJsonDocument doc;
+        doc.setArray(unpackCategoryList);
+//        qDebug() << "234";
+//        qDebug() << QString::fromUtf8(doc.toJson(QJsonDocument::Compact).constData());
+        object.insert("unpackCategoryListInfo", QString::fromUtf8(doc.toJson(QJsonDocument::Compact).constData()));
+    } else {
+        object.insert("unpackCategoryListInfo", "[]");
     }
+//   / qDebug() << "1111" << object["unpackCategoryList"];
 //    qDebug() << QJsonDocument::fromJson(bagUserPic).object() << "sss";
 //    qDebug() << bagUserPic.toBase64() << "sss";
    // object.insert("bagUserPic", "123");
@@ -290,7 +299,7 @@ void Home::submitBagRegisterInfo(QString userInfo, QString categoryInfo, int bag
     //get与post的请求方式有所不同，get是在接口名后添加 ? 和传输的数据(type)
     request.setUrl(QUrl(url));
     request.setHeader(QNetworkRequest::ContentTypeHeader,QVariant("application/json;charset=utf-8"));
-    qDebug() << "token" << "Bear " + config.token;
+//    qDebug() << "token" << "Bear " + config.token;
     request.setRawHeader(QByteArray("Authorization"), ("Bearer " + config.token).toUtf8());
     QByteArray byteArr = document.toJson(QJsonDocument::Compact);
     QNetworkReply *reply = manager.post(request, byteArr);    //post请求头

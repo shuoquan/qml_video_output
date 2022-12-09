@@ -18,6 +18,7 @@ Rectangle {
     property int categoryIndex: -1
     property var categoryList: []
     property string imagePath: ""
+    signal compTest(string msg)
     Component.onCompleted: {
         imagePath = imagePrefix;
         categoryList = [
@@ -82,7 +83,6 @@ Rectangle {
         const curTime = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`
         const time =  Date.fromLocaleString(Qt.locale(), curTime, "dd/MM/yyyy")
         startTime = new Date(time).getTime();
-        console.log(startTime, 'dddd')
         endTime = startTime + 86400000;
         leftTime.text = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
         //        date = new Date(date.getTime() + 86400000)
@@ -94,6 +94,8 @@ Rectangle {
         onClicked: {
             leftCalendar = false;
             rightCalendar = false;
+//            console.log('signal test');
+//            compTest("112233");
         }
     }
     Timer {
@@ -109,12 +111,15 @@ Rectangle {
     Connections {
         target: homeSrc
         function onSendBagInfo(bagListStr) {
-//            console.log('----------dfa---------', bagListStr)
+//            console.log('-------------------', bagListStr)
             if (pageState != 3) {
                 return;
             }
             const bagList = JSON.parse(bagListStr || "[]");
-            bagModel.remove(0, bagModel.count);
+            if (bagModel.count > 0) {
+                bagModel.remove(0, bagModel.count);
+            }
+
             for(const bagInfo of bagList) {
 //                console.log('aaa', JSON.stringify(bagInfo))
                 const date = new Date(bagInfo.block_create_at);
@@ -140,7 +145,8 @@ Rectangle {
                         date.getMinutes().toString().padStart(2, '0') +
                         ':' +
                         date.getSeconds().toString().padStart(2, '0');
-                bagInfo.contraband = (bagInfo.unpackBoxInfoList || []).map(v=>v.categoryName).filter(v=>v!=="").join(',');
+//                bagInfo.contraband = (bagInfo.unpackBoxInfoList || []).map(v=>v.categoryName).filter(v=>v!=="").join(',');
+                bagInfo.contraband = (bagInfo.unpackRecordList || []).map(v=>v.categoryName).filter(v=>v!=="").join(',');
                 bagInfo.bagNum = 1001 + bagInfo.id - bagInfo.minIndex;
 
                 const bagCoordinateList = bagInfo.bag_coordinate.replace(/\(|\)/g, '').split(',').map(Number);
@@ -151,17 +157,6 @@ Rectangle {
                 bagInfo.unpackBoxInfoList = JSON.stringify(bagInfo.unpackBoxInfoList || []);
                 bagModel.append(bagInfo);
             }
-
-            //            console.log(insertDirection)
-            //            for(const bag of bagList) {
-            //                if (bag.type == -1) {
-            //                    addImage(bag, -1);
-            //                } else {
-            //                    addImage(bag, 0);
-            //                }
-
-            //                //                console.log(JSON.stringify(bag));
-            //            }
         }
     }
 
@@ -524,7 +519,7 @@ Rectangle {
                 verticalAlignment: Text.AlignVCenter
             }
             onClicked: {
-                console.log('refresh')
+                console.log('重置')
                 categoryName = '类别';
                 let date = new Date();
                 const curTime = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`

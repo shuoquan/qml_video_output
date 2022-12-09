@@ -18,7 +18,6 @@ Rectangle {
     Component.onCompleted: {
         //        imageList = [...imageList, ...imageList, ...imageList]
         //                timer2.start()
-        console.log(bagInfo, 'ddddddddddddddddddddddsfs')
         imagePath = imagePrefix;
         timeText.text = `${bagInfo.date} ${bagInfo.time}`;
         contrabandText.text = bagInfo.contraband;
@@ -57,7 +56,6 @@ Rectangle {
         onTriggered: {
             imageList = [...imageList, './images/demo.jpg']
             //            imageList.push('./images/demo.jpg')
-            console.log('aaa')
         }
     }
     Rectangle {
@@ -124,7 +122,6 @@ Rectangle {
                                 visible: modelData.type == 1
                                 onStatusChanged:   {
                                     if (modelData.type != 1) {
-                                        console.log('length', qmlObject.length)
                                         return
                                     }
 
@@ -136,8 +133,6 @@ Rectangle {
                                     if(heightRatio <= 0 || widthRatio <= 0) {
                                         return;
                                     }
-
-                                    console.log(x0, x1, y0, y1, 'ddddddddd', heightRatio, widthRatio)
                                     //                            homeSrc.printLog(`比例信息:heightRatio:${heightRatio}:widthRatio:${widthRatio}`);
                                     for(const box of unpackBoxList) {
                                         //                                                     console.log('box')
@@ -462,7 +457,6 @@ Rectangle {
                                 MouseArea {
                                     anchors.fill: parent
                                     onClicked: {
-                                        console.log('close')
                                         detailPop.close();
                                     }
                                 }
@@ -587,11 +581,7 @@ Rectangle {
             sourceClipRect: Qt.rect(bagInfo.x0,bagInfo.y0,bagInfo.x1-bagInfo.x0,bagInfo.y1-bagInfo.y0)
             visible: !!imageList[imageIndex] && imageList[imageIndex].type == 1
             onStatusChanged:   {
-                console.log('change', 'cc')
                 if (imageList[imageIndex].type != 1) {
-//                        bagPic.refresh()
-//                    image.d
-                    console.log('lleng', qmlObject.length)
                     while (qmlObject.length) {
                         const curQml = qmlObject.pop();
                         curQml.destroy();
@@ -608,8 +598,6 @@ Rectangle {
                 if(heightRatio <= 0 || widthRatio <= 0) {
                     return;
                 }
-
-                console.log(x0, x1, y0, y1, 'ddddddddd', heightRatio, widthRatio)
                 //                            homeSrc.printLog(`比例信息:heightRatio:${heightRatio}:widthRatio:${widthRatio}`);
                 for(const box of unpackBoxList) {
                     //                                                     console.log('box')

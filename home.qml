@@ -48,7 +48,6 @@ Rectangle {
             }
         }
         function onModifyBagStatus(bagId, bagStatus) {
-            console.log(bagId, bagStatus, '878');
             for(let i=0; i<imageModel.count; i++) {
                 const curBagInfo = imageModel.get(i);
                 if (curBagInfo.id == bagId) {
@@ -509,7 +508,6 @@ Rectangle {
                                     }
                                     onClicked: {
                                         if (imageModel.get(index).status == '0') {
-                                            console.log('abc')
                                             homeSrc.registerBag(id, JSON.stringify(imageModel.get(index)));
                                         }
                                     }

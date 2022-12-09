@@ -26,5 +26,7 @@
         <file>little-search.png</file>
         <file>new-home.png</file>
         <file>next.png</file>
+        <file>logout.png</file>
+        <file>next-dark.png</file>
     </qresource>
 </RCC>
