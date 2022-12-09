@@ -14,7 +14,7 @@ Window {
     height: screen.height
     visible: true
     visibility: "Maximized"
-    //    visibility: Window.FullScreen
+//        visibility: Window.FullScreen
     //    flags:  Qt.FramelessWindowHint
     //    maximumWidth: 1200
     //    maximumHeight: 720

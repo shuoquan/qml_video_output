@@ -483,27 +483,27 @@ Rectangle {
                                 //                                if
                                 //                            }
                                 if (!lastUserPath) {
-                                    lastUserPath = `F:/pic/user_1.jpg`;
-                                    curUserPath = `F:/pic/user_1.jpg`;
+                                    lastUserPath = `c:/pic/user_1.jpg`;
+                                    curUserPath = `c:/pic/user_1.jpg`;
                                     camera.imageCapture.captureToLocation(curUserPath);
                                 } else {
                                     if (lastUserPath == curUserPath) {
-                                        curUserPath = `F:/pic/user_2.jpg`;
+                                        curUserPath = `c:/pic/user_2.jpg`;
                                         camera.imageCapture.captureToLocation(curUserPath);
                                     } else {
-                                        if (lastUserPath === `F:/pic/user_1.jpg`) {
-                                            if (userPicMap[`F:/pic/user_1.jpg`] == userPicSource) {
-                                                curUserPath = `F:/pic/user_2.jpg`;
+                                        if (lastUserPath === `c:/pic/user_1.jpg`) {
+                                            if (userPicMap[`c:/pic/user_1.jpg`] == userPicSource) {
+                                                curUserPath = `c:/pic/user_2.jpg`;
                                             } else {
-                                                lastUserPath = `F:/pic/user_2.jpg`;
-                                                curUserPath = `F:/pic/user_1.jpg`;
+                                                lastUserPath = `c:/pic/user_2.jpg`;
+                                                curUserPath = `c:/pic/user_1.jpg`;
                                             }
                                         } else {
-                                            if (userPicMap[`F:/pic/user_2.jpg`] == userPicSource) {
-                                                curUserPath = `F:/pic/user_1.jpg`;
+                                            if (userPicMap[`c:/pic/user_2.jpg`] == userPicSource) {
+                                                curUserPath = `c:/pic/user_1.jpg`;
                                             } else {
-                                                lastUserPath = `F:/pic/user_1.jpg`;
-                                                curUserPath = `F:/pic/user_2.jpg`;
+                                                lastUserPath = `c:/pic/user_1.jpg`;
+                                                curUserPath = `c:/pic/user_2.jpg`;
                                             }
                                         }
                                         camera.imageCapture.captureToLocation(curUserPath);
@@ -514,7 +514,7 @@ Rectangle {
                             if (camera.cameraStatus == Camera.LoadedStatus) {
                                 camera.start();
                             } else if(camera.cameraStatus == Camera.ActiveStatus) {
-                                curModelPicPath = `F:/pic/cat_${new Date().getTime()}.jpg`;
+                                curModelPicPath = `c:/pic/cat_${new Date().getTime()}.jpg`;
                                 camera.imageCapture.captureToLocation(curModelPicPath);
                             }
                         }

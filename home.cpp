@@ -228,7 +228,7 @@ void Home::submitBagRegisterInfo(QString userInfo, QString categoryInfo, int bag
     QJsonObject userObj = userDoc.object();
     QString userPic = userObj["userPic"].toString();
 //    userPic = "F:/pic/knife_and_jab.txt";
-    userPic = "F:/pic/user_1.jpg";
+//    userPic = "F:/pic/user_1.jpg";
     qDebug() << userPic;
     QFile file(userPic);
     QByteArray bagUserPic;

@@ -25,6 +25,7 @@ Rectangle {
         bagUserText.text = bagInfo.bag_user_name;
         popBagUserText.text = bagInfo.bag_user_name || '无';
         userPhoneNum = bagInfo.bag_user_phone;
+        userPic = bagInfo.bag_user_pic;
         imageList = [];
         if (bagInfo.block_path) {
             imageList = [...imageList,                         {
