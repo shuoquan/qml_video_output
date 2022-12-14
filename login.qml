@@ -2,10 +2,15 @@
 import QtQuick.Window 2.15
 import QtMultimedia 5.14
 import QtQuick.Controls 2.15
+//import QtQuick.VirtualKeyBoard
+//import QtQuick.VirtualKeyBoard 2.15
 
 Rectangle {
     anchors.fill: parent
     signal loginSuccess(bool status)
+    Component.onCompleted: {
+    }
+
     Connections {
         target: homeSrc
         function onSendLoginRes(loginRes) {

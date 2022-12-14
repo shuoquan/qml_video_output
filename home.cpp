@@ -353,6 +353,15 @@ void Home::goToPage(int pageState, QString params) {
     emit navigatePage(pageState, params);
 }
 
+void Home::modifyPageState(int pageState) {
+//    if (pageState == 1) {
+//        QQuickWindow::setSceneGraphBackend(QSGRendererInterface::OpenGLRhi);
+//    } else {
+//        QQuickWindow::setSceneGraphBackend(QSGRendererInterface::OpenGL);
+//    }
+    config.pageState = pageState;
+}
+
 void Home::TimeOutSlot()
 {
 //    qDebug() << "logtest";

@@ -2,6 +2,8 @@
 import QtQuick.Window 2.15
 import QtMultimedia 5.14
 import QtQuick.Controls 2.15
+import QtQuick.VirtualKeyboard 2.2
+import QtQuick.VirtualKeyboard.Settings 2.2
 //import VideoAdapter 1.0
 
 Window {
@@ -25,16 +27,32 @@ Window {
     property int pageState: 1  // 页面状态 1-首页, 2-登记页面， 3-统计页面， 4-详情页面
     property string username: ""
     property bool nextEnable: true
+    property bool keyboardShow: false
     signal dealStack()
     signal getNext()
     //    http://192.168.8.173:8256/images
     //    flags: fullScreen ? Qt.FramelessWindowHint : Qt.Window
 
     Component.onCompleted: {
+        VirtualKeyboardSettings.activeLocales =  ["en_US","zh_CN"];
+//        console.log(VirtualKeyboardSettings.style['keyboardDesignHeight'], 'dddddd');
+//        VirtualKeyboardSettings.style['keyboardDesignHeight'] = 200;
         timer.start();
+//        content.push('./main.qml');
 //        content.push('./home.qml');
+//        content.push('./BagRecord.qml');
+//        content.push('./blank.qml');
 //        loginPage = false;
-                content.push('./login.qml');
+//        homeSrc.modifyPageState(1);
+//        pageState = 1;
+          content.push('./login.qml');
+    }
+
+    Connections {
+        target: Qt.inputMethod
+        function onVisibleChanged() {
+           keyboardShow =  Qt.inputMethod.visible;
+        }
     }
 
     Connections {
@@ -44,7 +62,8 @@ Window {
             console.log(pageState, params, 'page', state)
             const obj = JSON.parse(params || '{}');
             if (state == 2) {
-                console.log("getBagId", obj['id'])
+//                console.log("getBagId", obj['id']);
+                homeSrc.modifyPageState(2);
                 content.push('./identity.qml', {bagInfo: obj});
                 search.source = './images/new-home.png';
                 searchText.text = "返回";
@@ -53,11 +72,13 @@ Window {
                 pageState = 2;
                 nextEnable = true;
             } else if (state == 1) {
+                homeSrc.modifyPageState(1);
                 content.push('./home.qml');
                 username = obj['username'];
                 loginPage = false;
                 pageState = 1;
             } else if (state == 3) {
+                homeSrc.modifyPageState(3);
                 const item = content.push('./BagRecord.qml');
                 search.source = './images/new-home.png';
                 searchText.text = "返回";
@@ -65,6 +86,7 @@ Window {
 //                item.compTest.connect(onCompTest);
                 pageState = 3;
             } else if (state == 4) {
+                homeSrc.modifyPageState(4);
                 content.push('./BagDetail.qml', {bagInfo: obj});
                 pageState = 4;
             }
@@ -299,6 +321,7 @@ Window {
                     onClicked: {
                         console.log('change page', pageState)
                         if (pageState == 2) {
+                            homeSrc.modifyPageState(1);
                             pageState = 1;
                             search.source = './images/search.jpg';
                             searchText.text = "查询";
@@ -307,11 +330,13 @@ Window {
                             content.pop()
                             //                            dealStack()
                         } else if (pageState == 3) {
+                            homeSrc.modifyPageState(1);
                             pageState = 1;
                             search.source = './images/search.jpg';
                             searchText.text = "查询";
                             content.pop();
                         } else if (pageState == 4) {
+                            homeSrc.modifyPageState(3);
                             pageState = 3;
                             content.pop();
                         }
@@ -370,7 +395,7 @@ Window {
                 anchors.right: parent.right
                 color: "#3664b1"
                 width: Math.max(parent.width / 12, 100)
-                visible: pageState != 3
+                visible: pageState != 3 && pageState != 4
                 Image {
                     id: setting
                     anchors.left: parent.left
@@ -474,6 +499,7 @@ Window {
                                 anchors.fill: parent
                                 onClicked: {
                                     if (pageState == 1) {
+                                        homeSrc.modifyPageState(0);
                                         content.pop();
                                         backPopup.close()
                                         loginPage = true;
@@ -495,12 +521,29 @@ Window {
             }
         }
 
+//        InputPanel {
+//            id: keyboardArea
+//            anchors.bottom: parent.bottom
+//            width: parent.width
+//            active: false
+//        }
+
+//        Binding {
+//            target: keyboardArea.keyboard.style
+//            property: 'keyboardDesignHeight'
+//            value: screen.height / 2.5
+//        }
+
         StackView {
             id: content
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.top: header.bottom
-            anchors.bottom: footer.top
+//            anchors.left: parent.left
+//            anchors.right: parent.right
+//            anchors.top: header.bottom
+//            anchors.bottom: footer.top
+            x: 0
+            y: loginPage && keyboardShow ? 0 - screen.height / 3 : (loginPage ? 0 : header.height)
+            width: parent.width
+            height: loginPage ? parent.height : parent.height - header.height - footer.height
             pushEnter: Transition {
 
             }
@@ -518,6 +561,13 @@ Window {
             }
             replaceExit: Transition {
 
+            }
+
+            NumberAnimation {
+                target: content
+                property: "y"
+                duration: 1500
+                easing.type: Easing.Linear
             }
 
             //            Connections {
@@ -538,43 +588,43 @@ Window {
             //                pageState = 2;
             //            }
 
-            Loader {
-                id: loader
-                anchors.fill: parent
-                //                sourceComponent: comp
-                //                source: './home.qml'
-                //                source: './identity.qml'
-                //                source: './scale.qml'
-                //                source: './login.qml'
-                //                source: './rotate.qml'
-                //                source: './BagRecord.qml'
-                //                source: './BagDetail.qml'
-                //                source: './scroll.qml'
-                Connections {
-                    target: loader.item
-                    ignoreUnknownSignals: true
-                    function onModifyOpacity(opacity) {
-                        //                        console.log("receive", opacity);
-                        mainOpacity = opacity;
-                    }
-                    function onLoginSuccess(status) {
-                        console.log(status)
-                        if (status) {
-                            loginPage = false;
-                            loader.source = './home.qml';
-                        }
-                    }
-                    function onRegisterBag(bagId) {
-                        console.log("getBagId", bagId)
-                        content.push('./identity.qml');
-                        search.source = './images/new-home.png';
-                        searchText.text = "返回";
-                        setting.source = "./images/next.png";
-                        settingText.text = "下一个";
-                        pageState = 2;
-                    }
-                }
-            }
+//            Loader {
+//                id: loader
+//                anchors.fill: parent
+//                //                sourceComponent: comp
+//                //                source: './home.qml'
+//                //                source: './identity.qml'
+//                //                source: './scale.qml'
+//                //                source: './login.qml'
+//                //                source: './rotate.qml'
+//                //                source: './BagRecord.qml'
+//                //                source: './BagDetail.qml'
+//                //                source: './scroll.qml'
+//                Connections {
+//                    target: loader.item
+//                    ignoreUnknownSignals: true
+//                    function onModifyOpacity(opacity) {
+//                        //                        console.log("receive", opacity);
+//                        mainOpacity = opacity;
+//                    }
+//                    function onLoginSuccess(status) {
+//                        console.log(status)
+//                        if (status) {
+//                            loginPage = false;
+//                            loader.source = './home.qml';
+//                        }
+//                    }
+//                    function onRegisterBag(bagId) {
+//                        console.log("getBagId", bagId)
+//                        content.push('./identity.qml');
+//                        search.source = './images/new-home.png';
+//                        searchText.text = "返回";
+//                        setting.source = "./images/next.png";
+//                        settingText.text = "下一个";
+//                        pageState = 2;
+//                    }
+//                }
+//            }
         }
         //        Component {
         //            id: comp

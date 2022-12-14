@@ -20,6 +20,7 @@
 #include <QQuickImageProvider>
 #include <QFile>
 #include <QDir>
+#include <QQuickWindow>
 
 #pragma execution_character_set("utf-8")
 
@@ -55,6 +56,7 @@ public:
     Q_INVOKABLE void changeBagStatus(int bagId, int status);
     Q_INVOKABLE void deleteHistoryPic();
     Q_INVOKABLE void changeNextStatus(bool flag);
+    Q_INVOKABLE void modifyPageState(int pageState);
 //    Q_INVOKABLE void getNext();
 
 signals:

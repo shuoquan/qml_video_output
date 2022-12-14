@@ -69,3 +69,8 @@ msvc {
 CONFIG += precompile_header
 #PRECOMPILED_HEADER = stable.h
 # HEADERS += stable.h #这句话是可有可无的，建议加上
+
+static {
+    QT += svg
+    QTPLUGIN += qtvirtualkeyboardplugin
+}

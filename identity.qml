@@ -1207,14 +1207,27 @@ Rectangle {
                             }
                         }
                         ListView {
+                            id: myListView
                             anchors.fill: parent
                             model: categoryModel
                             delegate: categoryDelegate
+                            property bool scrolled: false
                             onCountChanged: {
-                                if (categoryModel.count > 3) {
-                                    positionViewAtEnd();
-                                }
+//                                if (categoryModel.count >= 3) {
+//                                    positionViewAtEnd();
+//                                }
                             }
+//                            onContentYChanged: {
+//                                scrolled = !atYEnd;
+//                                if(atYEnd) {
+//                                    positionViewAtEnd();
+//                                }
+//                            }
+//                            onContentHeightChanged: {
+//                                if (!scrolled) {
+//                                    positionViewAtEnd();
+//                                }
+//                            }
                         }
                     }
                     Rectangle {
@@ -1241,6 +1254,9 @@ Rectangle {
                                                          imageSource: '',
                                                          selectActive: false,
                                                      })
+                                if (categoryModel.count >= 3) {
+                                    myListView.positionViewAtEnd();
+                                }
                             }
                         }
                     }

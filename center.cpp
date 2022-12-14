@@ -12,12 +12,12 @@
 
 Center::Center(QObject *parent) : QObject(parent)
 {
-//    ip = "192.168.7.69";
-//        ip = "192.168.8.173";
+    //    ip = "192.168.7.69";
+    //        ip = "192.168.8.173";
     ip = config.videoIp;
     port = config.videoPort;
-//        ip = "localhost";
-//        port = 12345;
+    //        ip = "localhost";
+    //        port = 12345;
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &Center::TimeOutSlot);
     //    this->format_context = avformat_alloc_context();
@@ -54,20 +54,26 @@ Center::Center(QObject *parent) : QObject(parent)
         flag = true;
         vector.resize(0);
     });
+    int receiveCount = 0;
     connect(socket, &QTcpSocket::readyRead, this, [=]() mutable {
         QByteArray msg = socket->readAll();
-        qDebug() << "视频数据长度:" << msg.size();
-        vector.append(msg);                                                              //        qDebug() << msg.data();
+        //        qDebug() << "视频数据长度:" << msg.size();
+        vector.append(msg);
+        receiveCount += 1;
+        if (receiveCount >= 300) {
+            qDebug() << "收到300个数据包" << msg.size();
+            receiveCount = 0;
+        }
         while(vector.size() > 0 && flag) {
             flag = false;
             byteArr.append(vector.first());
             vector.pop_front();
-//            qDebug() << "byteArr长度" << byteArr.size();
+            //            qDebug() << "byteArr长度" << byteArr.size();
             while (byteArr.size() > 10) {
-//                qDebug() << "byteArr长度--while--" << byteArr.size();
+                //                qDebug() << "byteArr长度--while--" << byteArr.size();
                 if(size==0) {
                     size = byteArr.left(10).toInt();
-//                    qDebug() << size << "s";
+                    //                    qDebug() << size << "s";
                     byteArr.remove(0, 10);
                 }
                 if(byteArr.size() >= size) {
@@ -78,13 +84,20 @@ Center::Center(QObject *parent) : QObject(parent)
                             break;
                         }
                     }
-                    qDebug() << "索引值:" << index << "size值:" << size;
+//                    qDebug() << "索引值:" << index << "size值:" << size;
                     if(index<0) {
-                        break;
+                        //                        qDebug() << "索引值:" << index << "size值:" << size;
+                        if (byteArr.size() == size) {
+                            index = size;
+                        } else {
+                            qDebug() << "索引值:" << index << "size值:" << size;
+                            break;
+                        }
+
                     }
                     if(index>0 && index!=size) {
                         //                    if(index)
-//                        size = index;
+                        //                        size = index;
                         size = 0;
                         byteArr.resize(0);
                         byteArr.remove(0, index);
@@ -97,7 +110,9 @@ Center::Center(QObject *parent) : QObject(parent)
                     cv::Mat yuvImg;
                     cvtColor(img, yuvImg, cv::COLOR_BGR2YUV_I420);
                     memcpy(pYuvBuf, yuvImg.data, bufLen * sizeof(unsigned char));
-                    emit updateImgSig(pYuvBuf);
+                    if (config.pageState == 1) {
+                        emit updateImgSig(pYuvBuf);
+                    }
                     delete[] pYuvBuf;
                     //                    qDebug() << byteArr.size() << "eee";
                     byteArr.remove(0, size);
@@ -106,59 +121,59 @@ Center::Center(QObject *parent) : QObject(parent)
                     size = 0;
                     //                    qDebug() <<"2";
                 } else {
-//                    flag = true;
+                    //                    flag = true;
                     break;
                 }
             }
             flag = true;
-//            else {
-//                flag = true;
-//                break;
-//            }
+            //            else {
+            //                flag = true;
+            //                break;
+            //            }
         }
     });
-//    QVector<QString> tmp;
-//    tmp.append("1");
-//    tmp.append("2");
-//    while(tmp.size()>0) {
-//        qDebug() << tmp.front();
-//        tmp.pop_front();
-//    }
-//    while (true) {
-//        while(vector.size() > 0 && flag) {
-//            flag = false;
-//            byteArr.append(vector.first());
-//            vector.pop_front();
-//            if (byteArr.size() > 0) {
-//                if(size==0) {
-//                    size = byteArr.left(10).toInt();
-//                    byteArr.remove(0, 10);
-//                }
-//                if(byteArr.size() >= size) {
-//                    cv::Mat img = cv::imdecode(cv::Mat(1, size, CV_8UC1, byteArr.mid(0, size).data()), cv::IMREAD_UNCHANGED);
-//                    int bufLen = DEFAULT_PIX_HEIGHT * DEFAULT_PIX_WIDTH * 3 / 2;
-//                    unsigned char* pYuvBuf = new unsigned char[bufLen];
-//                    cv::Mat yuvImg;
-//                    cvtColor(img, yuvImg, cv::COLOR_BGR2YUV_I420);
-//                    memcpy(pYuvBuf, yuvImg.data, bufLen * sizeof(unsigned char));
-//                    emit updateImgSig(pYuvBuf);
-//                    delete[] pYuvBuf;
-////                    qDebug() << byteArr.size() << "eee";
-//                    byteArr.remove(0, size);
-////                    qDebug() << byteArr.size() << "gg";
-//                    //                byteArr = byteArr.mid(size);
-//                    size = 0;
-////                    qDebug() <<"2";
-//                } else {
-//                    flag = true;
-//                    break;
-//                }
-//            } else {
-//                flag = true;
-//                break;
-//            }
-//        }
-//    }
+    //    QVector<QString> tmp;
+    //    tmp.append("1");
+    //    tmp.append("2");
+    //    while(tmp.size()>0) {
+    //        qDebug() << tmp.front();
+    //        tmp.pop_front();
+    //    }
+    //    while (true) {
+    //        while(vector.size() > 0 && flag) {
+    //            flag = false;
+    //            byteArr.append(vector.first());
+    //            vector.pop_front();
+    //            if (byteArr.size() > 0) {
+    //                if(size==0) {
+    //                    size = byteArr.left(10).toInt();
+    //                    byteArr.remove(0, 10);
+    //                }
+    //                if(byteArr.size() >= size) {
+    //                    cv::Mat img = cv::imdecode(cv::Mat(1, size, CV_8UC1, byteArr.mid(0, size).data()), cv::IMREAD_UNCHANGED);
+    //                    int bufLen = DEFAULT_PIX_HEIGHT * DEFAULT_PIX_WIDTH * 3 / 2;
+    //                    unsigned char* pYuvBuf = new unsigned char[bufLen];
+    //                    cv::Mat yuvImg;
+    //                    cvtColor(img, yuvImg, cv::COLOR_BGR2YUV_I420);
+    //                    memcpy(pYuvBuf, yuvImg.data, bufLen * sizeof(unsigned char));
+    //                    emit updateImgSig(pYuvBuf);
+    //                    delete[] pYuvBuf;
+    ////                    qDebug() << byteArr.size() << "eee";
+    //                    byteArr.remove(0, size);
+    ////                    qDebug() << byteArr.size() << "gg";
+    //                    //                byteArr = byteArr.mid(size);
+    //                    size = 0;
+    ////                    qDebug() <<"2";
+    //                } else {
+    //                    flag = true;
+    //                    break;
+    //                }
+    //            } else {
+    //                flag = true;
+    //                break;
+    //            }
+    //        }
+    //    }
     //    connect(socket, &QTcpSocket::readyRead, this, [=]() mutable {
     //        QByteArray msg = socket->readAll();
     //        qDebug() << "长度--" << msg.size()<< "size--" << size;
@@ -224,7 +239,7 @@ Center::Center(QObject *parent) : QObject(parent)
         byteArr.resize(0);
     });
     connect(socket, &QTcpSocket::errorOccurred, this, [=]() mutable {
-//        qDebug() << "视频推送后台异常";
+        //        qDebug() << "视频推送后台异常";
 
     });
     timer->start(5000);
@@ -380,7 +395,7 @@ Center::Center(QObject *parent) : QObject(parent)
 
 Center::~Center()
 {
-//    qDebug() << "disconnect";
+    //    qDebug() << "disconnect";
     delete socket;
     socket = NULL;
     delete timer;
@@ -430,187 +445,187 @@ void Center::TimeOutSlot()
 
 bool Center::Decode(const char* rtmpUrl) {
     return false;
-//    qDebug() << "start";
-//    avformat_network_init();
-//    qDebug() << "1211111";
-//    std::string tempUrl = rtmpUrl;
+    //    qDebug() << "start";
+    //    avformat_network_init();
+    //    qDebug() << "1211111";
+    //    std::string tempUrl = rtmpUrl;
 
-//    // 打开输入流
-//    if (avformat_open_input(&format_context, tempUrl.c_str(), NULL, NULL) < 0) {
-//        qDebug() << "打开流失败";
-//        return false;
-//    }
-//    qDebug() << "222";
+    //    // 打开输入流
+    //    if (avformat_open_input(&format_context, tempUrl.c_str(), NULL, NULL) < 0) {
+    //        qDebug() << "打开流失败";
+    //        return false;
+    //    }
+    //    qDebug() << "222";
 
-//    //从媒体文件中读包进而获取流消息
-//    if (avformat_find_stream_info(format_context, nullptr) < 0) return false;
-//    qDebug() << "11";
-//    qDebug() << format_context;
-//    //    int ret = avformat_alloc_output_context2(&out_format_context, NULL, NULL, "H:/tmp.flv");
-//    //    qDebug() << "3333" << ret;
-//    //    if (ret < 0) {
-//    //        qDebug() << "avformat_alloc_output_context failed" << ret;
-//    //        return false;
-//    //    }
-//    int video_stream_index = -1;
-//    int audio_stream_index = -1;
-//    int video_width = 0;
-//    int video_height = 0;
-//    int ret;
-//    qDebug() << "nb_stream" << format_context->nb_streams;
-//    for (int i = 0; i < format_context->nb_streams; i++) {
-//        AVStream *video_st = format_context->streams[i];
-//        //筛选视频流和音频流
-//        if (video_st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-//            video_stream_index = i;
-//            video_width = video_st->codecpar->width;
-//            video_height = video_st->codecpar->height;
-//            // qDebug()  << "codetype" << video_st->codecpar->codec_id << AV_CODEC_ID_H264 << video_width << video_height;
-//            //找到对应的解码器
-//            const AVCodec *codec = avcodec_find_decoder(video_st->codecpar->codec_id);
-//            //        AVStream *out_stream = avformat_new_stream(out_format_context, codec);
+    //    //从媒体文件中读包进而获取流消息
+    //    if (avformat_find_stream_info(format_context, nullptr) < 0) return false;
+    //    qDebug() << "11";
+    //    qDebug() << format_context;
+    //    //    int ret = avformat_alloc_output_context2(&out_format_context, NULL, NULL, "H:/tmp.flv");
+    //    //    qDebug() << "3333" << ret;
+    //    //    if (ret < 0) {
+    //    //        qDebug() << "avformat_alloc_output_context failed" << ret;
+    //    //        return false;
+    //    //    }
+    //    int video_stream_index = -1;
+    //    int audio_stream_index = -1;
+    //    int video_width = 0;
+    //    int video_height = 0;
+    //    int ret;
+    //    qDebug() << "nb_stream" << format_context->nb_streams;
+    //    for (int i = 0; i < format_context->nb_streams; i++) {
+    //        AVStream *video_st = format_context->streams[i];
+    //        //筛选视频流和音频流
+    //        if (video_st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+    //            video_stream_index = i;
+    //            video_width = video_st->codecpar->width;
+    //            video_height = video_st->codecpar->height;
+    //            // qDebug()  << "codetype" << video_st->codecpar->codec_id << AV_CODEC_ID_H264 << video_width << video_height;
+    //            //找到对应的解码器
+    //            const AVCodec *codec = avcodec_find_decoder(video_st->codecpar->codec_id);
+    //            //        AVStream *out_stream = avformat_new_stream(out_format_context, codec);
 
-//            //创建解码器对应的结构体
-//            AVCodecContext* codec_ctx = avcodec_alloc_context3(codec);
-//            ret = avcodec_parameters_to_context(codec_ctx, video_st->codecpar);
-//            if (ret < 0) {
-//                qDebug() << "Failed to copy in_stream codecpar to codec context";
-//                return false;
-//            }
-//            int err = avcodec_open2(codec_ctx, codec, NULL);
-//            qDebug() << "err" << err;
-//            if (err != 0) {
-//                qDebug() << "打开解码器失败";
-//                return false;
-//            }
-//        }
-//        if (video_st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-//            audio_stream_index = i;
-//        }
+    //            //创建解码器对应的结构体
+    //            AVCodecContext* codec_ctx = avcodec_alloc_context3(codec);
+    //            ret = avcodec_parameters_to_context(codec_ctx, video_st->codecpar);
+    //            if (ret < 0) {
+    //                qDebug() << "Failed to copy in_stream codecpar to codec context";
+    //                return false;
+    //            }
+    //            int err = avcodec_open2(codec_ctx, codec, NULL);
+    //            qDebug() << "err" << err;
+    //            if (err != 0) {
+    //                qDebug() << "打开解码器失败";
+    //                return false;
+    //            }
+    //        }
+    //        if (video_st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+    //            audio_stream_index = i;
+    //        }
 
 
-//        //        codec_ctx->codec_tag = 0;
-//        //        if (out_format_context->oformat->flags & AVFMT_GLOBALHEADER)
-//        //            codec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+    //        //        codec_ctx->codec_tag = 0;
+    //        //        if (out_format_context->oformat->flags & AVFMT_GLOBALHEADER)
+    //        //            codec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 
-//        //        ret = avcodec_parameters_from_context(out_stream->codecpar, codec_ctx);
-//        //        if (ret < 0) {
-//        //            qDebug() << "Failed to copy codec context to out_stream codecpar context";
-//        //            return false;
-//        //        }
-//    }
-//    qDebug() << video_stream_index << audio_stream_index << "index";
-//    if (video_stream_index == -1)
-//    {
-//        qDebug() << "没有检测到视频流";
-//        return false;
-//    }
+    //        //        ret = avcodec_parameters_from_context(out_stream->codecpar, codec_ctx);
+    //        //        if (ret < 0) {
+    //        //            qDebug() << "Failed to copy codec context to out_stream codecpar context";
+    //        //            return false;
+    //        //        }
+    //    }
+    //    qDebug() << video_stream_index << audio_stream_index << "index";
+    //    if (video_stream_index == -1)
+    //    {
+    //        qDebug() << "没有检测到视频流";
+    //        return false;
+    //    }
 
-//    if (audio_stream_index == -1)
-//    {
-//        qDebug() << "没有检测到音频流";
-//    }
+    //    if (audio_stream_index == -1)
+    //    {
+    //        qDebug() << "没有检测到音频流";
+    //    }
 
-//    AVFrame *yuv420p_pFrame = nullptr;
-//    AVFrame *PCM_pFrame = nullptr;
-//    yuv420p_pFrame = av_frame_alloc();// 存放解码后YUV数据的缓冲区
-//    yuv420p_data=new unsigned char[video_width*video_height*3/2];
-//    int y_size=video_width*video_height;
+    //    AVFrame *yuv420p_pFrame = nullptr;
+    //    AVFrame *PCM_pFrame = nullptr;
+    //    yuv420p_pFrame = av_frame_alloc();// 存放解码后YUV数据的缓冲区
+    //    yuv420p_data=new unsigned char[video_width*video_height*3/2];
+    //    int y_size=video_width*video_height;
 
-//    int re;
-//    while (1) {
-//        //6.读取数据包
-//        ret = av_read_frame(format_context, packet);
-//        qDebug() << "rr" << ret << packet->stream_index;
-//        if (ret < 0) break;
-//        //        video_st = format_context->streams[packet->stream_index];
-//        //        qDebug() << "height" << video_st->codecpar->height;
-//        //        qDebug() << "buffer size" << sizeof(packet->buf->buffer);
-//        //            emit updateImgSig(packet->data);
-//        //            qDebug() << video_st->metadata;
-//        //            qDebug() << *(video_st->attached_pic.data);
-//        //            try {
-//        //                qDebug() << *video_st->side_data->data;
-//        //            } catch(_exception& e) {
-//        //                qDebug() << e.type;
-//        //            }
-//        //            emit updateImgSig(video_st->attached_pic.data);
-//        //            emit updateImgSig(video_st->side_data->data);
-//        //            out_stream = out_format_context->streams[packet->stream_index];
+    //    int re;
+    //    while (1) {
+    //        //6.读取数据包
+    //        ret = av_read_frame(format_context, packet);
+    //        qDebug() << "rr" << ret << packet->stream_index;
+    //        if (ret < 0) break;
+    //        //        video_st = format_context->streams[packet->stream_index];
+    //        //        qDebug() << "height" << video_st->codecpar->height;
+    //        //        qDebug() << "buffer size" << sizeof(packet->buf->buffer);
+    //        //            emit updateImgSig(packet->data);
+    //        //            qDebug() << video_st->metadata;
+    //        //            qDebug() << *(video_st->attached_pic.data);
+    //        //            try {
+    //        //                qDebug() << *video_st->side_data->data;
+    //        //            } catch(_exception& e) {
+    //        //                qDebug() << e.type;
+    //        //            }
+    //        //            emit updateImgSig(video_st->attached_pic.data);
+    //        //            emit updateImgSig(video_st->side_data->data);
+    //        //            out_stream = out_format_context->streams[packet->stream_index];
 
-//        //            av_packet_rescale_ts(packet, video_st->time_base, out_stream->time_base);
+    //        //            av_packet_rescale_ts(packet, video_st->time_base, out_stream->time_base);
 
-//        if (packet->stream_index == video_stream_index) {
-//            video_frame_size += packet->size;
-//            //            printf("recv %5d video frame %5d-%5d\n", ++video_frame_count, packet->size, video_frame_size);
-//            qDebug() << "视频包大小" << packet->size;
-//                const AVCodec *codec = avcodec_find_decoder(format_context->streams[video_stream_index]->codecpar->codec_id);
-//            //        AVStream *out_stream = avformat_new_stream(out_format_context, codec);
+    //        if (packet->stream_index == video_stream_index) {
+    //            video_frame_size += packet->size;
+    //            //            printf("recv %5d video frame %5d-%5d\n", ++video_frame_count, packet->size, video_frame_size);
+    //            qDebug() << "视频包大小" << packet->size;
+    //                const AVCodec *codec = avcodec_find_decoder(format_context->streams[video_stream_index]->codecpar->codec_id);
+    //            //        AVStream *out_stream = avformat_new_stream(out_format_context, codec);
 
-//            //创建解码器对应的结构体
-//            AVCodecContext* codec_ctx = avcodec_alloc_context3(codec);
-//            int err = avcodec_open2(codec_ctx, codec, NULL);
-//            qDebug() << "err2" << err;
-//            if (err != 0) {
-//                qDebug() << "打开解码器失败";
-//                return false;
-//            }
-//            re = avcodec_send_packet(codec_ctx, packet);
-//            qDebug() << "结果" << re;
-//                if (re != 0)
-//            {
-//                av_packet_unref(packet);//不成功就释放这个pkt
-//                continue;
-//            }
-//            re = avcodec_receive_frame(codec_ctx, yuv420p_pFrame);//接受后对视频帧进行解码
-//            qDebug() << "结果--" << re;
-//                if (re != 0)
-//            {
-//                av_packet_unref(packet);//不成功就释放这个pkt
-//                continue;
-//            }
-//            memcpy(yuv420p_data,(const void *)yuv420p_pFrame->data[0],y_size);
-//            memcpy(yuv420p_data+y_size,(const void *)yuv420p_pFrame->data[1],y_size/4);
-//            memcpy(yuv420p_data+y_size+y_size/4,(const void *)yuv420p_pFrame->data[2],y_size/4);
-//            qDebug() << "yuv420" << sizeof(yuv420p_data);
-//            emit updateImgSig(yuv420p_data);
-//        }
+    //            //创建解码器对应的结构体
+    //            AVCodecContext* codec_ctx = avcodec_alloc_context3(codec);
+    //            int err = avcodec_open2(codec_ctx, codec, NULL);
+    //            qDebug() << "err2" << err;
+    //            if (err != 0) {
+    //                qDebug() << "打开解码器失败";
+    //                return false;
+    //            }
+    //            re = avcodec_send_packet(codec_ctx, packet);
+    //            qDebug() << "结果" << re;
+    //                if (re != 0)
+    //            {
+    //                av_packet_unref(packet);//不成功就释放这个pkt
+    //                continue;
+    //            }
+    //            re = avcodec_receive_frame(codec_ctx, yuv420p_pFrame);//接受后对视频帧进行解码
+    //            qDebug() << "结果--" << re;
+    //                if (re != 0)
+    //            {
+    //                av_packet_unref(packet);//不成功就释放这个pkt
+    //                continue;
+    //            }
+    //            memcpy(yuv420p_data,(const void *)yuv420p_pFrame->data[0],y_size);
+    //            memcpy(yuv420p_data+y_size,(const void *)yuv420p_pFrame->data[1],y_size/4);
+    //            memcpy(yuv420p_data+y_size+y_size/4,(const void *)yuv420p_pFrame->data[2],y_size/4);
+    //            qDebug() << "yuv420" << sizeof(yuv420p_data);
+    //            emit updateImgSig(yuv420p_data);
+    //        }
 
-//        if (packet->stream_index == audio_stream_index) {
-//            audio_frame_size += packet->size;
-//            printf("recv %5d audio frame %5d-%5d\n", ++audio_frame_count, packet->size, audio_frame_size);
-//        }
+    //        if (packet->stream_index == audio_stream_index) {
+    //            audio_frame_size += packet->size;
+    //            printf("recv %5d audio frame %5d-%5d\n", ++audio_frame_count, packet->size, audio_frame_size);
+    //        }
 
-//        //            ret = av_interleaved_write_frame(out_format_context, packet);
-//        //            if (ret < 0) {
-//        //                printf("av_interleaved_write_frame failed\n");
-//        //                break;
-//        //            }
-//        //        ret = avcodec_send_packet(codec_ctx, packet);
-//        //        qDebug() << "beforextendData-----" << ret;
-//        //        while (ret > 0) {
-//        //            ret = avcodec_receive_frame(codec_ctx, videoFrame);
-//        //            qDebug() << "extendData-----" << ret;
-//        //            if (ret < 0) break;
-//        //            qDebug() << "extendData" << **videoFrame->extended_data;
-//        //        }
-//        av_packet_unref(packet);
-//    }
+    //        //            ret = av_interleaved_write_frame(out_format_context, packet);
+    //        //            if (ret < 0) {
+    //        //                printf("av_interleaved_write_frame failed\n");
+    //        //                break;
+    //        //            }
+    //        //        ret = avcodec_send_packet(codec_ctx, packet);
+    //        //        qDebug() << "beforextendData-----" << ret;
+    //        //        while (ret > 0) {
+    //        //            ret = avcodec_receive_frame(codec_ctx, videoFrame);
+    //        //            qDebug() << "extendData-----" << ret;
+    //        //            if (ret < 0) break;
+    //        //            qDebug() << "extendData" << **videoFrame->extended_data;
+    //        //        }
+    //        av_packet_unref(packet);
+    //    }
 
-//    qDebug() << "final";
-//    qDebug() << format_context;
-//    qDebug() << "package size" << packet->size;
+    //    qDebug() << "final";
+    //    qDebug() << format_context;
+    //    qDebug() << "package size" << packet->size;
 
-//    //        av_write_trailer(out_format_context);
-//    if (packet) {
-//        av_packet_free(&packet);
-//    }
+    //    //        av_write_trailer(out_format_context);
+    //    if (packet) {
+    //        av_packet_free(&packet);
+    //    }
 
-//    if (format_context) {
-//        avformat_close_input(&format_context);
-//    }
+    //    if (format_context) {
+    //        avformat_close_input(&format_context);
+    //    }
 
-//    //        avio_close(pOutFmtContext->pb);
-//    //        avformat_free_context(out_format_context);
+    //    //        avio_close(pOutFmtContext->pb);
+    //    //        avformat_free_context(out_format_context);
 
 }

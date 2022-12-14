@@ -110,7 +110,7 @@ Rectangle {
 
     Connections {
         target: homeSrc
-        function onSendBagInfo(bagListStr) {
+        function onSendBagInfo(bagListStr, pageState) {
 //            console.log('-------------------', bagListStr)
             if (pageState != 3) {
                 return;
@@ -180,6 +180,7 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             border.width: 1
             border.color: "#bfbfbf"
+//            visible: false
             Text {
                 id: leftTime
                 text: ""
@@ -289,6 +290,7 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             border.width: 1
             border.color: "#bfbfbf"
+//            visible: false
             Text {
                 text: categoryName
                 font.pixelSize: parent.height / 3
