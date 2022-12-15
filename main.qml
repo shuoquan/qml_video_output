@@ -4,6 +4,7 @@ import QtMultimedia 5.14
 import QtQuick.Controls 2.15
 import QtQuick.VirtualKeyboard 2.2
 import QtQuick.VirtualKeyboard.Settings 2.2
+import QtQuick.VirtualKeyboard.Styles 2.2
 //import VideoAdapter 1.0
 
 Window {
@@ -24,7 +25,7 @@ Window {
     property bool fullScreen: true
     property double mainOpacity: 1
     property bool loginPage: true
-    property int pageState: 1  // 页面状态 1-首页, 2-登记页面， 3-统计页面， 4-详情页面
+    property int pageState: 0  // 页面状态 0-登录页, 1-首页, 2-登记页面， 3-统计页面， 4-详情页面
     property string username: ""
     property bool nextEnable: true
     property bool keyboardShow: false
@@ -35,6 +36,8 @@ Window {
 
     Component.onCompleted: {
         VirtualKeyboardSettings.activeLocales =  ["en_US","zh_CN"];
+//        console.log(VirtualKeyboardStyles)
+//        console.log(VirtualKeyboardSettings.style, 'xx');
 //        console.log(VirtualKeyboardSettings.style['keyboardDesignHeight'], 'dddddd');
 //        VirtualKeyboardSettings.style['keyboardDesignHeight'] = 200;
         timer.start();
@@ -51,6 +54,18 @@ Window {
     Connections {
         target: Qt.inputMethod
         function onVisibleChanged() {
+           console.log('inputVisible', Qt.inputMethod.visible)
+           if (Qt.inputMethod.visible) {
+               myScroll.contentHeight = grandbox.height - header.height - footer.height + screen.height * 0.3;
+               if (pageState == 0) {
+                   myScroll.ScrollBar.vertical.position = 0.15;
+               } else {
+                   myScroll.ScrollBar.vertical.position = 0.01;
+               }
+           } else {
+               myScroll.contentHeight = grandbox.height - header.height - footer.height;
+           }
+
            keyboardShow =  Qt.inputMethod.visible;
         }
     }
@@ -71,12 +86,14 @@ Window {
                 settingText.text = "下一个";
                 pageState = 2;
                 nextEnable = true;
+                myScroll.contentHeight = grandbox.height - header.height - footer.height;
             } else if (state == 1) {
                 homeSrc.modifyPageState(1);
                 content.push('./home.qml');
                 username = obj['username'];
-                loginPage = false;
+//                loginPage = false;
                 pageState = 1;
+                myScroll.contentHeight = grandbox.height - header.height - footer.height;
             } else if (state == 3) {
                 homeSrc.modifyPageState(3);
                 const item = content.push('./BagRecord.qml');
@@ -85,10 +102,12 @@ Window {
 //                StackView子组件传递信号案例
 //                item.compTest.connect(onCompTest);
                 pageState = 3;
+                myScroll.contentHeight = grandbox.height - header.height - footer.height;
             } else if (state == 4) {
                 homeSrc.modifyPageState(4);
                 content.push('./BagDetail.qml', {bagInfo: obj});
                 pageState = 4;
+                myScroll.contentHeight = grandbox.height - header.height - footer.height;
             }
         }
         function onModifyOpacity(opacity) {
@@ -171,6 +190,7 @@ Window {
 
     Rectangle {
         //        visible: false
+        id: grandbox
         anchors.fill: parent
         opacity: mainOpacity
         MouseArea {
@@ -200,11 +220,14 @@ Window {
         //        }
 
         Rectangle {
+            z: 3
             id: header
             width: parent.width
-            height: loginPage ? 0 : 60
+//            height: 60
+            height: pageState == 0 ? 0 : 60
             //            height: Math.min(parent.height / 12, 40)
             color: "#203864"
+            visible: pageState != 0
             Image {
                 anchors.left: parent.left
                 anchors.top: parent.top
@@ -287,7 +310,7 @@ Window {
         Rectangle {
             id: footer
             width: parent.width
-            height: loginPage ? 0 : Math.min(parent.height / 5 * 0.75, 80)
+            height: pageState == 0 ? 0 : Math.min(parent.height / 5 * 0.75, 80)
             color: "#203864"
             anchors.bottom: parent.bottom
             Rectangle {
@@ -319,8 +342,8 @@ Window {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        console.log('change page', pageState)
                         if (pageState == 2) {
+                            myScroll.contentHeight = grandbox.height - header.height - footer.height;
                             homeSrc.modifyPageState(1);
                             pageState = 1;
                             search.source = './images/search.jpg';
@@ -330,12 +353,14 @@ Window {
                             content.pop()
                             //                            dealStack()
                         } else if (pageState == 3) {
+//                            myScroll.contentHeight = grandbox.height - header.height - footer.height;
                             homeSrc.modifyPageState(1);
                             pageState = 1;
                             search.source = './images/search.jpg';
                             searchText.text = "查询";
                             content.pop();
                         } else if (pageState == 4) {
+//                            myScroll.contentHeight = grandbox.height - header.height - footer.height;
                             homeSrc.modifyPageState(3);
                             pageState = 3;
                             content.pop();
@@ -500,10 +525,11 @@ Window {
                                 onClicked: {
                                     if (pageState == 1) {
                                         homeSrc.modifyPageState(0);
+                                        pageState = 0;
                                         content.pop();
                                         backPopup.close()
-                                        loginPage = true;
-                                        console.log('goout')
+//                                        loginPage = true;
+//                                        console.log('goout')
                                     }
                                 }
                             }
@@ -524,108 +550,126 @@ Window {
 //        InputPanel {
 //            id: keyboardArea
 //            anchors.bottom: parent.bottom
+////            x: 0
+////            y: 0
 //            width: parent.width
-//            active: false
+//            visible: keyboardShow
+////            height: screen.height / 3
+////            visible: false
 //        }
 
 //        Binding {
 //            target: keyboardArea.keyboard.style
 //            property: 'keyboardDesignHeight'
-//            value: screen.height / 2.5
+//            value: screen.height * 0.6
 //        }
 
-        StackView {
-            id: content
-//            anchors.left: parent.left
-//            anchors.right: parent.right
-//            anchors.top: header.bottom
-//            anchors.bottom: footer.top
-            x: 0
-            y: loginPage && keyboardShow ? 0 - screen.height / 3 : (loginPage ? 0 : header.height)
-            width: parent.width
-            height: loginPage ? parent.height : parent.height - header.height - footer.height
-            pushEnter: Transition {
+        ScrollView {
+            id: myScroll
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: header.bottom
+            anchors.bottom: footer.top
+            contentHeight: grandbox.height - header.height - footer.height
+            ScrollBar.vertical.policy: ScrollBar.AlwaysOff
+            StackView {
+                id: content
+                anchors.left: parent.left
+                anchors.top: parent.top
+                height: grandbox.height - header.height - footer.height
+                width: parent.width
+//                anchors.left: parent.left
+//                anchors.right: parent.right
+//                anchors.top: header.bottom
+//                anchors.bottom: footer.top
+    //            x: 0
+    //            y: loginPage && keyboardShow ? 0 - screen.height / 3 : (loginPage ? 0 : header.height)
+    //            width: parent.width
+    //            height: loginPage ? parent.height : parent.height - header.height - footer.height
+                pushEnter: Transition {
 
+                }
+                pushExit: Transition {
+
+                }
+                popEnter: Transition {
+
+                }
+                popExit: Transition {
+
+                }
+                replaceEnter: Transition {
+
+                }
+                replaceExit: Transition {
+
+                }
+
+                NumberAnimation {
+                    target: content
+                    property: "y"
+                    duration: 1500
+                    easing.type: Easing.Linear
+                }
+
+                //            Connections {
+                //                target: root
+                //                function onDealStack() {
+                //                    console.log('aasfs', content.depth)
+                //                    content.pop();
+                //                }
+                //            }
+
+                //            function onRegisterBag(bagId) {
+                //                console.log("getBagId", bagId)
+                //                content.push('./identity.qml');
+                //                search.source = './images/new-home.png';
+                //                searchText.text = "返回";
+                //                setting.source = "./images/next.png";
+                //                settingText.text = "下一个";
+                //                pageState = 2;
+                //            }
+
+    //            Loader {
+    //                id: loader
+    //                anchors.fill: parent
+    //                //                sourceComponent: comp
+    //                //                source: './home.qml'
+    //                //                source: './identity.qml'
+    //                //                source: './scale.qml'
+    //                //                source: './login.qml'
+    //                //                source: './rotate.qml'
+    //                //                source: './BagRecord.qml'
+    //                //                source: './BagDetail.qml'
+    //                //                source: './scroll.qml'
+    //                Connections {
+    //                    target: loader.item
+    //                    ignoreUnknownSignals: true
+    //                    function onModifyOpacity(opacity) {
+    //                        //                        console.log("receive", opacity);
+    //                        mainOpacity = opacity;
+    //                    }
+    //                    function onLoginSuccess(status) {
+    //                        console.log(status)
+    //                        if (status) {
+    //                            loginPage = false;
+    //                            loader.source = './home.qml';
+    //                        }
+    //                    }
+    //                    function onRegisterBag(bagId) {
+    //                        console.log("getBagId", bagId)
+    //                        content.push('./identity.qml');
+    //                        search.source = './images/new-home.png';
+    //                        searchText.text = "返回";
+    //                        setting.source = "./images/next.png";
+    //                        settingText.text = "下一个";
+    //                        pageState = 2;
+    //                    }
+    //                }
+    //            }
             }
-            pushExit: Transition {
-
-            }
-            popEnter: Transition {
-
-            }
-            popExit: Transition {
-
-            }
-            replaceEnter: Transition {
-
-            }
-            replaceExit: Transition {
-
-            }
-
-            NumberAnimation {
-                target: content
-                property: "y"
-                duration: 1500
-                easing.type: Easing.Linear
-            }
-
-            //            Connections {
-            //                target: root
-            //                function onDealStack() {
-            //                    console.log('aasfs', content.depth)
-            //                    content.pop();
-            //                }
-            //            }
-
-            //            function onRegisterBag(bagId) {
-            //                console.log("getBagId", bagId)
-            //                content.push('./identity.qml');
-            //                search.source = './images/new-home.png';
-            //                searchText.text = "返回";
-            //                setting.source = "./images/next.png";
-            //                settingText.text = "下一个";
-            //                pageState = 2;
-            //            }
-
-//            Loader {
-//                id: loader
-//                anchors.fill: parent
-//                //                sourceComponent: comp
-//                //                source: './home.qml'
-//                //                source: './identity.qml'
-//                //                source: './scale.qml'
-//                //                source: './login.qml'
-//                //                source: './rotate.qml'
-//                //                source: './BagRecord.qml'
-//                //                source: './BagDetail.qml'
-//                //                source: './scroll.qml'
-//                Connections {
-//                    target: loader.item
-//                    ignoreUnknownSignals: true
-//                    function onModifyOpacity(opacity) {
-//                        //                        console.log("receive", opacity);
-//                        mainOpacity = opacity;
-//                    }
-//                    function onLoginSuccess(status) {
-//                        console.log(status)
-//                        if (status) {
-//                            loginPage = false;
-//                            loader.source = './home.qml';
-//                        }
-//                    }
-//                    function onRegisterBag(bagId) {
-//                        console.log("getBagId", bagId)
-//                        content.push('./identity.qml');
-//                        search.source = './images/new-home.png';
-//                        searchText.text = "返回";
-//                        setting.source = "./images/next.png";
-//                        settingText.text = "下一个";
-//                        pageState = 2;
-//                    }
-//                }
-//            }
         }
+
         //        Component {
         //            id: comp
         //            Rectangle {

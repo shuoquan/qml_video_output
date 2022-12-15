@@ -99,7 +99,7 @@ Center::Center(QObject *parent) : QObject(parent)
                         //                    if(index)
                         //                        size = index;
                         size = 0;
-                        byteArr.resize(0);
+//                        byteArr.resize(0);
                         byteArr.remove(0, index);
                         break;
                     }

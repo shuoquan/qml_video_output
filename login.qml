@@ -34,7 +34,6 @@ Rectangle {
     }
 
     function login() {
-        console.log("123", userText.text, passwordText.text)
         if (!userText.text) {
             userMsg.text = "请输入用户名"
         } else {
@@ -144,6 +143,8 @@ Rectangle {
                         if (event.key === Qt.Key_Return) {
                             login();
                         }
+                    }
+                    onPressed: {
                     }
                 }
             }

@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 //    QQuickWindow::setSceneGraphBackend(QSGRendererInterface::VulkanRhi);
 //    QQuickWindow::setSceneGraphBackend(QSGRendererInterface::Unknown);
 //    qDebug() << QQuickWindow::sceneGraphBackend() << "--------";
-    qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
+//    qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
     QGuiApplication app(argc, argv);
 //    qDebug() << QDate::currentDate() << "时间";
     // 安装消息处理函数
@@ -57,8 +57,8 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("imagePrefix", config.imagePrefix);
 //    qmlRegisterType<VideoAdapter>("VideoAdapter", 1, 0, "VideoAdapter");
 
-//    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
-    engine.load(QUrl(QStringLiteral("qrc:/myKeyboard.qml")));
+    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+//    engine.load(QUrl(QStringLiteral("qrc:/myKeyboard.qml")));
 //    engine.
 
     if (engine.rootObjects().isEmpty())
