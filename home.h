@@ -43,6 +43,9 @@ public:
     void receiveBagStatisticReply(QNetworkReply *reply);
     void receiveLoginReply(QNetworkReply *reply);
     void receiveSubmitBagRegisterReply(QNetworkReply *reply);
+    void receiveAuditorListReply(QNetworkReply *reply);
+    void receiveStatisticDataReply(QNetworkReply *reply);
+    void receiveStatisticImageListReply(QNetworkReply *reply);
     Q_INVOKABLE void printLog(QString msg);
     Q_INVOKABLE void login(QString username, QString password);
     Q_INVOKABLE void saveToken(QString token);
@@ -57,6 +60,9 @@ public:
     Q_INVOKABLE void deleteHistoryPic();
     Q_INVOKABLE void changeNextStatus(bool flag);
     Q_INVOKABLE void modifyPageState(int pageState);
+    Q_INVOKABLE void getAuditorList(int page = 0, int pageSize = 1);
+    Q_INVOKABLE void getStatisticData(int startTime, int endTime, int auditorId = 0);
+    Q_INVOKABLE void getStatisticImageList(int startTime, int endTime, int auditorId = 0, int page = 0, int pageSize = 1, int typeId = 0);
 //    Q_INVOKABLE void getNext();
 
 signals:
@@ -66,6 +72,10 @@ signals:
     void modifyOpacity(double opacity);
     void modifyBagStatus(int bagId, int status);
     void modifyNextStatus(bool flag);
+    void sendAuditorList(QString auditorInfo);
+    void sendStatisticData(QString statisticData);
+    void sendStatisticImageList(QString statisticImageData);
+    void testSig(int num);
 //    void bagRegisterSuccess();
 public slots:
     void TimeOutSlot();

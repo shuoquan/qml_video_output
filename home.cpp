@@ -99,7 +99,7 @@ void Home::fetchBag(int bagId, int type, int ps, int pageState) {
 }
 
 void Home::getBagList(int startTime, int endTime, QString cat, QString user, QString auditor) {
-     QString url = urlPrefix + "/bag?start=" + QString::number(startTime) + "000" + "&end=" + QString::number(endTime) + "000";
+    QString url = urlPrefix + "/bag?start=" + QString::number(startTime) + "000" + "&end=" + QString::number(endTime) + "000";
     if (cat != "") {
          url += "&cat=" + cat;
      }
@@ -148,6 +148,13 @@ void Home::receiveBagStatisticReply(QNetworkReply *reply)
     emit sendBagInfo(res, 3);
 }
 
+void Home::receiveAuditorListReply(QNetworkReply *reply)
+{
+    QString res = reply->readAll();
+//    qDebug() << "receiveAuditorList" << res;
+    emit sendAuditorList(res);
+}
+
 void Home::receiveLoginReply(QNetworkReply *reply)
 {
     QString res = reply->readAll();
@@ -159,6 +166,10 @@ void Home::receiveSubmitBagRegisterReply(QNetworkReply *reply)
 {
     QString res = reply->readAll();
     qDebug() << "receiveSubmitBagRegisterReply" << res;
+    if (res == "") {
+        qDebug() << "submit bag success";
+        deleteHistoryPic();
+    }
 //    emit sendLoginRes(res);
 }
 
@@ -168,7 +179,7 @@ void Home::changeBagStatus(int bagId, int status) {
 
 void Home::deleteHistoryPic() {
     qDebug() << "delete file";
-    QDir dir("F:/pic");
+    QDir dir("C:/pic");
     if(!dir.exists())
     {
         return;
@@ -216,14 +227,85 @@ void Home::login(QString username, QString password) {
     loop.exec();
 }
 
+void Home::getAuditorList(int page, int pageSize) {
+    QString url = urlPrefix + "/user?p=" + QString::number(page) + "&ps=" + QString::number(pageSize);
+    qDebug() << "请求auditorList:" << url;
+    QNetworkRequest request;
+    QNetworkAccessManager manager;
+    connect(&manager, &QNetworkAccessManager::finished, this, &Home::receiveAuditorListReply);
+
+    request.setUrl(QUrl(url));
+    request.setHeader(QNetworkRequest::ContentTypeHeader,QVariant("application/json;charset=utf-8"));
+    QNetworkReply *reply = manager.get(request);    //get请求头
+
+    QEventLoop loop;
+    connect(reply,&QNetworkReply::finished,&loop,&QEventLoop::quit);
+    loop.exec();
+}
+
+void Home::getStatisticData(int startTime, int endTime, int auditorId) {
+//    "&start=" + QString::number(todayTimeStamp) + "000";
+    QString url = urlPrefix + "/statistic?start=" + QString::number(startTime) + "000" + "&end=" + QString::number(endTime) + "000";
+    if (auditorId) {
+        url += "&uid=" + QString::number(auditorId);
+    }
+    qDebug() << "请求statisticData:" << url;
+    QNetworkRequest request;
+    QNetworkAccessManager manager;
+    connect(&manager, &QNetworkAccessManager::finished, this, &Home::receiveStatisticDataReply);
+
+    request.setUrl(QUrl(url));
+    request.setHeader(QNetworkRequest::ContentTypeHeader,QVariant("application/json;charset=utf-8"));
+    QNetworkReply *reply = manager.get(request);    //get请求头
+
+    QEventLoop loop;
+    connect(reply,&QNetworkReply::finished,&loop,&QEventLoop::quit);
+    loop.exec();
+}
+
+void Home::receiveStatisticDataReply(QNetworkReply *reply)
+{
+    QString res = reply->readAll();
+    qDebug() << "receiveStatisticDataReply" << res;
+    emit sendStatisticData(res);
+}
+
+void Home::getStatisticImageList(int startTime, int endTime, int auditorId, int page, int pageSize, int typeId) {
+    QString url = urlPrefix + "/statistic/image?start=" + QString::number(startTime) + "000" + "&end=" + QString::number(endTime) + "000";
+    if (auditorId) {
+        url += "&uid=" + QString::number(auditorId);
+    }
+    if (typeId >= 0 && typeId <= 3) {
+        url += "&tid=" + QString::number(typeId);
+    }
+    url += "&p=" + QString::number(page) + "&ps=" + QString::number(pageSize);
+    qDebug() << "请求statisticImageList:" << url;
+    QNetworkRequest request;
+    QNetworkAccessManager manager;
+    connect(&manager, &QNetworkAccessManager::finished, this, &Home::receiveStatisticImageListReply);
+
+    request.setUrl(QUrl(url));
+    request.setHeader(QNetworkRequest::ContentTypeHeader,QVariant("application/json;charset=utf-8"));
+    QNetworkReply *reply = manager.get(request);    //get请求头
+
+    QEventLoop loop;
+    connect(reply,&QNetworkReply::finished,&loop,&QEventLoop::quit);
+    loop.exec();
+}
+
+void Home::receiveStatisticImageListReply(QNetworkReply *reply)
+{
+    QString res = reply->readAll();
+    qDebug() << "receiveStatisticImageListReply" << res;
+    emit sendStatisticImageList(res);
+}
+
 void Home::saveToken(QString token) {
     config.token = token;
 //    qDebug() << config.token << "1";
 }
 
 void Home::submitBagRegisterInfo(QString userInfo, QString categoryInfo, int bagStatus) {
-    qDebug() << "d";
-    qDebug() << userInfo << categoryInfo;
     QJsonDocument userDoc = QJsonDocument::fromJson(userInfo.toUtf8());
     QJsonObject userObj = userDoc.object();
     QString userPic = userObj["userPic"].toString();

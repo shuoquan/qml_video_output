@@ -12,5 +12,10 @@
         <file>CategoryItem.qml</file>
         <file>BagRecord.qml</file>
         <file>BagDetail.qml</file>
+        <file>scroll.qml</file>
+        <file>blank.qml</file>
+        <file>myKeyboard.qml</file>
+        <file>statistic.qml</file>
+        <file>ImageStatistic.qml</file>
     </qresource>
 </RCC>

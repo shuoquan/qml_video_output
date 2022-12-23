@@ -25,7 +25,7 @@ Window {
     property bool fullScreen: true
     property double mainOpacity: 1
     property bool loginPage: true
-    property int pageState: 0  // 页面状态 0-登录页, 1-首页, 2-登记页面， 3-统计页面， 4-详情页面
+    property int pageState: 0  // 页面状态 0-登录页, 1-首页, 2-登记页面, 3-查询页面, 4-详情页面, 5-统计页面, 6-统计图片列表
     property string username: ""
     property bool nextEnable: true
     property bool keyboardShow: false
@@ -48,6 +48,7 @@ Window {
 //        loginPage = false;
 //        homeSrc.modifyPageState(1);
 //        pageState = 1;
+//        content.push('./statistic.qml')
           content.push('./login.qml');
     }
 
@@ -107,6 +108,20 @@ Window {
                 homeSrc.modifyPageState(4);
                 content.push('./BagDetail.qml', {bagInfo: obj});
                 pageState = 4;
+                myScroll.contentHeight = grandbox.height - header.height - footer.height;
+            } else if(state == 5) {
+                homeSrc.modifyPageState(5);
+                const item = content.push('./statistic.qml');
+                search.source = './images/new-home.png';
+                searchText.text = "返回";
+                pageState = 5;
+                myScroll.contentHeight = grandbox.height - header.height - footer.height;
+            } else if(state == 6) {
+                homeSrc.modifyPageState(6);
+                const item = content.push('./ImageStatistic.qml', {params: obj});
+//                search.source = './images/new-home.png';
+//                searchText.text = "返回";
+                pageState = 6;
                 myScroll.contentHeight = grandbox.height - header.height - footer.height;
             }
         }
@@ -193,12 +208,12 @@ Window {
         id: grandbox
         anchors.fill: parent
         opacity: mainOpacity
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                //                back.visible = false;
-            }
-        }
+//        MouseArea {
+//            anchors.fill: parent
+//            onClicked: {
+//                //                back.visible = false;
+//            }
+//        }
 
         //        Keys.enabled: true
         //        focus: true
@@ -364,6 +379,18 @@ Window {
                             homeSrc.modifyPageState(3);
                             pageState = 3;
                             content.pop();
+                        } else if (pageState == 1) {
+                            homeSrc.goToPage(3);
+                        } else if (pageState == 5) {
+                            homeSrc.modifyPageState(1);
+                            pageState = 1;
+                            search.source = './images/search.jpg';
+                            searchText.text = "查询";
+                            content.pop();
+                        } else if(pageState == 6) {
+                            homeSrc.modifyPageState(5);
+                            pageState = 5;
+                            content.pop();
                         }
                     }
                 }
@@ -408,7 +435,7 @@ Window {
                     onClicked: {
                         console.log('go to statistic page')
                         if (pageState == 1) {
-                            homeSrc.goToPage(3);
+                            homeSrc.goToPage(5);
                         }
                     }
                 }
@@ -420,7 +447,7 @@ Window {
                 anchors.right: parent.right
                 color: "#3664b1"
                 width: Math.max(parent.width / 12, 100)
-                visible: pageState != 3 && pageState != 4
+                visible: ![3, 4, 5, 6].includes(pageState)
                 Image {
                     id: setting
                     anchors.left: parent.left
