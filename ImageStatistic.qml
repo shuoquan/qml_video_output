@@ -22,7 +22,7 @@ Rectangle {
     property var qmlObject: []
     property var params: ({})
     Component.onCompleted: {
-        //        imagePath = imagePrefix;
+        imagePath = imagePrefix;
         homeSrc.getAuditorList(0, 100);
         auditorName = params.auditorName;
         console.log(new Date(params.startTime).getDate(), 'time')
@@ -62,7 +62,9 @@ Rectangle {
     }
 
     function getStatisticImageList() {
-        homeSrc.getStatisticImageList(startTime / 1000, endTime / 1000, (auditorList.find(v=>v.username == auditorName) || {}).id || 0, 0, 100, (typeOptions.find(v=>v.value == typeName) || {}).id || 0)
+        if (startTime > 0 && endTime > 0) {
+            homeSrc.getStatisticImageList(startTime / 1000, endTime / 1000, (auditorList.find(v=>v.username == auditorName) || {}).id || 0, 0, 100, (typeOptions.find(v=>v.value == typeName) || {}).id || 0)
+        }
     }
 
     MouseArea {

@@ -60,11 +60,15 @@ Rectangle {
         endTime = startTime + 86400000;
         leftTime.text = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
         rightTime.text = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
+//        console.log('111')
         getStatisticData();
     }
 
     function getStatisticData() {
-        homeSrc.getStatisticData(startTime / 1000, endTime / 1000, (auditorList.find(v=>v.username == auditorName) || {}).id || 0);
+//        console.log(startTime, endTime, '----')
+        if (startTime > 0 && endTime > 0) {
+            homeSrc.getStatisticData(startTime / 1000, endTime / 1000, (auditorList.find(v=>v.username == auditorName) || {}).id || 0);
+        }
     }
 
     function goToImageList() {
@@ -221,6 +225,7 @@ Rectangle {
                             onClicked: {
                                 auditorName = auditorList[index].username
                                 auditorPopup.close()
+//                                console.log('2222')
                                 getStatisticData();
                             }
                         }
@@ -278,6 +283,7 @@ Rectangle {
                     const time =  Date.fromLocaleString(Qt.locale(), curTime, "dd/MM/yyyy")
                     startTime = new Date(time).getTime();
                     leftCalendar = false;
+//                    console.log('333')
                     getStatisticData();
                 }
             }
@@ -321,6 +327,7 @@ Rectangle {
                     const time =  Date.fromLocaleString(Qt.locale(), curTime, "dd/MM/yyyy")
                     endTime = new Date(time).getTime() + 86400000;
                     rightCalendar = false;
+//                    console.log('4444')
                     getStatisticData();
                 }
             }

@@ -162,7 +162,9 @@ Rectangle {
 
     function getBagList() {
         console.log(startTime, endTime, categoryName, userText.text, auditorName.text)
-        homeSrc.getBagList(startTime / 1000, endTime / 1000, categoryName == "类别" ? "" : categoryName, userText.text, auditorName.text);
+        if (startTime > 0 && endTime > 0) {
+            homeSrc.getBagList(startTime / 1000, endTime / 1000, categoryName == "类别" ? "" : categoryName, userText.text, auditorName.text);
+        }
     }
 
     Rectangle {
