@@ -15,6 +15,7 @@ Rectangle {
     property int categoryIndex: -1
     property var categoryList: []
     property var bagInfo: ({})
+    property var preBagInfo: ({})
     property string imagePath: ""
     property var userPicMap: ({})
     property string curUserPath: ''
@@ -32,64 +33,89 @@ Rectangle {
         //        camera.setCameraState(Camera.UnloadedState);
         //        camera.stop();
         imagePath = imagePrefix;
-        console.log(JSON.stringify(bagInfo), 'test')
+//        console.log(JSON.stringify(bagInfo), 'test')
+        preBagInfo = JSON.parse(JSON.stringify(bagInfo));
         categoryList = [
                     {
                         id: 1,
-                        name: '刀具',
-                    },
-                    {
-                        id: 2,
-                        name: '枪支',
-                    },
-                    {
-                        id: 3,
-                        name: '弹药',
-                    },
-                    {
-                        id: 4,
-                        name: '警械',
-                    },
-                    {
-                        id: 5,
-                        name: '爆炸物',
-                    },
-                    {
-                        id: 6,
-                        name: '烟花爆竹',
-                    },
-                    {
-                        id: 7,
-                        name: '危险液体',
-                    },
-                    {
-                        id: 8,
                         name: '压力罐',
                     },
                     {
-                        id: 9,
-                        name: '锤子斧头',
+                        id: 2,
+                        name: '警用器械',
                     },
                     {
-                        id: 10,
-                        name: '蓄电池',
+                        id: 3,
+                        name: '易燃易爆物',
                     },
                     {
-                        id: 11,
-                        name: '移动电源',
+                        id: 4,
+                        name: '刀具',
                     },
                     {
-                        id: 12,
-                        name: '打火机',
+                        id: 5,
+                        name: '危险液体',
                     },
                     {
-                        id: 13,
-                        name: '未知',
-                    },
-                    {
-                        id: 14,
+                        id: 6,
                         name: '其他',
                     }
+//                    {
+//                        id: 1,
+//                        name: '刀具',
+//                    },
+//                    {
+//                        id: 2,
+//                        name: '枪支',
+//                    },
+//                    {
+//                        id: 3,
+//                        name: '弹药',
+//                    },
+//                    {
+//                        id: 4,
+//                        name: '警械',
+//                    },
+//                    {
+//                        id: 5,
+//                        name: '爆炸物',
+//                    },
+//                    {
+//                        id: 6,
+//                        name: '烟花爆竹',
+//                    },
+//                    {
+//                        id: 7,
+//                        name: '危险液体',
+//                    },
+//                    {
+//                        id: 8,
+//                        name: '压力罐',
+//                    },
+//                    {
+//                        id: 9,
+//                        name: '锤子斧头',
+//                    },
+//                    {
+//                        id: 10,
+//                        name: '蓄电池',
+//                    },
+//                    {
+//                        id: 11,
+//                        name: '移动电源',
+//                    },
+//                    {
+//                        id: 12,
+//                        name: '打火机',
+//                    },
+//                    {
+//                        id: 13,
+//                        name: '未知',
+//                    },
+//                    {
+//                        id: 14,
+//                        name: '其他',
+//                    }
                 ];
         //        console.log(JSON.stringify(categoryList))
         //        timer.start()
@@ -99,6 +125,7 @@ Rectangle {
         target: root
         function onGetNext() {
 //            console.log('ss', bagStaus, nameInputText.text, phoneInputText.text, userPicSource);
+            if (!bagInfo.id) return;
             const submitCategoryList = [];
             for(let i=0; i<categoryModel.count; i++) {
                 console.log(JSON.stringify(categoryModel.get(i)))
@@ -139,31 +166,33 @@ Rectangle {
             }
 //            console.log(bagListInfo, '222222222', pageState);
             const bagList = JSON.parse(bagListInfo || '[]');
+//            if (bagList.length == 0 && !bagInfo.id) return;
+            while (qmlObject.length) {
+                const curQml = qmlObject.pop();
+                curQml.destroy();
+            }
+            while (popQmlObject.length) {
+                const curQml = popQmlObject.pop();
+                curQml.destroy();
+            }
+            if (categoryModel.count) {
+                categoryModel.remove(0, categoryModel.count);
+                categoryModel.append( {
+                                         categoryName: "类别",
+                                         imageSource: '',
+                                         selectActive: false
+                                     })
+            }
+            nameInputText.text = '';
+            phoneInputText.text = '';
+            bagStaus = 2;
+            userPicSource = './images/camera.png';
+            categoryModelPicMap = {};
+            curModelPicPath = "";
+            categoryIndex = -1;
+            //                bagInfo = {};
+            const curBag = bagList[0];
             if (bagList.length) {
-                while (qmlObject.length) {
-                    const curQml = qmlObject.pop();
-                    curQml.destroy();
-                }
-                while (popQmlObject.length) {
-                    const curQml = popQmlObject.pop();
-                    curQml.destroy();
-                }
-                if (categoryModel.count) {
-                    categoryModel.remove(0, categoryModel.count);
-                    categoryModel.append( {
-                                             categoryName: "类别",
-                                             imageSource: '',
-                                             selectActive: false
-                                         })
-                }
-                nameInputText.text = '';
-                phoneInputText.text = '';
-                bagStaus = 2;
-                userPicSource = './images/camera.png';
-                categoryModelPicMap = {};
-                curModelPicPath = "";
-                //                bagInfo = {};
-                const curBag = bagList[0];
                 //                bagInfo = JSON.parse(JSON.stringify(bagList[0]));
                 const date = new Date(curBag.block_create_at);
                 const time = date.getFullYear().toString() +
@@ -186,9 +215,13 @@ Rectangle {
                 curBag.y1 = Math.max(bagCoordinateList[1], bagCoordinateList[3]);
                 curBag.unpackBoxInfoList = JSON.stringify(curBag.unpackBoxInfoList || []);
                 bagInfo = JSON.parse(JSON.stringify(curBag));
+                preBagInfo = JSON.parse(JSON.stringify(curBag));
+//                console.log('-----------fa', JSON.stringify(preBagInfo));
                 homeSrc.changeNextStatus(true);
 //                homeSrc.deleteHistoryPic();
             } else {
+                bagInfo = JSON.parse('{}');
+//                console.log(bagInfo.id, '-----', JSON.stringify(bagInfo))
 //                console.log(timer.running);
                 if (!timerStart) {
                     timer.start();
@@ -204,8 +237,8 @@ Rectangle {
         interval: 5000
         triggeredOnStart: false
         onTriggered: {
-            console.log('start timer to fetch bag')
-            homeSrc.fetchBag(bagInfo.id, 1, 1, 2);
+//            console.log('start timer to fetch bag', JSON.stringify(preBagInfo))
+            homeSrc.fetchBag(preBagInfo.id, 1, 1, 2);
         }
     }
 
@@ -243,6 +276,7 @@ Rectangle {
             //            color: "#f2f2f2"
             Image {
                 id: popImage
+                visible: !!bagInfo.block_path
                 source: imagePath + bagInfo.block_path
                 fillMode: Image.PreserveAspectFit
                 anchors.centerIn: parent
@@ -252,6 +286,7 @@ Rectangle {
                 sourceSize.height: bagInfo.block_height
                 sourceClipRect: Qt.rect(bagInfo.x0,bagInfo.y0,bagInfo.x1-bagInfo.x0,bagInfo.y1-bagInfo.y0)
                 onStatusChanged:   {
+                    if (!bagInfo.id) return;
                     const {x0,x1,y0,y1,unpackBoxInfoList,box} = bagInfo;
                     const heightRatio = popImage.height / (y1-y0);
                     const widthRatio = popImage.width / (x1-x0);
@@ -271,6 +306,7 @@ Rectangle {
                             const leftTopY = Math.min(pointList[1], pointList[3]);
                             const rightBottomX = Math.max(pointList[0], pointList[2]);
                             const rightBottomY = Math.max(pointList[1], pointList[3]);
+                            const categoryName = box.categoryName;
                             // 超出区局部分不显示
                             if (leftTopX<x0 || leftTopY < y0 || rightBottomX > x1 || rightBottomY > y1) {
                                 continue;
@@ -288,6 +324,14 @@ Rectangle {
                                                                   anchors.leftMargin: ${leftTopX - x0} * Math.min(popImage.height / (bagInfo.y1-bagInfo.y0), popImage.width / (bagInfo.x1-bagInfo.x0)) + (popImage.width - (bagInfo.x1-bagInfo.x0)*Math.min(popImage.height / (bagInfo.y1-bagInfo.y0), popImage.width / (bagInfo.x1-bagInfo.x0))) / 2
                                                                   anchors.topMargin: ${leftTopY - y0} * Math.min(popImage.height / (bagInfo.y1-bagInfo.y0), popImage.width / (bagInfo.x1-bagInfo.x0))
                                                                   color: 'transparent'
+                                                                  Text {
+                                                                       text: '${categoryName}'
+                                                                       anchors.left: parent.left
+                                                                       anchors.top: parent.top
+                                                                       font.family: "微软雅黑"
+                                                                       font.pixelSize: 20
+                                                                       color: "red"
+                                                                     }
                                                                   }
                                                                   `,
                                                                   parent, `myItem${box.id}`))
@@ -305,6 +349,14 @@ Rectangle {
                                                                   anchors.leftMargin: ${leftTopX - x0} * Math.min(popImage.height / (bagInfo.y1-bagInfo.y0), popImage.width / (bagInfo.x1-bagInfo.x0))
                                                                   anchors.topMargin: ${leftTopY - y0} * Math.min(popImage.height / (bagInfo.y1-bagInfo.y0), popImage.width / (bagInfo.x1-bagInfo.x0)) + (popImage.height - (bagInfo.y1-bagInfo.y0)*Math.min(popImage.height / (bagInfo.y1-bagInfo.y0), popImage.width / (bagInfo.x1-bagInfo.x0))) / 2
                                                                   color: 'transparent'
+                                                                  Text {
+                                                                       text: '${categoryName}'
+                                                                       anchors.left: parent.left
+                                                                       anchors.top: parent.top
+                                                                       font.family: "微软雅黑"
+                                                                       font.pixelSize: 20
+                                                                       color: "red"
+                                                                     }
                                                                   }
                                                                   `,
                                                                   parent, `myItem${box.id}`))
@@ -695,7 +747,7 @@ Rectangle {
                     radius: 10
                     color: "#EC9A0F"
                     Text {
-                        text: bagInfo.id - (bagInfo.minIndex || 0) + 1001
+                        text: bagInfo.id ? bagInfo.id - (bagInfo.minIndex || 0) + 1001 : ''
                         anchors.centerIn: parent
                         font.family: "微软雅黑"
                         font.pixelSize: bagNum.width / 4
@@ -703,7 +755,8 @@ Rectangle {
                     }
                 }
                 Text {
-                    text: bagInfo.block_create_at
+                    text: bagInfo.id ? bagInfo.block_create_at : ''
+//                    text: bagInfo.id
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.left: bagNum.right
                     anchors.leftMargin: bagNum.width / 2
@@ -729,6 +782,7 @@ Rectangle {
                     border.color: "#BFBFBF"
                     Image {
                         id: image
+                        visible: !!bagInfo.block_path
                         source: imagePath + bagInfo.block_path
                         fillMode: Image.PreserveAspectFit
                         anchors.centerIn: parent
@@ -738,6 +792,7 @@ Rectangle {
                         sourceSize.height: bagInfo.block_height
                         sourceClipRect: Qt.rect(bagInfo.x0,bagInfo.y0,bagInfo.x1-bagInfo.x0,bagInfo.y1-bagInfo.y0)
                         onStatusChanged:   {
+                            if (!bagInfo.id) return;
                             const {x0,x1,y0,y1,unpackBoxInfoList,box} = bagInfo;
                             const heightRatio = image.height / (y1-y0);
                             const widthRatio = image.width / (x1-x0);
@@ -757,6 +812,7 @@ Rectangle {
                                     const leftTopY = Math.min(pointList[1], pointList[3]);
                                     const rightBottomX = Math.max(pointList[0], pointList[2]);
                                     const rightBottomY = Math.max(pointList[1], pointList[3]);
+                                    const categoryName = box.categoryName;
                                     // 超出区局部分不显示
                                     if (leftTopX<x0 || leftTopY < y0 || rightBottomX > x1 || rightBottomY > y1) {
                                         continue;
@@ -774,6 +830,14 @@ Rectangle {
                                                            anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0)) + (image.width - (bagInfo.x1-bagInfo.x0)*Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))) / 2
                                                            anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))
                                                            color: 'transparent'
+                                                           Text {
+                                                              text: '${categoryName}'
+                                                              anchors.left: parent.left
+                                                              anchors.top: parent.top
+                                                              font.family: "微软雅黑"
+                                                              font.pixelSize: 20
+                                                              color: "red"
+                                                            }
                                                            }
                                                            `,
                                                            parent, `myItem${box.id}`))
@@ -791,6 +855,14 @@ Rectangle {
                                                            anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))
                                                            anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0)) + (image.height - (bagInfo.y1-bagInfo.y0)*Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))) / 2
                                                            color: 'transparent'
+                                                           Text {
+                                                              text: '${categoryName}'
+                                                              anchors.left: parent.left
+                                                              anchors.top: parent.top
+                                                              font.family: "微软雅黑"
+                                                              font.pixelSize: 20
+                                                              color: "red"
+                                                            }
                                                            }
                                                            `,
                                                            parent, `myItem${box.id}`))
@@ -1060,7 +1132,7 @@ Rectangle {
                                         //                                        parent: Overlay.overlay
                                         //                                        anchors.left: selectArea.right
                                         width: selectArea.width * 2 + 2
-                                        height: selectArea.height * 7 + 12
+                                        height: selectArea.height * 3 + 4
                                         //                                        color: "#d9d9d9"
                                         //                                        anchors.top: parent.top
                                         //                                        visible: selectActive

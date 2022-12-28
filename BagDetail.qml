@@ -145,6 +145,7 @@ Rectangle {
                                             const leftTopY = Math.min(pointList[1], pointList[3]);
                                             const rightBottomX = Math.max(pointList[0], pointList[2]);
                                             const rightBottomY = Math.max(pointList[1], pointList[3]);
+                                            const categoryName = box.categoryName;
                                             // 超出区局部分不显示
                                             if (leftTopX<x0 || leftTopY < y0 || rightBottomX > x1 || rightBottomY > y1) {
                                                 continue;
@@ -162,6 +163,14 @@ Rectangle {
                                                                    anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0)) + (image.width - (bagInfo.x1-bagInfo.x0)*Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))) / 2
                                                                    anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))
                                                                    color: 'transparent'
+                                                                   Text {
+                                                                    text: '${categoryName}'
+                                                                    anchors.left: parent.left
+                                                                    anchors.top: parent.top
+                                                                    font.family: "微软雅黑"
+                                                                    font.pixelSize: 20
+                                                                    color: "red"
+                                                                  }
                                                                    }
                                                                    `,
                                                                    parent, `myItem${box.id}`);
@@ -179,6 +188,14 @@ Rectangle {
                                                                    anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))
                                                                    anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0)) + (image.height - (bagInfo.y1-bagInfo.y0)*Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))) / 2
                                                                    color: 'transparent'
+                                                                   Text {
+                                                                    text: '${categoryName}'
+                                                                    anchors.left: parent.left
+                                                                    anchors.top: parent.top
+                                                                    font.family: "微软雅黑"
+                                                                    font.pixelSize: 20
+                                                                    color: "red"
+                                                                  }
                                                                    }
                                                                    `,
                                                                    parent, `myItem${box.id}`);
@@ -610,6 +627,7 @@ Rectangle {
                         const leftTopY = Math.min(pointList[1], pointList[3]);
                         const rightBottomX = Math.max(pointList[0], pointList[2]);
                         const rightBottomY = Math.max(pointList[1], pointList[3]);
+                        const categoryName = box.categoryName;
                         // 超出区局部分不显示
                         if (leftTopX<x0 || leftTopY < y0 || rightBottomX > x1 || rightBottomY > y1) {
                             continue;
@@ -627,6 +645,14 @@ Rectangle {
                                                anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0)) + (image.width - (bagInfo.x1-bagInfo.x0)*Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))) / 2
                                                anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))
                                                color: 'transparent'
+                                               Text {
+                                                 text: '${categoryName}'
+                                                 anchors.left: parent.left
+                                                 anchors.top: parent.top
+                                                 font.family: "微软雅黑"
+                                                 font.pixelSize: 20
+                                                 color: "red"
+                                                }
                                                }
                                                `,
                                                parent, `myItem${box.id}`))
@@ -644,6 +670,14 @@ Rectangle {
                                                anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))
                                                anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0)) + (image.height - (bagInfo.y1-bagInfo.y0)*Math.min(image.height / (bagInfo.y1-bagInfo.y0), image.width / (bagInfo.x1-bagInfo.x0))) / 2
                                                color: 'transparent'
+                                               Text {
+                                                text: '${categoryName}'
+                                                anchors.left: parent.left
+                                                anchors.top: parent.top
+                                                font.family: "微软雅黑"
+                                                font.pixelSize: 20
+                                                color: "red"
+                                                }
                                                }
                                                `,
                                                parent, `myItem${box.id}`))

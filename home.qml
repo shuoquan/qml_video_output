@@ -323,8 +323,8 @@ Rectangle {
                                         const unpackBoxList = JSON.parse(unpackBoxInfoList);
                                         homeSrc.printLog(`比例信息:heightRatio:${heightRatio}:widthRatio:${widthRatio}`);
                                         for(const box of unpackBoxList) {
-                                            //                                                     console.log('box')
-                                            //                                                     console.log(JSON.stringify(box))
+//                                                                                                 console.log('box')
+//                                                                                                 console.log(JSON.stringify(box))
                                             // 处理矩形情况
                                             if (box.type == 1) {
                                                 const pointList = box.box.replace(/[(|)|{|}|"]/g, '').split(",").map(Number);
@@ -332,6 +332,8 @@ Rectangle {
                                                 const leftTopY = Math.min(pointList[1], pointList[3]);
                                                 const rightBottomX = Math.max(pointList[0], pointList[2]);
                                                 const rightBottomY = Math.max(pointList[1], pointList[3]);
+                                                const categoryName = box.categoryName;
+//                                                console.log(categoryName, 'categoryName')
                                                 // 超出区局部分不显示
                                                 if (leftTopX<x0 || leftTopY < y0 || rightBottomX > x1 || rightBottomY > y1) {
                                                     continue;
@@ -366,6 +368,14 @@ Rectangle {
                                                                        anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.width - (x1-x0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2
                                                                        anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
                                                                        color: 'transparent'
+                                                                       Text {
+                                                                          text: '${categoryName}'
+                                                                          anchors.left: parent.left
+                                                                          anchors.top: parent.top
+                                                                          font.family: "微软雅黑"
+                                                                          font.pixelSize: 20
+                                                                          color: "red"
+                                                                        }
                                                                        }
                                                                        `,
                                                                        parent, `myItem${box.id}`)
@@ -383,6 +393,14 @@ Rectangle {
                                                                        anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
                                                                        anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.height - (y1-y0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2
                                                                        color: 'transparent'
+                                                                       Text {
+                                                                          text: '${categoryName}'
+                                                                          anchors.left: parent.left
+                                                                          anchors.top: parent.top
+                                                                          font.family: "微软雅黑"
+                                                                          font.pixelSize: 20
+                                                                          color: "red"
+                                                                        }
                                                                        }
                                                                        `,
                                                                        parent, `myItem${box.id}`)

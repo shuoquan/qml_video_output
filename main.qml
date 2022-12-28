@@ -134,6 +134,11 @@ Window {
             if (pageState == 2) {
                 nextEnable = flag;
                 setting.source = flag ? "./images/next.png" :  "./images/next-dark.png"
+                if (flag) {
+                    settingText.text = "下一个";
+                } else {
+                    settingText.text = "暂无";
+                }
             }
         }
     }

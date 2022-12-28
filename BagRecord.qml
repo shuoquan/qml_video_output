@@ -24,60 +24,84 @@ Rectangle {
         categoryList = [
                     {
                         id: 1,
-                        name: '刀具',
-                    },
-                    {
-                        id: 2,
-                        name: '枪支',
-                    },
-                    {
-                        id: 3,
-                        name: '弹药',
-                    },
-                    {
-                        id: 4,
-                        name: '警械',
-                    },
-                    {
-                        id: 5,
-                        name: '爆炸物',
-                    },
-                    {
-                        id: 6,
-                        name: '烟花爆竹',
-                    },
-                    {
-                        id: 7,
-                        name: '危险液体',
-                    },
-                    {
-                        id: 8,
                         name: '压力罐',
                     },
                     {
-                        id: 9,
-                        name: '锤子斧头',
+                        id: 2,
+                        name: '警用器械',
                     },
                     {
-                        id: 10,
-                        name: '蓄电池',
+                        id: 3,
+                        name: '易燃易爆物',
                     },
                     {
-                        id: 11,
-                        name: '移动电源',
+                        id: 4,
+                        name: '刀具',
                     },
                     {
-                        id: 12,
-                        name: '打火机',
+                        id: 5,
+                        name: '危险液体',
                     },
                     {
-                        id: 13,
-                        name: '未知',
-                    },
-                    {
-                        id: 14,
+                        id: 6,
                         name: '其他',
                     }
+//                    {
+//                        id: 1,
+//                        name: '刀具',
+//                    },
+//                    {
+//                        id: 2,
+//                        name: '枪支',
+//                    },
+//                    {
+//                        id: 3,
+//                        name: '弹药',
+//                    },
+//                    {
+//                        id: 4,
+//                        name: '警械',
+//                    },
+//                    {
+//                        id: 5,
+//                        name: '爆炸物',
+//                    },
+//                    {
+//                        id: 6,
+//                        name: '烟花爆竹',
+//                    },
+//                    {
+//                        id: 7,
+//                        name: '危险液体',
+//                    },
+//                    {
+//                        id: 8,
+//                        name: '压力罐',
+//                    },
+//                    {
+//                        id: 9,
+//                        name: '锤子斧头',
+//                    },
+//                    {
+//                        id: 10,
+//                        name: '蓄电池',
+//                    },
+//                    {
+//                        id: 11,
+//                        name: '移动电源',
+//                    },
+//                    {
+//                        id: 12,
+//                        name: '打火机',
+//                    },
+//                    {
+//                        id: 13,
+//                        name: '未知',
+//                    },
+//                    {
+//                        id: 14,
+//                        name: '其他',
+//                    }
                 ];
         let date = new Date();
         const curTime = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`
@@ -333,7 +357,7 @@ Rectangle {
         Con2_1.Popup {
             id: categoryPopup
             width: categorySelect.width * 2 + 2
-            height: categorySelect.height * 7 + 12
+            height: categorySelect.height * 3 + 4
             x: dateSelect.width + parent.height / 20
             y: parent.height / 4 * 3 + 2
             padding: 0
@@ -459,7 +483,7 @@ Rectangle {
                 anchors.margins: 6
                 font.pointSize: parent.height / 5
                 focus: true
-                placeholderText: "开包员"
+                placeholderText: "判图员"
                 placeholderTextColor: "#7f7f7f"
                 verticalAlignment: TextInput.AlignVCenter
                 background: Rectangle {
@@ -624,7 +648,7 @@ Rectangle {
                     width: parent.width / 16 * 2
                     color: "transparent"
                     Text {
-                        text: "开包员"
+                        text: "判图员"
                         font.family: "微软雅黑"
                         font.pixelSize: parent.height / 4
                         anchors.centerIn: parent
@@ -788,7 +812,7 @@ Rectangle {
                                 width: parent.width / 16 * 2
                                 color: "transparent"
                                 Text {
-                                    text: unpack_auditor_name
+                                    text: auditor_name
                                     font.family: "微软雅黑"
                                     font.pixelSize: parent.height / 8
                                     anchors.centerIn: parent
@@ -831,6 +855,7 @@ Rectangle {
                                                     const leftTopY = Math.min(pointList[1], pointList[3]);
                                                     const rightBottomX = Math.max(pointList[0], pointList[2]);
                                                     const rightBottomY = Math.max(pointList[1], pointList[3]);
+                                                    const categoryName = box.categoryName;
                                                     // 超出区局部分不显示
                                                     if (leftTopX<x0 || leftTopY < y0 || rightBottomX > x1 || rightBottomY > y1) {
                                                         continue;
@@ -865,6 +890,14 @@ Rectangle {
                                                                            anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.width - (x1-x0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2
                                                                            anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
                                                                            color: 'transparent'
+                                                                           Text {
+                                                                              text: '${categoryName}'
+                                                                              anchors.left: parent.left
+                                                                              anchors.top: parent.top
+                                                                              font.family: "微软雅黑"
+                                                                              font.pixelSize: 20
+                                                                              color: "red"
+                                                                            }
                                                                            }
                                                                            `,
                                                                            parent, `myItem${box.id}`)
@@ -882,6 +915,14 @@ Rectangle {
                                                                            anchors.leftMargin: ${leftTopX - x0} * Math.min(image.height / (y1-y0), image.width / (x1-x0))
                                                                            anchors.topMargin: ${leftTopY - y0} * Math.min(image.height / (y1-y0), image.width / (x1-x0)) + (image.height - (y1-y0)*Math.min(image.height / (y1-y0), image.width / (x1-x0))) / 2
                                                                            color: 'transparent'
+                                                                           Text {
+                                                                              text: '${categoryName}'
+                                                                              anchors.left: parent.left
+                                                                              anchors.top: parent.top
+                                                                              font.family: "微软雅黑"
+                                                                              font.pixelSize: 20
+                                                                              color: "red"
+                                                                            }
                                                                            }
                                                                            `,
                                                                            parent, `myItem${box.id}`)
