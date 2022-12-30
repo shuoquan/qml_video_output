@@ -25,7 +25,7 @@ Rectangle {
         imagePath = imagePrefix;
         homeSrc.getAuditorList(0, 100);
         auditorName = params.auditorName;
-        console.log(new Date(params.startTime).getDate(), 'time')
+//        console.log(new Date(params.startTime).getDate(), 'time')
         let date = new Date(params.startTime);
         let curTime = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`
         let time =  Date.fromLocaleString(Qt.locale(), curTime, "dd/MM/yyyy")
@@ -36,7 +36,7 @@ Rectangle {
         time = Date.fromLocaleString(Qt.locale(), curTime, "dd/MM/yyyy")
         endTime = new Date(time).getTime() + 86400000;
         rightTime.text = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
-        console.log(startTime, endTime, 'ddd')
+//        console.log(startTime, endTime, 'ddd')
         getStatisticImageList();
     }
 
@@ -365,120 +365,120 @@ Rectangle {
 
         }
 
-        Rectangle {
-            id: typeSelect
-            height: parent.height / 2
-            width: parent.height * 2
-            anchors.left: auditorSelect.right
-            anchors.leftMargin: parent.height
-            anchors.verticalCenter: parent.verticalCenter
-            border.width: 1
-            border.color: "#bfbfbf"
-            Text {
-                text: typeName
-                font.pixelSize: parent.height / 3
-                //                                            font.bold: true
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.left: parent.left
-                anchors.leftMargin:  0.1 * parent.width
-                font.family: "微软雅黑"
-            }
-            Triangle {
-                id: myTriangleTwo
-                width: parent.height / 4
-                height: parent.height / 4
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.right: parent.right
-                anchors.rightMargin: 0.1 * parent.width
-                states: State {
-                    name: "rotated"
-                    PropertyChanges {
-                        target: myTriangleTwo
-                        rotation: 180
-                    }
-                }
-                transitions: Transition {
-                    RotationAnimation {
-                        duration: 200
-                        direction: RotationAnimation.Clockwise
-                    }
-                }
-            }
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    typePopup.open();
-                }
-            }
-        }
+//        Rectangle {
+//            id: typeSelect
+//            height: parent.height / 2
+//            width: parent.height * 2
+//            anchors.left: auditorSelect.right
+//            anchors.leftMargin: parent.height
+//            anchors.verticalCenter: parent.verticalCenter
+//            border.width: 1
+//            border.color: "#bfbfbf"
+//            Text {
+//                text: typeName
+//                font.pixelSize: parent.height / 3
+//                //                                            font.bold: true
+//                anchors.verticalCenter: parent.verticalCenter
+//                anchors.left: parent.left
+//                anchors.leftMargin:  0.1 * parent.width
+//                font.family: "微软雅黑"
+//            }
+//            Triangle {
+//                id: myTriangleTwo
+//                width: parent.height / 4
+//                height: parent.height / 4
+//                anchors.verticalCenter: parent.verticalCenter
+//                anchors.right: parent.right
+//                anchors.rightMargin: 0.1 * parent.width
+//                states: State {
+//                    name: "rotated"
+//                    PropertyChanges {
+//                        target: myTriangleTwo
+//                        rotation: 180
+//                    }
+//                }
+//                transitions: Transition {
+//                    RotationAnimation {
+//                        duration: 200
+//                        direction: RotationAnimation.Clockwise
+//                    }
+//                }
+//            }
+//            MouseArea {
+//                anchors.fill: parent
+//                onClicked: {
+//                    typePopup.open();
+//                }
+//            }
+//        }
 
-        Con2_1.Popup {
-            id: typePopup
-            width: typeSelect.width
-            height: typeSelect.height * Math.min(4, typeOptions.length)
-            x: auditorSelect.width + parent.height
-            //            x: dateSelect.width + parent.height / 20
-            y: parent.height / 4 * 3 + 2
-            padding: 0
-            background: Rectangle {
-                border.width: 1
-                border.color: "#BFBFBF"
-            }
-            onOpened: {
-                myTriangleTwo.state = "rotated";
-            }
-            onClosed: {
-                myTriangleTwo.state = "";
-            }
-            Con2_1.ScrollView {
-                //                anchors.fill: parent
-                height: parent.height - 2
-                width: parent.width - 2
-                anchors.centerIn: parent
-                clip: true
-                ListModel {
-                    id: typeModel
-                }
-                Component {
-                    id: typeDelegate
-                    Rectangle {
-                        width: typeSelect.width - 2
-                        anchors.left: parent.left
-                        height: typeSelect.height
-                        color: typeName == typeOptions[index].value ? "#d9d9d9" : '#fff'
-                        Text {
-                            text: typeOptions[index].value
-                            anchors.left: parent.left
-                            anchors.leftMargin:  0.1 * parent.width
-                            anchors.verticalCenter: parent.verticalCenter
-                            font.family: "微软雅黑"
-                            font.pixelSize: parent.height / 3
-                        }
+//        Con2_1.Popup {
+//            id: typePopup
+//            width: typeSelect.width
+//            height: typeSelect.height * Math.min(4, typeOptions.length)
+//            x: auditorSelect.width + parent.height
+//            //            x: dateSelect.width + parent.height / 20
+//            y: parent.height / 4 * 3 + 2
+//            padding: 0
+//            background: Rectangle {
+//                border.width: 1
+//                border.color: "#BFBFBF"
+//            }
+//            onOpened: {
+//                myTriangleTwo.state = "rotated";
+//            }
+//            onClosed: {
+//                myTriangleTwo.state = "";
+//            }
+//            Con2_1.ScrollView {
+//                //                anchors.fill: parent
+//                height: parent.height - 2
+//                width: parent.width - 2
+//                anchors.centerIn: parent
+//                clip: true
+//                ListModel {
+//                    id: typeModel
+//                }
+//                Component {
+//                    id: typeDelegate
+//                    Rectangle {
+//                        width: typeSelect.width - 2
+//                        anchors.left: parent.left
+//                        height: typeSelect.height
+//                        color: typeName == typeOptions[index].value ? "#d9d9d9" : '#fff'
+//                        Text {
+//                            text: typeOptions[index].value
+//                            anchors.left: parent.left
+//                            anchors.leftMargin:  0.1 * parent.width
+//                            anchors.verticalCenter: parent.verticalCenter
+//                            font.family: "微软雅黑"
+//                            font.pixelSize: parent.height / 3
+//                        }
 
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                typeName = typeOptions[index].value
-                                typePopup.close()
-                                getStatisticImageList();
-                            }
-                        }
-                    }
-                }
+//                        MouseArea {
+//                            anchors.fill: parent
+//                            onClicked: {
+//                                typeName = typeOptions[index].value
+//                                typePopup.close()
+//                                getStatisticImageList();
+//                            }
+//                        }
+//                    }
+//                }
 
-                ListView {
-                    anchors.fill: parent
-                    model: typeOptions
-                    //                    model: imageModel
-                    delegate: typeDelegate
-                }
-            }
+//                ListView {
+//                    anchors.fill: parent
+//                    model: typeOptions
+//                    //                    model: imageModel
+//                    delegate: typeDelegate
+//                }
+//            }
 
-        }
+//        }
 
         Rectangle {
             id: dateSelect
-            anchors.left: typeSelect.right
+            anchors.left: auditorSelect.right
             anchors.leftMargin: parent.height
             height: parent.height / 2
             width: parent.height * 3
@@ -575,12 +575,126 @@ Rectangle {
         }
     }
     Rectangle {
-        id: content
-        height: parent.height / 7 * 5.5
+        id: tab
+        height: parent.height / 7 * 0.6
         width: parent.width * 0.9
         anchors.left: parent.left
         anchors.leftMargin: 0.05 * parent.width
         anchors.top: header.bottom
+        color: "#f2f2f2"
+        Rectangle {
+            id: tabOne
+            width: (parent.width - 6) / 4
+            height: parent.height
+            anchors.left: parent.left
+            color: typeName == "开包图片" ? "#7f7f7f" : "#f2f2f2"
+            Text {
+                text: '开包图片'
+                anchors.centerIn: parent
+                font.family: "微软雅黑"
+                font.pixelSize: parent.height / 3
+                color: typeName == "开包图片" ? "#fff" : "#000"
+//                font.bold: true
+            }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    typeName = "开包图片";
+                    getStatisticImageList();
+                }
+            }
+        }
+        Rectangle {
+            id: lineOne
+            width: 2
+            height: parent.height
+            anchors.left: tabOne.right
+        }
+
+        Rectangle {
+            id: tabTwo
+            width: (parent.width - 6) / 4
+            height: parent.height
+            anchors.left: lineOne.right
+            color: typeName == "收藏图片" ? "#7f7f7f" : "#f2f2f2"
+            Text {
+                text: '收藏图片'
+                anchors.centerIn: parent
+                font.family: "微软雅黑"
+                font.pixelSize: parent.height / 3
+                color: typeName == "收藏图片" ? "#fff" : "#000"
+            }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    typeName = "收藏图片";
+                    getStatisticImageList();
+                }
+            }
+        }
+        Rectangle {
+            id: lineTwo
+            width: 2
+            height: parent.height
+            anchors.left: tabTwo.right
+        }
+        Rectangle {
+            id: tabThree
+            width: (parent.width - 6) / 4
+            height: parent.height
+            anchors.left: lineTwo.right
+            color: typeName == "漏开图片" ? "#7f7f7f" : "#f2f2f2"
+            Text {
+                text: '漏开图片'
+                anchors.centerIn: parent
+                font.family: "微软雅黑"
+                font.pixelSize: parent.height / 3
+                color: typeName == "漏开图片" ? "#fff" : "#000"
+            }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    typeName = "漏开图片";
+                    getStatisticImageList();
+                }
+            }
+        }
+        Rectangle {
+            id: lineThree
+            width: 2
+            height: parent.height
+            anchors.left: tabThree.right
+        }
+        Rectangle {
+            id: tabFour
+            width: (parent.width - 6) / 4
+            height: parent.height
+            anchors.left: lineThree.right
+            color: typeName == "误开图片" ? "#7f7f7f" : "#f2f2f2"
+            Text {
+                text: '误开图片'
+                anchors.centerIn: parent
+                font.family: "微软雅黑"
+                font.pixelSize: parent.height / 3
+                color: typeName == "误开图片" ? "#fff" : "#000"
+            }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    typeName = "误开图片";
+                    getStatisticImageList();
+                }
+            }
+        }
+    }
+    Rectangle {
+        id: content
+        height: parent.height / 7 * 5.1
+        width: parent.width * 0.9
+        anchors.left: parent.left
+        anchors.leftMargin: 0.05 * parent.width
+        anchors.topMargin: parent.height / 7 * 0.2
+        anchors.top: tab.bottom
         Text {
             anchors.left: parent.left
             text: '暂无图片'
